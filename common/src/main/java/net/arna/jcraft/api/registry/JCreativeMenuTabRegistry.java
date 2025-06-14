@@ -96,6 +96,7 @@ public interface JCreativeMenuTabRegistry {
             bloodBottle.getOrCreateTag().putFloat("Blood", 16f);
             output.acceptBefore(Items.HONEY_BOTTLE, bloodBottle);
             output.acceptBefore(Items.HONEY_BOTTLE, JItemRegistry.PLANKTON_VIAL.get());
+            output.acceptBefore(Items.HONEY_BOTTLE, JItemRegistry.GARLIC.get());
         });
         // spawn eggs
         CreativeTabRegistry.modifyBuiltin(BuiltInRegistries.CREATIVE_MODE_TAB.get(CreativeModeTabs.SPAWN_EGGS.location()), (flags, output, canUseGameMasterBlocks) -> {
@@ -134,6 +135,7 @@ public interface JCreativeMenuTabRegistry {
                     entries.accept(JItemRegistry.KQ_COIN.get());
                     entries.accept(JItemRegistry.FOOLISH_SAND_BLOCK.get());
                     // misc
+                    entries.accept(JItemRegistry.GARLIC.get());
                     entries.accept(JItemRegistry.HOT_SAND_BLOCK.get());
                     entries.accept(JItemRegistry.CINDERELLA_GREEN_BLOCK.get());
                     entries.accept(JItemRegistry.SINNERS_SOUL.get());

@@ -14,6 +14,7 @@ import net.arna.jcraft.common.entity.npc.PetshopEntity;
 import net.arna.jcraft.common.entity.projectile.*;
 import net.arna.jcraft.common.entity.stand.*;
 import net.arna.jcraft.common.entity.vehicle.RoadRollerEntity;
+import net.arna.jcraft.common.item.GarlicItem;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -519,7 +520,17 @@ public interface JEntityTypeRegistry {
                     .build("item_toss_projectile")
     );
 
-    RegistrySupplier<EntityType<SunBeamProjectile>> SUN_BEAM = ENTITY_TYPE_REGISTRY.register(JCraft.id("sunbeam"),
+    RegistrySupplier<EntityType<ThrownGarlic>> THROWN_GARLIC = ENTITY_TYPE_REGISTRY.register(JCraft.id("thrown_garlic"),
+            () -> EntityType.Builder.of(
+                            WorldOnlyEntityFactory.from(ThrownGarlic::new),
+                            MobCategory.MISC
+                    ).sized(0.5f, 0.5f)
+                    .build("thrown_garlic")
+    );
+
+
+
+RegistrySupplier<EntityType<SunBeamProjectile>> SUN_BEAM = ENTITY_TYPE_REGISTRY.register(JCraft.id("sunbeam"),
             () -> EntityType.Builder.of(
                             (EntityType<SunBeamProjectile> entityType, Level world) -> new SunBeamProjectile(world, null, null),
                             MobCategory.MISC

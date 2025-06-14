@@ -8,6 +8,7 @@
   "item.jcraft.requiem_ruby": "Requiem Ruby",
   "item.jcraft.fv_revolver": "Revolver",
   "item.jcraft.kq_coin": "Coin",
+  "item.jcraft.garlic": "Garlic",
   "item.jcraft.diary_page": "Diary Page",
   "item.jcraft.dios_diary": "DIO's Diary",
   "item.jcraft.sinners_soul": "Sinner's Soul",
@@ -556,5 +557,8 @@
   "jcraft.sptw.crsp3hit": "What an Ugly Watch (Slam)",
 
   "argument.entity.options.jcraft_timestopped": "Timestopped entities",
-  "argument.entity.options.jcraft_stand": "Entities with stand"
+  "argument.entity.options.jcraft_stand": "Entities with stand",
+
+  "item.jcraft.garlic.desc1": "Ewwww",
+  "item.jcraft.garlic.desc2": "-the vampire"
 }

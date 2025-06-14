@@ -26,7 +26,6 @@ public final class CountdownMove extends AbstractMove<CountdownMove, MandomEntit
     private static final int COUNTDOWN_COOLDOWN_TICKS = 120; // 6 seconds
 
     private final Map<Entity, CompoundTag> timeMarkerData = new WeakHashMap<>();
-    // Store the USER's head rotation, not the stand's rotation
     private final Map<LivingEntity, Float> userHeadYawData = new WeakHashMap<>();
     private final Map<LivingEntity, Float> userHeadPitchData = new WeakHashMap<>();
     private final List<RewindData> rewindInfo = new ArrayList<>();
@@ -66,13 +65,11 @@ public final class CountdownMove extends AbstractMove<CountdownMove, MandomEntit
         userHeadPitchData.clear();
         rewindInfo.clear();
 
-        // Follow ReturnToZeroMove pattern for saving entity data
         for (Entity e : toCapture) {
             final CompoundTag data = new CompoundTag();
             e.saveWithoutId(data);
             timeMarkerData.put(e, data);
 
-            // Save USER rotation data separately - this is the key fix
             if (e instanceof LivingEntity livingEntity) {
                 userHeadYawData.put(livingEntity, livingEntity.getYHeadRot());
                 userHeadPitchData.put(livingEntity, livingEntity.getXRot());

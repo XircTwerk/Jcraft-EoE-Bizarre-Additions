@@ -3,6 +3,7 @@ package net.arna.jcraft;
 import com.mojang.brigadier.StringReader;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.networking.NetworkManager;
+import dev.architectury.registry.level.entity.trade.TradeRegistry;
 import dev.architectury.registry.registries.DeferredRegister;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -61,12 +62,15 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
@@ -144,6 +148,8 @@ public final class JCraft {
     // Standardized cool-downs
     public static final int DASH_COOLDOWN = 40, LIGHT_COOLDOWN = 20;
 
+
+
     @Getter
     @Setter
     private static IClientEntityHandler clientEntityHandler = DummyClientEntityHandler.INSTANCE;
@@ -198,8 +204,6 @@ public final class JCraft {
         JEntityTypeRegistry.registerAttributes();
 
         JDimensionRegistry.init();
-
-        // Command Arguments are registered separately in JCraftFabric and JCraftForge
 
         JEnchantmentRegistry.init();
         ENCHANTMENT.register();
@@ -291,6 +295,33 @@ public final class JCraft {
             });
         }, p -> true, Component.translatable("argument.entity.options.jcraft_stand"));
     }
+
+    public static void registerGarlicTrades() {
+        TradeRegistry.registerVillagerTrade(
+                VillagerProfession.FARMER,
+                2,  // Level 2 (Apprentice)
+                (trader, random) -> new MerchantOffer(
+                        new ItemStack(Items.EMERALD, 1),
+                        new ItemStack(JItemRegistry.GARLIC.get(), 2),
+                        16,  // Max uses
+                        3,   // Villager XP
+                        0.05F  // Price multiplier
+                )
+        );
+
+        // Wandering trader - common trade
+        TradeRegistry.registerTradeForWanderingTrader(
+                false,  // false = common trade
+                (trader, random) -> new MerchantOffer(
+                        new ItemStack(Items.EMERALD, 1),
+                        new ItemStack(JItemRegistry.GARLIC.get(), 2),
+                        8,  // Max uses
+                        1,  // XP
+                        0.05F  // Price multiplier
+                )
+        );
+    }
+
 
     public static void markItemOfInterest(@NonNull Entity entity, @NonNull EntityInterest interest) {
         entitiesOfInterest.put(entity, interest);

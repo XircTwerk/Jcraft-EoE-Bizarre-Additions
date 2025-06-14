@@ -32,6 +32,8 @@ public interface JItemRegistry {
 
     RegistrySupplier<Item> KQ_COIN = register("kq_coin", () -> new KQCoinItem(settings()));
 
+    RegistrySupplier<Item> GARLIC = register("garlic", () -> new GarlicItem(settings().stacksTo(16)));
+
     RegistrySupplier<GreenBabyItem> GREEN_BABY = register("green_baby", () -> new GreenBabyItem(settings().rarity(Rarity.RARE)));
 
     RegistrySupplier<DiaryPageItem> DIARY_PAGE = register("diary_page", () -> new DiaryPageItem(settings().rarity(Rarity.UNCOMMON)));

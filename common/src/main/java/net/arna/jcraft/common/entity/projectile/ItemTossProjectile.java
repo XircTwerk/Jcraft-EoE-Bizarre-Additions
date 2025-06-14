@@ -9,6 +9,7 @@ import net.arna.jcraft.platform.JComponentPlatformUtils;
 import net.arna.jcraft.api.registry.JEntityTypeRegistry;
 import net.arna.jcraft.api.registry.JItemRegistry;
 import net.arna.jcraft.api.registry.JTagRegistry;
+import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
@@ -323,8 +324,7 @@ public class ItemTossProjectile extends AbstractArrow {
         if (item.getItem() instanceof BlockItem block) {
             if (item.is(JTagRegistry.BRITTLE) && hardness >= Blocks.STONE.defaultDestroyTime()) {
                 // brittle things get destroyed
-            }
-            else if (InteractionResult.SUCCESS != block.place(new BlockPlaceContext(new UseOnContext(level(), null, InteractionHand.MAIN_HAND, item, result)))) {
+            } else if (InteractionResult.SUCCESS != block.place(new BlockPlaceContext(new UseOnContext(level(), null, InteractionHand.MAIN_HAND, item, result)))) {
                 dropItem(result.getLocation());
             }
         }
@@ -334,9 +334,8 @@ public class ItemTossProjectile extends AbstractArrow {
             Optional<BlockState> stripped = axe.getStripped(blockState);
             if (stripped.isPresent()) {
                 level().setBlockAndUpdate(result.getBlockPos(), stripped.get());
-                item.hurtAndBreak(1, (LivingEntity)getOwner(), owner -> {/* do nothing */});
+                item.hurtAndBreak(1, (LivingEntity) getOwner(), owner -> {/* do nothing */});
             }
-            dropItem(result.getLocation());
         }
         // hoe get used
         else if (item.getItem() instanceof HoeItem) {
@@ -344,15 +343,15 @@ public class ItemTossProjectile extends AbstractArrow {
             final Pair<Predicate<UseOnContext>, Consumer<UseOnContext>> pair = HoeItem.TILLABLES.get(level().getBlockState(result.getBlockPos()).getBlock());
             if (pair != null) {
                 Predicate<UseOnContext> predicate = pair.getFirst();
-                Consumer<UseOnContext> consumer =    pair.getSecond();
+                Consumer<UseOnContext> consumer = pair.getSecond();
                 if (predicate.test(context)) { // check if tilling is possible
                     if (!level().isClientSide) {
                         consumer.accept(context); // actual tilling happening
-                        context.getItemInHand().hurtAndBreak(1, (LivingEntity) getOwner(), owner -> {});
+                        context.getItemInHand().hurtAndBreak(1, (LivingEntity) getOwner(), owner -> {
+                        });
                     }
                 }
             }
-            dropItem(result.getLocation());
         }
         // buckets empty their content if any
         else if (item.getItem() instanceof BucketItem bucket && bucket.content != Fluids.EMPTY) {
@@ -369,12 +368,10 @@ public class ItemTossProjectile extends AbstractArrow {
                 BlockEntity blockEntity = level().getBlockEntity(result.getBlockPos());
                 if (blockEntity instanceof JukeboxBlockEntity boxEntity) {
                     boxEntity.setFirstItem(item.copy());
-                }
-                else { // shouldn't happen, but who knows?
+                } else { // shouldn't happen, but who knows?
                     dropItem(result.getLocation());
                 }
-            }
-            else {
+            } else {
                 dropItem(result.getLocation());
             }
         }
@@ -387,8 +384,7 @@ public class ItemTossProjectile extends AbstractArrow {
             thrown.setItem(item);
             if (potion instanceof LingeringPotionItem) {
                 thrown.makeAreaOfEffectCloud(item, effect);
-            }
-            else {
+            } else {
                 thrown.applySplash(PotionUtils.getMobEffects(item), null);
             }
             int i = effect.hasInstantEffects() ? 2007 : 2002;
@@ -399,22 +395,30 @@ public class ItemTossProjectile extends AbstractArrow {
             if (!level().isClientSide()) {
                 level().levelEvent(2002, pos, PotionUtils.getColor(Potions.WATER));
                 int amount = 3 + level().random.nextInt(5) + level().random.nextInt(5);
-                ExperienceOrb.award((ServerLevel)level(), result.getLocation(), amount);
+                ExperienceOrb.award((ServerLevel) level(), result.getLocation(), amount);
             }
         }
         // spawn eggs get activated
         else if (item.getItem() instanceof SpawnEggItem egg) {
             final EntityType<?> entityType2 = egg.getType(item.getTag());
             if (!level().isClientSide()) {
-                entityType2.spawn((ServerLevel)level(), item, null, pos, MobSpawnType.SPAWN_EGG, true, false);
+                entityType2.spawn((ServerLevel) level(), item, null, pos, MobSpawnType.SPAWN_EGG, true, false);
             }
         }
         // rest just get dropped
-        else {
+        else if (!getItem().is(ItemTags.TOOLS)) {
             dropItem(result.getLocation());
         }
+
         inGround = true;
-        discard();
+        if (!getItem().is(ItemTags.TOOLS)) {
+            discard();
+        } else {
+            var vec3 = result.getLocation().subtract(this.getX(), this.getY(), this.getZ());
+            this.setDeltaMovement(vec3);
+            Vec3 vec31 = vec3.normalize().scale((double) 0.05F);
+            this.setPosRaw(this.getX() - vec31.x, this.getY() - vec31.y, this.getZ() - vec31.z);
+        }
     }
 
     /**

@@ -15,7 +15,6 @@ public class ItemTossProjectileRenderer extends EntityRenderer<ItemTossProjectil
     protected final ItemRenderer itemRenderer;
     private float scale;
 
-
     public ItemTossProjectileRenderer(EntityRendererProvider.Context context) {
         super(context);
         itemRenderer = context.getItemRenderer();
@@ -29,15 +28,14 @@ public class ItemTossProjectileRenderer extends EntityRenderer<ItemTossProjectil
         if (entity.tickCount >= 2 || !(this.entityRenderDispatcher.camera.getEntity().distanceToSqr(entity) < 12.25D)) {
             poseStack.pushPose();
 
-            // Scale down slightly
+            // Scale thingy
             poseStack.scale(this.scale, this.scale, this.scale);
 
-            if (entity.onGround()){    // Counter-rotate on Z axis to keep it upright
-            poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
-
-            // Add spinning animation
-            float spin = (entity.tickCount + partialTicks) * 20.0F;
-            poseStack.mulPose(Axis.ZP.rotationDegrees(spin)); }
+            // Simple forward spin while in air
+            if (!entity.isInGround()) {
+                float spin = (entity.tickCount + partialTicks) * 60.0F;
+                poseStack.mulPose(Axis.ZP.rotationDegrees(spin));
+            }
 
             // Render the item as a 2D sprite
             this.itemRenderer.renderStatic(entity.getItem(), ItemDisplayContext.GROUND,
@@ -50,6 +48,6 @@ public class ItemTossProjectileRenderer extends EntityRenderer<ItemTossProjectil
 
     @Override
     public ResourceLocation getTextureLocation(ItemTossProjectile entity) {
-        return null; // TODO would be better to return the actual texture location here, in case something really calls this method
+        return null; // We're rendering items, not using a texture directly
     }
 }

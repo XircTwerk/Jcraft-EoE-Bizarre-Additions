@@ -765,7 +765,7 @@ public final class JUtils {
             return;
         }
         AbstractArrow projectile = new ItemTossProjectile(shooter, level, itemStack);
-        projectile.shootFromRotation(shooter, shooter.getXRot(), shooter.getYRot(), 0f, velocity, 1f);
+        projectile.shootFromRotation(shooter, shooter.getXRot(), shooter.getYRot(), 0f, velocity, 1);
         level.addFreshEntity(projectile);
         // TODO play sound
         if (decrement) {
@@ -774,6 +774,6 @@ public final class JUtils {
     }
 
     public static void tossItem(final Player player) {
-        tossItem(player, player.level(), player.getItemInHand(InteractionHand.MAIN_HAND), 1f, !player.getAbilities().instabuild);
+        tossItem(player, player.level(), player.getItemInHand(InteractionHand.MAIN_HAND), 2f, !player.getAbilities().instabuild);
     }
 }

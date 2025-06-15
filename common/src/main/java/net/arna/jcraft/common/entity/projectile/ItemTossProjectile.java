@@ -12,6 +12,7 @@ import net.arna.jcraft.api.registry.JTagRegistry;
 import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -67,6 +68,8 @@ public class ItemTossProjectile extends AbstractArrow {
         ITEM = SynchedEntityData.defineId(ItemTossProjectile.class, EntityDataSerializers.ITEM_STACK);
         RICOCHETS = SynchedEntityData.defineId(ItemTossProjectile.class, EntityDataSerializers.INT);
     }
+
+    public boolean inGround;
 
     public ItemTossProjectile(final Level level) {
         super(JEntityTypeRegistry.ITEM_TOSS_PROJECTILE.get(), level);
@@ -277,6 +280,45 @@ public class ItemTossProjectile extends AbstractArrow {
         }
     }
 
+    // Add this public method to your ItemTossProjectile class:
+
+    public boolean isInGround() {
+        return this.inGround;
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        // Particles must be spawned client-side to be visible
+        if (this.level().isClientSide && !this.isInGround() && this.tickCount % 2 == 0) {
+            spawnCritParticles();
+        }
+    }
+
+    private void spawnCritParticles() {
+        // Creates a burst of crit particles
+        Vec3 motion = this.getDeltaMovement();
+        double x = this.getX();
+        double y = this.getY();
+        double z = this.getZ();
+
+        // Create a small burst of particles
+        for (int i = 0; i < 5; i++) {
+            double offsetX = (this.random.nextDouble() - 0.5) * 0.1;
+            double offsetY = (this.random.nextDouble() - 0.5) * 0.1;
+            double offsetZ = (this.random.nextDouble() - 0.5) * 0.1;
+
+            this.level().addParticle(ParticleTypes.CRIT,
+                    x + offsetX,
+                    y + offsetY,
+                    z + offsetZ,
+                    -motion.x * 0.1 + offsetX,
+                    -motion.y * 0.1 + offsetY,
+                    -motion.z * 0.1 + offsetZ
+            );
+        }
+    }
     @Override
     protected void onHitBlock(final BlockHitResult result) {
         final BlockState blockstate = level().getBlockState(result.getBlockPos());

@@ -118,6 +118,7 @@ public interface JEntityRendererRegister {
             new RendererData<>(JEntityTypeRegistry.THE_HAND, TheHandRenderer::new),
 
             new RendererData<>(JEntityTypeRegistry.MANDOM, MandomRenderer::new),
+            new RendererData<>(JEntityTypeRegistry.TCB, TCBRenderer::new),
 
             new RendererData<>(JEntityTypeRegistry.STAND_METEOR, StandMeteorRenderer::new),
 

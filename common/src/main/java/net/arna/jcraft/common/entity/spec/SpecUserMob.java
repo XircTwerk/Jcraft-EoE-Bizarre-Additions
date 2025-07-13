@@ -286,8 +286,7 @@ public class SpecUserMob extends Mob implements JSpecHolder {
         // If stunned, and about to get hit by another move, try to combo break occasionally
         if (mobStun != null) {
             if (enemyAttack != null && enemyMoveStun > enemyAttack.getWindup() && mob.getRandom().nextFloat() < 0.1f) {
-                // Specs can't combo break like stands, but could potentially use a counter move
-                // This would need to be implemented based on your spec system
+                // Implement combo break stuff here
             }
         }
 
@@ -295,7 +294,7 @@ public class SpecUserMob extends Mob implements JSpecHolder {
         PathNavigation entityNavigation = mob.getNavigation();
 
         final MobEffectInstance stun = target.getEffect(JStatusRegistry.DAZED.get());
-        // Overestimating stun up to 1/4 of a second for longer combos and frametraps
+        //stun util
         int stunTicks = stun != null ? stun.getDuration() + mob.getRandom().nextInt(5) : 0;
         stunTicks += blockPlusTicks;
         if (JComponentPlatformUtils.getTimeStopData(target).isPresent()) {
@@ -322,7 +321,7 @@ public class SpecUserMob extends Mob implements JSpecHolder {
         }
 
         // Simple attack logic - try random moves based on cooldown availability
-        MoveClass[] possibleMoves = {MoveClass.HEAVY, MoveClass.BARRAGE, MoveClass.SPECIAL1, MoveClass.SPECIAL2};
+        MoveClass[] possibleMoves = {MoveClass.HEAVY, MoveClass.BARRAGE, MoveClass.SPECIAL1, MoveClass.SPECIAL2}; //limiting it to special2 becuz brawler doesnt have a sp3 and it should be included
 
         for (MoveClass moveClass : possibleMoves) {
             if (mob.getRandom().nextFloat() < 0.3f) { // 30% chance to try each move

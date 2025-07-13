@@ -23,6 +23,8 @@ import java.util.EnumSet;
 
 /**
  * A mob that uses the Vampire spec
+ *
+ * example class
  */
 public class VampireSpecUser extends SpecUserMob implements GeoEntity {
 

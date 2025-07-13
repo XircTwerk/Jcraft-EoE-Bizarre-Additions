@@ -15,6 +15,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -148,6 +149,11 @@ public class JClientUtils {
     }
 
     public static boolean shouldNotRender(Entity entity) {
+        // Don't block rendering for leashed mobs
+        if (entity instanceof Mob mob && mob.isLeashed()) {
+            return false;
+        }
+
         final Entity passenger = entity.getFirstPassenger();
         return passenger instanceof final KingCrimsonEntity kc && kc.getTETime() > 0 ||
                 passenger instanceof final D4CEntity d4c && d4c.getState() == D4CEntity.State.FLAG ||

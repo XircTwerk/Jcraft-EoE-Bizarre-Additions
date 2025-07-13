@@ -12,6 +12,7 @@ import net.arna.jcraft.common.entity.npc.DarbyOlderEntity;
 import net.arna.jcraft.common.entity.npc.DarbyYoungerEntity;
 import net.arna.jcraft.common.entity.npc.PetshopEntity;
 import net.arna.jcraft.common.entity.projectile.*;
+import net.arna.jcraft.common.entity.spec.VampireSpecUser;
 import net.arna.jcraft.common.entity.stand.*;
 import net.arna.jcraft.common.entity.vehicle.RoadRollerEntity;
 import net.minecraft.core.registries.Registries;
@@ -551,6 +552,14 @@ public interface JEntityTypeRegistry {
                     .build("aya_tsuji")
     );
 
+    RegistrySupplier<EntityType<VampireSpecUser>> VAMPIRE_SPEC_USER = ENTITY_TYPE_REGISTRY.register(JCraft.id("vampire_spec_user"),
+            () -> EntityType.Builder.of(
+                            VampireSpecUser::new,
+                            MobCategory.CREATURE
+                    ).sized(0.6f, 2f)
+                    .build("vampire_spec_user")
+    );
+
     RegistrySupplier<EntityType<CinderellaEntity>> CINDERELLA = ENTITY_TYPE_REGISTRY.register(JCraft.id("cinderella"),
             () -> EntityType.Builder.of(
                     WorldOnlyEntityFactory.from(CinderellaEntity::new),
@@ -714,6 +723,7 @@ public interface JEntityTypeRegistry {
         EntityAttributeRegistry.register(AYA_TSUJI, AyaTsujiEntity::createAyaTsujiAttributes);
         EntityAttributeRegistry.register(DARBY_OLDER, DarbyOlderEntity::createDarbyOlderAttributes);
         EntityAttributeRegistry.register(DARBY_YOUNGER, DarbyYoungerEntity::createDarbyYoungerAttributes);
+        EntityAttributeRegistry.register(VAMPIRE_SPEC_USER, VampireSpecUser::createMobAttributes);
 
         EntityAttributeRegistry.register(METALLICA, MetallicaEntity::createMobAttributes);
         EntityAttributeRegistry.register(THE_HAND, TheHandEntity::createMobAttributes);

@@ -240,6 +240,7 @@ public final class StarPlatinumEntity extends AbstractStarPlatinumEntity<StarPla
         moves.register(MoveClass.SPECIAL2, KNEE, State.KNEE).withAerialVariant(State.KNEE_UP);
         moves.register(MoveClass.SPECIAL3, CHARGE_BARRAGE, State.BARRAGE).withCrouchingVariant(State.BARRAGE);
         moves.register(MoveClass.ULTIMATE, INHALE, State.INHALE);
+        moves.register(MoveClass.STANDBY_ON, STANDBY_ON, State.STANDBY_IDLE);
 
         moves.register(MoveClass.UTILITY, JUMP, State.JUMP);//.withCrouchingVariant(State.IDLE);
 
@@ -291,8 +292,9 @@ public final class StarPlatinumEntity extends AbstractStarPlatinumEntity<StarPla
         GRAB_HIT(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.starplatinum.grabhit"))),
         UPPERCUT(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.starplatinum.uppercut"))),
         LIGHT_FOLLOWUP(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.starplatinum.light_followup"))),
-        ITEM_TOSS_CHARGE(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.starplatinum.itemthrow_charge"))),
-        ITEM_TOSS(builder -> builder.setAnimation(RawAnimation.begin().thenPlay("animation.starplatinum.itemthrow")));
+        STANDBY_IDLE(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("standby_idle"))),
+        ITEM_TOSS_CHARGE(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("itemthrow_charge"))),
+        ITEM_TOSS(builder -> builder.setAnimation(RawAnimation.begin().thenPlay("itemthrow")));
 
         private final BiConsumer<StarPlatinumEntity, AnimationState<StarPlatinumEntity>> animator;
 

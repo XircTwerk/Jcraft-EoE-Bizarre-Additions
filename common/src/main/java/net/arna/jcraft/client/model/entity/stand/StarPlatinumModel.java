@@ -1,25 +1,40 @@
 package net.arna.jcraft.client.model.entity.stand;
 
-import net.arna.jcraft.JCraft;
 import net.arna.jcraft.common.entity.stand.AbstractStarPlatinumEntity;
 import net.arna.jcraft.api.registry.JStandTypeRegistry;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * The {@link StandEntityModel} for {@link net.arna.jcraft.common.entity.stand.StarPlatinumEntity StarPlatinumEntity}
- * and {@link net.arna.jcraft.common.entity.stand.SPTWEntity SPTWEntity}.
- * @see net.arna.jcraft.client.renderer.entity.stands.StarPlatinumRenderer StarPlatinumRenderer
- * @see net.arna.jcraft.client.renderer.entity.stands.SPTWRenderer SPTWRenderer
+ * The {@link StandEntityModel} for {@link AbstractStarPlatinumEntity}.
+ * This uses base model animations for standby mode.
  */
 public class StarPlatinumModel extends StandEntityModel<AbstractStarPlatinumEntity<?, ?>> {
-    private static final ResourceLocation MODEL = JCraft.id("geo/star_platinum.geo.json");
 
-    public StarPlatinumModel(final boolean theWorld) {
-        super(theWorld ? JStandTypeRegistry.STAR_PLATINUM_THE_WORLD.get() : JStandTypeRegistry.STAR_PLATINUM.get());
+    public StarPlatinumModel(boolean someCondition) {
+        super(JStandTypeRegistry.STAR_PLATINUM.get(), 0f, 0f);
     }
 
     @Override
-    public ResourceLocation getModelResource(final AbstractStarPlatinumEntity<?, ?> object) {
-        return MODEL;
+    public ResourceLocation getAnimationResource(final AbstractStarPlatinumEntity<?, ?> entity) {
+        // Check if the entity is in standby mode and should use base model animations
+        if (shouldUseBaseModelAnimations(entity)) {
+            return createAnimationResource("base_model");
+        } else {
+            return createAnimationResource("star_platinum");
+        }
+    }
+
+    /**
+     * Determines if the current entity state should use base model animations
+     */
+    private boolean shouldUseBaseModelAnimations(AbstractStarPlatinumEntity<?, ?> entity) {
+        if (entity.getState() == null) return false;
+
+        String stateName = entity.getState().toString();
+
+        // Use base model animations for these specific states
+        return stateName.equals("STANDBY_IDLE") ||
+                stateName.equals("ITEM_TOSS_CHARGE") ||
+                stateName.equals("ITEM_TOSS");
     }
 }

@@ -107,6 +107,7 @@ public interface JEntityRendererRegister {
             new RendererData<>(JEntityTypeRegistry.PH_CAPSULE, PHCapsuleRenderer::new),
             new RendererData<>(JEntityTypeRegistry.PURPLE_HAZE_CLOUD, JEntityRendererRegister::createEmpty),
             new RendererData<>(JEntityTypeRegistry.STAND_ARROW_PROJECTILE, StandArrowRenderer::new),
+            new RendererData<>(JEntityTypeRegistry.FIRE_SPARK_PROJECTILE, FireSparkRenderer::new),
 
             new RendererData<>(JEntityTypeRegistry.ROAD_ROLLER, RoadRollerRenderer::new),
 
@@ -119,6 +120,7 @@ public interface JEntityRendererRegister {
             new RendererData<>(JEntityTypeRegistry.THE_HAND, TheHandRenderer::new),
 
             new RendererData<>(JEntityTypeRegistry.MANDOM, MandomRenderer::new),
+            new RendererData<>(JEntityTypeRegistry.SPEED_KING, SpeedKingRenderer::new),
 
             new RendererData<>(JEntityTypeRegistry.STAND_METEOR, StandMeteorRenderer::new),
             new RendererData<>(JEntityTypeRegistry.TRAINING_DUMMY, TrainingDummyRenderer::new),

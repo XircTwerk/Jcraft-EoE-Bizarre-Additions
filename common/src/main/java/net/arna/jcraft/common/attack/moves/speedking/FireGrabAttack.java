@@ -1,0 +1,49 @@
+package net.arna.jcraft.common.attack.moves.speedking;
+
+import com.mojang.datafixers.kinds.App;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import lombok.NonNull;
+import net.arna.jcraft.api.attack.MoveType;
+import net.arna.jcraft.api.attack.StateContainer;
+import net.arna.jcraft.api.attack.moves.AbstractGrabAttack;
+import net.arna.jcraft.common.entity.stand.SpeedKingEntity;
+
+public final class FireGrabAttack extends AbstractGrabAttack<FireGrabAttack, SpeedKingEntity, SpeedKingEntity.State> {
+
+    public FireGrabAttack(final int cooldown, final int windup, final int duration, final float moveDistance,
+                          final float damage, final int stun, final float hitboxSize, final float knockback,
+                          final float offset, final FireGrabHitAttack hitMove, final StateContainer<SpeedKingEntity.State> hitState,
+                          final int grabDuration, final double grabOffset) {
+        super(cooldown, windup, duration, moveDistance, damage, stun, hitboxSize, knockback, offset,
+                hitMove, hitState, grabDuration, grabOffset);
+    }
+
+    @Override
+    public @NonNull MoveType<FireGrabAttack> getMoveType() {
+        return Type.INSTANCE;
+    }
+
+    @Override
+    protected @NonNull FireGrabAttack getThis() {
+        return this;
+    }
+
+    @Override
+    public @NonNull FireGrabAttack copy() {
+        return copyExtras(new FireGrabAttack(getCooldown(), getWindup(), getDuration(), getMoveDistance(),
+                getDamage(), getStun(), getHitboxSize(), getKnockback(), getOffset(),
+                (FireGrabHitAttack) getHitMove(), getHitState(), getGrabDuration(), getGrabOffset()));
+    }
+
+    public static class Type extends AbstractGrabAttack.Type<FireGrabAttack> {
+        public static final Type INSTANCE = new Type();
+
+        @Override
+        protected @NonNull App<RecordCodecBuilder.Mu<FireGrabAttack>, FireGrabAttack> buildCodec(RecordCodecBuilder.Instance<FireGrabAttack> instance) {
+            return this.<SpeedKingEntity, SpeedKingEntity.State>grabFullDefault(instance).apply(instance,
+                    applyAttackExtras((cooldown, windup, duration, moveDistance, damage, stun, hitboxSize, knockback, offset, hitMove, hitState, grabDuration, grabOffset) ->
+                            new FireGrabAttack(cooldown, windup, duration, moveDistance, damage, stun, hitboxSize, knockback, offset,
+                                    (FireGrabHitAttack) hitMove, hitState, grabDuration, grabOffset)));
+        }
+    }
+}

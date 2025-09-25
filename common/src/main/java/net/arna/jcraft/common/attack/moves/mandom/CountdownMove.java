@@ -51,7 +51,7 @@ public final class CountdownMove extends AbstractMove<CountdownMove, MandomEntit
             Identifiers.VEHICLE
     );
     static final BlockMarkerType BLOCK_MARKER_TYPE = new BlockMarkerType(
-            (pos, state) -> false,
+            (pos, state) -> true,
             (marker, level) -> true
     );
     @Getter

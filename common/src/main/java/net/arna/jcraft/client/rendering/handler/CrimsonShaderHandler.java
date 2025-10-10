@@ -12,8 +12,11 @@ import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,22 +26,39 @@ public class CrimsonShaderHandler extends StandShaderHandler {
     public long effectLength = 0;
     public List<BlockInfo> list = new ArrayList<>();
 
+    // Store the camera state when effect starts
+    private Vec3 initialCameraPosition = Vec3.ZERO;
+    private BlockPos initialCameraBlockPos = BlockPos.ZERO;
+    private Quaternionf initialCameraRotation = new Quaternionf();
+
     @Override
     public void onWorldRendered(final @NonNull PoseStack matrices, final @NonNull Camera camera, final float tickDelta, final long nanoTime) {
         if (renderingEffect) {
             final Level world = camera.getEntity().level();
             if (list.isEmpty()) {
-                list = JUtils.collectBlockInfo(world, camera.getBlockPosition(), 8);
+                // Collect blocks relative to initial camera position
+                list = JUtils.collectBlockInfo(world, initialCameraBlockPos, 8);
             }
             final BlockRenderDispatcher manager = Minecraft.getInstance().getBlockRenderer();
-
-
             final MultiBufferSource.BufferSource consumer = Minecraft.getInstance().renderBuffers().bufferSource();
+
+            // Save current matrix state
+            matrices.pushPose();
+
+            // Apply initial camera rotation to lock the orientation
+            matrices.mulPose(initialCameraRotation);
+
+            // Get current camera position for relative rendering
+            Vec3 currentCameraPos = camera.getPosition();
+
             for (final BlockInfo info : list) {
                 matrices.pushPose();
-                matrices.translate(info.pos().getX() - camera.getPosition().x,
-                        info.pos().getY() - camera.getPosition().y,
-                        info.pos().getZ() - camera.getPosition().z);
+
+                // This keeps blocks in the same position relative to initial view
+                Vec3 blockWorldPos = new Vec3(info.pos().getX(), info.pos().getY(), info.pos().getZ());
+                Vec3 relativePos = blockWorldPos.subtract(initialCameraPosition);
+
+                matrices.translate(relativePos.x, relativePos.y, relativePos.z);
 
                 manager.getModelRenderer().tesselateBlock(
                         world, manager.getBlockModel(info.state()),
@@ -50,6 +70,8 @@ public class CrimsonShaderHandler extends StandShaderHandler {
 
                 matrices.popPose();
             }
+
+            matrices.popPose();
         }
     }
 
@@ -61,6 +83,13 @@ public class CrimsonShaderHandler extends StandShaderHandler {
             if (!renderingEffect) {
                 ticks = 0;
                 renderingEffect = true;
+
+                // Capture camera state at effect start
+                Camera camera = client.gameRenderer.getMainCamera();
+                initialCameraPosition = camera.getPosition();
+                initialCameraBlockPos = camera.getBlockPosition();
+                initialCameraRotation = camera.rotation();
+
                 skyboxManager.setEnabled(true);
                 skyboxManager.setCurrentSkyBox(new CrimsonSkyBoxCool());
             }
@@ -72,12 +101,18 @@ public class CrimsonShaderHandler extends StandShaderHandler {
                 skyboxManager.setCurrentSkyBox(null);
                 skyboxManager.setEnabled(false);
                 list.clear();
+                initialCameraPosition = Vec3.ZERO;
+                initialCameraBlockPos = BlockPos.ZERO;
+                initialCameraRotation = new Quaternionf();
             }
         } else {
             renderingEffect = false;
             skyboxManager.setCurrentSkyBox(null);
             skyboxManager.setEnabled(false);
             list.clear();
+            initialCameraPosition = Vec3.ZERO;
+            initialCameraBlockPos = BlockPos.ZERO;
+            initialCameraRotation = new Quaternionf();
         }
     }
 

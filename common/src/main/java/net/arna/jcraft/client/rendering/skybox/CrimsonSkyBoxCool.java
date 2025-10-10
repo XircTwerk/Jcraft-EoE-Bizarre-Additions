@@ -24,6 +24,9 @@ public class CrimsonSkyBoxCool implements JSkyBox {
     protected Textures.Texture texture = new Textures.Texture(JCraft.id("textures/environment/time_erase/space.png"));
     public Textures textures;
 
+    // Freeze rotation at creation time
+    private final float frozenTimeRotation;
+
     public CrimsonSkyBoxCool() {
         this.textures = new Textures(
                 texture.withUV(1.0F / 3.0F, 1.0F / 2.0F, 2.0F / 3.0F, 1),
@@ -33,6 +36,11 @@ public class CrimsonSkyBoxCool implements JSkyBox {
                 texture.withUV(1.0F / 3.0F, 0, 2.0F / 3.0F, 1.0F / 2.0F),
                 texture.withUV(0, 0, 1.0F / 3.0F, 1.0F / 2.0F)
         );
+
+        // Calculate and freeze the rotation when skybox is created
+        final ClientLevel world = Objects.requireNonNull(Minecraft.getInstance().level);
+        this.frozenTimeRotation = (float) (360.0D * Mth.positiveModulo(
+                world.dayTime() / (24000.D / this.rotation.rotationSpeed()) + 0.75D, 1));
     }
 
     @Override
@@ -53,13 +61,13 @@ public class CrimsonSkyBoxCool implements JSkyBox {
         RenderSystem.enableBlend();
         RenderSystem.depthMask(false);
 
-        final ClientLevel world = Objects.requireNonNull(Minecraft.getInstance().level);
-
         Vector3f rotationStatic = this.rotation.staticRot();
 
         matrices.pushPose();
-        final double timeRotation = isShouldRotate() ? 360.0D * Mth.positiveModulo(world.dayTime() / (24000.D / this.rotation.rotationSpeed()) + 0.75D, 1) : 0D;
-        this.applyTimeRotation(matrices, (float) timeRotation);
+
+        // Use frozen rotation instead of calculating from world time
+        this.applyTimeRotation(matrices, frozenTimeRotation);
+
         matrices.mulPose(Axis.XP.rotationDegrees(rotationStatic.x()));
         matrices.mulPose(Axis.YP.rotationDegrees(rotationStatic.y()));
         matrices.mulPose(Axis.ZP.rotationDegrees(rotationStatic.z()));

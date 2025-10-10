@@ -107,6 +107,7 @@ public class JCraftClient {
         ZaWarudoShaderHandler.INSTANCE.init();
         CrimsonShaderHandler.INSTANCE.init();
         EpitaphVignetteShaderHandler.INSTANCE.init();
+        MandomRewindShaderHandler.INSTANCE.init();
 
         // Renderer registration
         // JArmorRendererRegistry.registerArmorRenderers();

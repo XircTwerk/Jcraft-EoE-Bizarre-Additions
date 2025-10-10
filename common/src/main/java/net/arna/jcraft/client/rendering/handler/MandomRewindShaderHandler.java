@@ -1,0 +1,55 @@
+package net.arna.jcraft.client.rendering.handler;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import lombok.NonNull;
+import net.arna.jcraft.JCraft;
+import net.arna.jcraft.client.rendering.api.PostEffect;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+
+public class MandomRewindShaderHandler extends StandShaderHandler {
+    public static final MandomRewindShaderHandler INSTANCE = new MandomRewindShaderHandler();
+    private static final PostEffect EFFECT = new PostEffect(JCraft.id("shaders/post/mandom_rewind.json"));
+
+    public int duration = 10;
+
+    private MandomRewindShaderHandler() {
+        if (INSTANCE != null) throw new IllegalStateException("An instance already exists.");
+    }
+
+    @Override
+    public void onWorldRendered(final @NonNull PoseStack matrices, final @NonNull Camera camera, final float tickDelta, final long nanoTime) {
+        if (renderingEffect) {
+            float progress = (float) ticks / (float) duration;
+            float intensity = 1.0f - progress;
+            EFFECT.getUniform("Intensity").set(intensity);
+        }
+    }
+
+    @Override
+    public void renderEffect(final float tickDelta) {
+        if (renderingEffect) {
+            EFFECT.render(tickDelta);
+        }
+    }
+
+    @Override
+    public void tick(Minecraft client) {
+        if (!shouldRender) {
+            renderingEffect = false;
+            return;
+        }
+
+        if (!renderingEffect) {
+            ticks = 0;
+            renderingEffect = true;
+        }
+
+        ticks++;
+
+        if (ticks >= duration) {
+            renderingEffect = false;
+            shouldRender = false;
+        }
+    }
+}

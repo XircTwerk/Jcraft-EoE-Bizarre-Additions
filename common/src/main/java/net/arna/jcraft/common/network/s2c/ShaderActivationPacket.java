@@ -34,7 +34,8 @@ public class ShaderActivationPacket {
     public enum Type implements StringRepresentable {
         NONE("none"),
         ZA_WARUDO("za_warudo"),
-        CRIMSON("crimson");
+        CRIMSON("crimson"),
+        MANDOM_REWIND("mandom_rewind");
 
         private final String name;
 

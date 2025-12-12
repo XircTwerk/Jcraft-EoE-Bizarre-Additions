@@ -6,13 +6,15 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.Item;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public class CosplayItem<T extends ArmorItem> {
+public class CosplayItem<T extends ArmorItem> implements Iterable<RegistrySupplier<T>> {
 
     public static final Map<ArmorMaterial, String> SUFFIXES = new LinkedHashMap<>();
     public static final Map<ArmorMaterial, String> VAMPIRE_SUFFIXES = new LinkedHashMap<>();
@@ -37,7 +39,7 @@ public class CosplayItem<T extends ArmorItem> {
     protected final boolean vampireProtection;
     protected final CosplayItemConstructor<T> ctor;
 
-    protected final Map<ArmorMaterial, RegistrySupplier<T>> items = new HashMap<>();
+    protected final Map<ArmorMaterial, RegistrySupplier<T>> items = new LinkedHashMap<>();
 
     public CosplayItem(final @NonNull String modId, final @NonNull String name, final @NonNull ArmorItem.Type slot, final boolean vampireProtection, final @NonNull CosplayItemConstructor<T> ctor) {
         this.modId = modId;
@@ -67,6 +69,15 @@ public class CosplayItem<T extends ArmorItem> {
             items.put(entry.getKey(), registrator.register(name + entry.getValue(), () -> ctor.create(entry.getKey(), slot, properties)));
         }
         return this;
+    }
+
+    public @Nullable RegistrySupplier<T> get(final @NonNull ArmorMaterial material) {
+        return items.get(material);
+    }
+
+    @Override
+    public @NotNull Iterator<RegistrySupplier<T>> iterator() {
+        return items.values().iterator();
     }
 
     @FunctionalInterface

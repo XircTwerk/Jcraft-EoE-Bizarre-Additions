@@ -1,11 +1,15 @@
 package net.arna.jcraft.datagen.providers.assets;
 
+import dev.architectury.registry.registries.RegistrySupplier;
+import lombok.NonNull;
+import lombok.SneakyThrows;
 import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.JRegistries;
 import net.arna.jcraft.api.registry.JBlockRegistry;
 import net.arna.jcraft.api.registry.JItemRegistry;
 import net.arna.jcraft.api.registry.JSpecTypeRegistry;
 import net.arna.jcraft.api.registry.JStandTypeRegistry;
+import net.arna.jcraft.common.item.CosplayItem;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
 import net.minecraft.data.models.BlockModelGenerators;
@@ -13,7 +17,9 @@ import net.minecraft.data.models.ItemModelGenerators;
 import net.minecraft.data.models.model.ModelTemplate;
 import net.minecraft.data.models.model.ModelTemplates;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ArmorItem;
 
+import java.lang.reflect.Field;
 import java.util.Optional;
 
 public class JModelProvider extends FabricModelProvider {
@@ -25,7 +31,7 @@ public class JModelProvider extends FabricModelProvider {
     }
 
     @Override
-    public void generateBlockStateModels(BlockModelGenerators generator) {
+    public void generateBlockStateModels(final @NonNull BlockModelGenerators generator) {
         generator.createTrivialCube(JBlockRegistry.FOOLISH_SAND_BLOCK.get());
         generator.createTrivialCube(JBlockRegistry.METEORITE_BLOCK.get());
         generator.createTrivialCube(JBlockRegistry.POLISHED_METEORITE_BLOCK.get());
@@ -37,7 +43,7 @@ public class JModelProvider extends FabricModelProvider {
     }
 
     @Override
-    public void generateItemModels(ItemModelGenerators generator) {
+    public void generateItemModels(final @NonNull ItemModelGenerators generator) {
         generator.generateFlatItem(JItemRegistry.BOXING_GLOVES.get(), ModelTemplates.FLAT_ITEM);
         generator.generateFlatItem(JItemRegistry.BULLET.get(), ModelTemplates.FLAT_ITEM);
         generator.generateFlatItem(JItemRegistry.CINDERELLA_MASK.get(), ModelTemplates.FLAT_ITEM);
@@ -135,6 +141,8 @@ public class JModelProvider extends FabricModelProvider {
         generator.generateFlatItem(JItemRegistry.STAND_ARROWHEAD.get(), ModelTemplates.FLAT_ITEM);
         generator.generateFlatItem(JItemRegistry.ROAD_ROLLER.get(), ModelTemplates.FLAT_ITEM);
 
+        generateCosplayModels(generator);
+
         generator.generateFlatItem(JItemRegistry.DISC.get(), ModelTemplates.FLAT_ITEM);
         generateSpecDiscModels(generator);
         generateStandDiscModels(generator);
@@ -155,7 +163,19 @@ public class JModelProvider extends FabricModelProvider {
         generator.generateFlatItem(JItemRegistry.DARBY_YOUNGER_SPAWN_EGG.get(), SPAWN_EGG_MODEL);
     }
 
-    private void generateSpecDiscModels(ItemModelGenerators generator) {
+    @SneakyThrows
+    private void generateCosplayModels(final @NonNull ItemModelGenerators generator) {
+        for (final Field cosplay : JItemRegistry.class.getFields()) {
+            if (!CosplayItem.class.isAssignableFrom(cosplay.getDeclaringClass())) {
+                continue;
+            }
+            for (final RegistrySupplier<? extends ArmorItem> item : (CosplayItem<?>)cosplay.get(null)) {
+                generator.generateFlatItem(item.get(), ModelTemplates.FLAT_ITEM);
+            }
+        }
+    }
+
+    private void generateSpecDiscModels(final @NonNull ItemModelGenerators generator) {
         // Generate a model for each spec.
         for (ResourceLocation id : JRegistries.SPEC_TYPE_REGISTRY.getIds()) {
             if (id.equals(JSpecTypeRegistry.NONE.getId())) {

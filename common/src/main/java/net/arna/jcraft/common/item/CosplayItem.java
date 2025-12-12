@@ -15,8 +15,7 @@ import java.util.function.Supplier;
 public class CosplayItem<T extends ArmorItem> {
 
     public static final Map<ArmorMaterial, String> SUFFIXES = new LinkedHashMap<>();
-
-    public static final Map<ArmorMaterial, Boolean> ALLOWS_VAMPIRE_PROTECTION = new HashMap<>();
+    public static final Map<ArmorMaterial, String> VAMPIRE_SUFFIXES = new LinkedHashMap<>();
 
     static {
         SUFFIXES.put(ArmorMaterials.LEATHER, "_leather");
@@ -26,13 +25,10 @@ public class CosplayItem<T extends ArmorItem> {
         SUFFIXES.put(ArmorMaterials.DIAMOND, "_diamond");
         SUFFIXES.put(ArmorMaterials.TURTLE, "_turtle");
         SUFFIXES.put(ArmorMaterials.NETHERITE, "");
-        ALLOWS_VAMPIRE_PROTECTION.put(ArmorMaterials.LEATHER, true);
-        ALLOWS_VAMPIRE_PROTECTION.put(ArmorMaterials.GOLD, true);
-        ALLOWS_VAMPIRE_PROTECTION.put(ArmorMaterials.CHAIN, true);
-        ALLOWS_VAMPIRE_PROTECTION.put(ArmorMaterials.IRON, true);
-        ALLOWS_VAMPIRE_PROTECTION.put(ArmorMaterials.DIAMOND, false);
-        ALLOWS_VAMPIRE_PROTECTION.put(ArmorMaterials.TURTLE, false);
-        ALLOWS_VAMPIRE_PROTECTION.put(ArmorMaterials.NETHERITE, false);
+        VAMPIRE_SUFFIXES.put(ArmorMaterials.LEATHER, "_leather");
+        VAMPIRE_SUFFIXES.put(ArmorMaterials.GOLD, "_gold");
+        VAMPIRE_SUFFIXES.put(ArmorMaterials.CHAIN, "_chainmail");
+        VAMPIRE_SUFFIXES.put(ArmorMaterials.IRON, "");
     }
 
     protected final String modId;
@@ -56,11 +52,7 @@ public class CosplayItem<T extends ArmorItem> {
     }
 
     public CosplayItem<T> register(final @NonNull CosplayItemRegistrator<T> registrator) {
-        for (final var entry : SUFFIXES.entrySet()) {
-            // don't register e.g. netherite Red Hat
-            if (vampireProtection && !ALLOWS_VAMPIRE_PROTECTION.get(entry.getKey())) {
-                continue;
-            }
+        for (final var entry : (vampireProtection ? VAMPIRE_SUFFIXES.entrySet() : SUFFIXES.entrySet())) {
             // only register turtle for helmets
             if (entry.getKey() == ArmorMaterials.TURTLE && slot != ArmorItem.Type.HELMET) {
                 continue;

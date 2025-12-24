@@ -1,6 +1,7 @@
 package net.arna.jcraft.common.item;
 
 import dev.architectury.registry.registries.RegistrySupplier;
+import lombok.Getter;
 import lombok.NonNull;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
@@ -35,7 +36,9 @@ public class CosplayItem<T extends ArmorItem> implements Iterable<RegistrySuppli
 
     protected final String modId;
     protected final String name;
+    @Getter
     protected final ArmorItem.Type slot;
+    @Getter
     protected final boolean vampireProtection;
     protected final CosplayItemConstructor<T> ctor;
 

@@ -1,5 +1,7 @@
 package net.arna.jcraft.datagen.providers.data;
 
+import dev.architectury.registry.registries.RegistrySupplier;
+import lombok.SneakyThrows;
 import net.arna.jcraft.api.registry.JBlockRegistry;
 import net.arna.jcraft.api.registry.JEntityTypeRegistry;
 import net.arna.jcraft.api.registry.JItemRegistry;
@@ -8,6 +10,7 @@ import net.arna.jcraft.api.registry.JTagRegistry;
 import net.arna.jcraft.api.stand.StandType;
 import net.arna.jcraft.api.stand.StandTypeUtil;
 import net.arna.jcraft.common.gravity.util.EntityTags;
+import net.arna.jcraft.common.item.CosplayItem;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.fabricmc.fabric.api.tag.convention.v1.ConventionalItemTags;
@@ -21,9 +24,11 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagBuilder;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 
+import java.lang.reflect.Field;
 import java.util.concurrent.CompletableFuture;
 
 public class JTagProviders {
@@ -97,6 +102,8 @@ public class JTagProviders {
             getOrCreateRawBuilder(ItemTags.ARROWS).addElement(JItemRegistry.STAND_ARROW.getId());
 
             getOrCreateRawBuilder(JTagRegistry.SOUL_LOG_ITEMS).addElement(JItemRegistry.SOUL_WOOD_BLOCK.getId());
+
+            addCosplayTags();
 
             getOrCreateRawBuilder(JTagRegistry.PROTECTS_FROM_SUN).addElement(JItemRegistry.KARS_HEADWRAP.getId());
             getOrCreateRawBuilder(JTagRegistry.PROTECTS_FROM_SUN).addElement(JItemRegistry.RED_HAT.getId());
@@ -583,6 +590,24 @@ public class JTagProviders {
             discs.add(JItemRegistry.DISC.get());
             discs.add(JItemRegistry.STAND_DISC.get());
             discs.add(JItemRegistry.SPEC_DISC.get());
+        }
+
+        @SneakyThrows
+        protected void addCosplayTags() {
+            final var cosplayTag = getOrCreateTagBuilder(JTagRegistry.COSPLAY);
+            final var protectsFromSunTag = getOrCreateTagBuilder(JTagRegistry.PROTECTS_FROM_SUN);
+            for (final Field cosplay : JItemRegistry.class.getFields()) {
+                if (!CosplayItem.class.isAssignableFrom(cosplay.getDeclaringClass())) {
+                    continue;
+                }
+                final CosplayItem<?> cosplayItem = (CosplayItem<?>)cosplay.get(null);
+                for (final RegistrySupplier<? extends ArmorItem> item : cosplayItem) {
+                    cosplayTag.add(item.get());
+                    if (cosplayItem.isVampireProtection() && cosplayItem.getSlot() == ArmorItem.Type.HELMET) {
+                        protectsFromSunTag.add(item.get());
+                    }
+                }
+            }
         }
     }
 

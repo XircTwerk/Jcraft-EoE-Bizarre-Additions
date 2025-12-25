@@ -601,8 +601,10 @@ public class JTagProviders {
                     continue;
                 }
                 final CosplayItem<?> cosplayItem = (CosplayItem<?>)cosplay.get(null);
+                final var pieceTag = getOrCreateTagBuilder(cosplayItem.getTag());
+                cosplayTag.addTag(cosplayItem.getTag());
                 for (final RegistrySupplier<? extends ArmorItem> item : cosplayItem) {
-                    cosplayTag.add(item.get());
+                    pieceTag.add(item.get());
                     if (cosplayItem.isVampireProtection() && cosplayItem.getSlot() == ArmorItem.Type.HELMET) {
                         protectsFromSunTag.add(item.get());
                     }

@@ -1,12 +1,14 @@
 package net.arna.jcraft.datagen.providers.data;
 
 import dev.architectury.registry.registries.RegistrySupplier;
+import lombok.NonNull;
 import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.registry.*;
 import net.arna.jcraft.api.spec.SpecType;
 import net.arna.jcraft.api.stand.StandType;
 import net.arna.jcraft.common.advancements.ObtainedSpecTrigger;
 import net.arna.jcraft.common.advancements.ObtainedStandTrigger;
+import net.arna.jcraft.common.item.CosplayItem;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricAdvancementProvider;
 import net.minecraft.advancements.Advancement;
@@ -17,6 +19,7 @@ import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.KilledTrigger;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -667,5 +670,31 @@ public class JAdvancementProvider extends FabricAdvancementProvider {
                 .rewards(AdvancementRewards.Builder.experience(1000))
                 .build(JCraft.id("kill_dummy"));
         consumer.accept(killDummy);
+    }
+
+    protected Advancement generateCosplayAdvancement(final @NonNull String name, final @NonNull Item display, final @NonNull FrameType frame, final @NonNull Advancement parent, final @NonNull CosplayItem<?>... pieces) {
+        if (pieces.length == 0) {
+            throw new IllegalArgumentException("At least one cosplay piece must be specified!");
+        }
+        final String keyBase = "advancements." + JCraft.MOD_ID + "obtain_" + name;
+        var builder = Advancement.Builder.advancement()
+                .display(display,
+                        Component.translatable(keyBase + ".title"),
+                        Component.translatable(keyBase + ".description"),
+                        null,
+                        frame,
+                        true,
+                        true,
+                        false)
+                .parent(parent);
+        if (frame == FrameType.CHALLENGE) {
+            builder = builder.rewards(AdvancementRewards.Builder.experience(200));
+        }
+        for (final CosplayItem<?> piece : pieces) {
+            builder.addCriterion("has_" + piece.getName(),
+                    InventoryChangeTrigger.TriggerInstance.hasItems(
+                            ItemPredicate.Builder.item().of(piece.getTag()).build()));
+        }
+        return builder.build(JCraft.id("obtain_" + name));
     }
 }

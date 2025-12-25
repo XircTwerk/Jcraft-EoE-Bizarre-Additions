@@ -3,6 +3,9 @@ package net.arna.jcraft.common.item;
 import dev.architectury.registry.registries.RegistrySupplier;
 import lombok.Getter;
 import lombok.NonNull;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ArmorMaterials;
@@ -35,7 +38,10 @@ public class CosplayItem<T extends ArmorItem> implements Iterable<RegistrySuppli
     }
 
     protected final String modId;
+    @Getter
     protected final String name;
+    @Getter
+    protected final TagKey<Item> tag;
     @Getter
     protected final ArmorItem.Type slot;
     @Getter
@@ -47,6 +53,7 @@ public class CosplayItem<T extends ArmorItem> implements Iterable<RegistrySuppli
     public CosplayItem(final @NonNull String modId, final @NonNull String name, final @NonNull ArmorItem.Type slot, final boolean vampireProtection, final @NonNull CosplayItemConstructor<T> ctor) {
         this.modId = modId;
         this.name = name;
+        tag = TagKey.create(Registries.ITEM, new ResourceLocation(modId, name));
         this.slot = slot;
         this.vampireProtection = vampireProtection;
         this.ctor = ctor;

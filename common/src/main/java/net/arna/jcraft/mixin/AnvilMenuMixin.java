@@ -62,8 +62,9 @@ public abstract class AnvilMenuMixin extends ItemCombinerMenu {
             return;
         }
         // prepare the result
+        final int newEnchantedLevel = enchantedLevel.equals(enchantLevel) ? enchantedLevel + 1 : Math.max(enchantedLevel, enchantLevel);
         final ItemStack enchantedMask = new ItemStack(JItemRegistry.CINDERELLA_MASK.get());
-        EnchantmentHelper.setEnchantments(Map.of(JEnchantmentRegistry.CINDERELLAS_KISS.get(), c), enchantedMask);
+        EnchantmentHelper.setEnchantments(Map.of(JEnchantmentRegistry.CINDERELLAS_KISS.get(), newEnchantedLevel), enchantedMask);
         // check for custom item name
         if (itemName != null && !Util.isBlank(itemName)) {
             if (!itemName.equals(mask.getHoverName().getString())) {

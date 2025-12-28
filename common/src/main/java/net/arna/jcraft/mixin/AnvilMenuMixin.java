@@ -140,7 +140,8 @@ public abstract class AnvilMenuMixin extends ItemCombinerMenu {
             return;
         }
         // if the items are the same, the anvil should already have calculated a result
-        if (armor1 == armor2) {
+        // if they are of the same tier only, no change should be possible
+        if (armor1.getMaterial() == armor2.getMaterial()) {
             return;
         }
         final ItemStack cosplay;

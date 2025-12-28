@@ -199,6 +199,15 @@ public abstract class AnvilMenuMixin extends ItemCombinerMenu {
                 resultEnchantments.put(baseEntry.getKey(), baseEntry.getValue());
             }
         }
+        // increase cost for name changes
+        if (itemName != null && !Util.isBlank(itemName)) {
+            if (!itemName.equals(item1.getHoverName().getString())) {
+                c += 1;
+                result.setHoverName(Component.literal(this.itemName));
+            }
+        } else if (item1.hasCustomHoverName()) {
+            c += 1;
+        }
         // finalize product
         resultSlots.setItem(0, result);
         cost.set(1);

@@ -13,6 +13,7 @@ import net.minecraft.world.item.Item;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -22,6 +23,7 @@ public class CosplayItem<T extends ArmorItem> implements Iterable<RegistrySuppli
 
     public static final Map<ArmorMaterial, String> SUFFIXES = new LinkedHashMap<>();
     public static final Map<ArmorMaterial, String> VAMPIRE_SUFFIXES = new LinkedHashMap<>();
+    public static final Map<RegistrySupplier<? extends ArmorItem>, CosplayItem<?>> LOOKUP = new HashMap<>();
 
     static {
         SUFFIXES.put(ArmorMaterials.LEATHER, "_leather");
@@ -76,7 +78,9 @@ public class CosplayItem<T extends ArmorItem> implements Iterable<RegistrySuppli
             else {
                 properties = new Item.Properties();
             }
-            items.put(entry.getKey(), registrator.register(name + entry.getValue(), () -> ctor.create(entry.getKey(), slot, properties)));
+            final RegistrySupplier<T> registrySupplier = registrator.register(name + entry.getValue(), () -> ctor.create(entry.getKey(), slot, properties));
+            items.put(entry.getKey(), registrySupplier);
+            LOOKUP.put(registrySupplier, this);
         }
         return this;
     }
@@ -88,6 +92,18 @@ public class CosplayItem<T extends ArmorItem> implements Iterable<RegistrySuppli
     @Override
     public @NotNull Iterator<RegistrySupplier<T>> iterator() {
         return items.values().iterator();
+    }
+
+    public static @Nullable CosplayItem<?> find(final @Nullable Item item) {
+        if (!(item instanceof ArmorItem)) {
+            return null;
+        }
+        for (final var lookupEntry : LOOKUP.entrySet()) {
+            if (lookupEntry.getKey().get() == item) {
+                return lookupEntry.getValue();
+            }
+        }
+        return null;
     }
 
     @FunctionalInterface

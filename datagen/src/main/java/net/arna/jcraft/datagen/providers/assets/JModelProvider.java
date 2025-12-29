@@ -19,7 +19,6 @@ import net.minecraft.data.models.model.ModelTemplates;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ArmorItem;
 
-import java.lang.reflect.Field;
 import java.util.Optional;
 
 public class JModelProvider extends FabricModelProvider {
@@ -165,11 +164,8 @@ public class JModelProvider extends FabricModelProvider {
 
     @SneakyThrows
     private void generateCosplayModels(final @NonNull ItemModelGenerators generator) {
-        for (final Field cosplay : JItemRegistry.class.getFields()) {
-            if (!CosplayItem.class.isAssignableFrom(cosplay.getDeclaringClass())) {
-                continue;
-            }
-            for (final RegistrySupplier<? extends ArmorItem> item : (CosplayItem<?>)cosplay.get(null)) {
+        for (final CosplayItem<?> cosplayItem : CosplayItem.all()) {
+            for (final RegistrySupplier<? extends ArmorItem> item : cosplayItem) {
                 generator.generateFlatItem(item.get(), ModelTemplates.FLAT_ITEM);
             }
         }

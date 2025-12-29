@@ -13,17 +13,18 @@ import net.minecraft.world.item.Item;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
 public class CosplayItem<T extends ArmorItem> implements Iterable<RegistrySupplier<T>> {
 
+    // all these LinkedHashMaps are justified, trust me - Ayutac
     public static final Map<ArmorMaterial, String> SUFFIXES = new LinkedHashMap<>();
     public static final Map<ArmorMaterial, String> VAMPIRE_SUFFIXES = new LinkedHashMap<>();
-    public static final Map<RegistrySupplier<? extends ArmorItem>, CosplayItem<?>> LOOKUP = new HashMap<>();
+    public static final Map<RegistrySupplier<? extends ArmorItem>, CosplayItem<?>> LOOKUP = new LinkedHashMap<>();
 
     static {
         SUFFIXES.put(ArmorMaterials.LEATHER, "_leather");
@@ -92,6 +93,10 @@ public class CosplayItem<T extends ArmorItem> implements Iterable<RegistrySuppli
     @Override
     public @NotNull Iterator<RegistrySupplier<T>> iterator() {
         return items.values().iterator();
+    }
+
+    public static @NonNull List<CosplayItem<?>> all() {
+        return LOOKUP.values().stream().distinct().toList();
     }
 
     public static @Nullable CosplayItem<?> find(final @Nullable Item item) {

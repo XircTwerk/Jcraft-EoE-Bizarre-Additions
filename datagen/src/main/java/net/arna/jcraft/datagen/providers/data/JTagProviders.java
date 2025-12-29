@@ -28,7 +28,6 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 
-import java.lang.reflect.Field;
 import java.util.concurrent.CompletableFuture;
 
 public class JTagProviders {
@@ -596,11 +595,7 @@ public class JTagProviders {
         protected void addCosplayTags() {
             final var cosplayTag = getOrCreateTagBuilder(JTagRegistry.COSPLAY);
             final var protectsFromSunTag = getOrCreateTagBuilder(JTagRegistry.PROTECTS_FROM_SUN);
-            for (final Field cosplay : JItemRegistry.class.getFields()) {
-                if (!CosplayItem.class.isAssignableFrom(cosplay.getDeclaringClass())) {
-                    continue;
-                }
-                final CosplayItem<?> cosplayItem = (CosplayItem<?>)cosplay.get(null);
+            for (final CosplayItem<?> cosplayItem : CosplayItem.all()) {
                 final var pieceTag = getOrCreateTagBuilder(cosplayItem.getTag());
                 cosplayTag.addTag(cosplayItem.getTag());
                 for (final RegistrySupplier<? extends ArmorItem> item : cosplayItem) {

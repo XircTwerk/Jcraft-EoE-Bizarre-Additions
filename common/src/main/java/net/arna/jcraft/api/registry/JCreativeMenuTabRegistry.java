@@ -29,7 +29,7 @@ public interface JCreativeMenuTabRegistry {
         JCraft.CREATIVE_TAB_REGISTRY.register("cosplay", JCreativeMenuTabRegistry::createJcraftCosplayGroup);
         JCraft.CREATIVE_TAB_REGISTRY.register("stand_discs", JCreativeMenuTabRegistry::createStandDiscItemGroup);
         // building blocks
-        CreativeTabRegistry.modifyBuiltin(BuiltInRegistries.CREATIVE_MODE_TAB.get(CreativeModeTabs.BUILDING_BLOCKS.location()), (flags, output, canUseGameMasterBlocks) -> {
+        /*CreativeTabRegistry.modifyBuiltin(BuiltInRegistries.CREATIVE_MODE_TAB.get(CreativeModeTabs.BUILDING_BLOCKS.location()), (flags, output, canUseGameMasterBlocks) -> {
             output.acceptBefore(Items.BRICKS, JItemRegistry.METEORITE_BLOCK.get());
             output.acceptBefore(Items.BRICKS, JItemRegistry.POLISHED_METEORITE_BLOCK.get());
             output.acceptBefore(Items.GOLD_BLOCK, JItemRegistry.STELLAR_IRON_BLOCK.get());
@@ -180,7 +180,7 @@ public interface JCreativeMenuTabRegistry {
             output.acceptAfter(JItemRegistry.DARBY_OLDER_SPAWN_EGG.get(), JItemRegistry.DARBY_YOUNGER_SPAWN_EGG.get());
             output.acceptAfter(Items.PARROT_SPAWN_EGG, JItemRegistry.PETSHOP_SPAWN_EGG.get());
             output.acceptAfter(Items.TURTLE_SPAWN_EGG, JItemRegistry.VAMPIRE_SPAWN_EGG.get());
-        });
+        });*/
     }
 
     static CreativeModeTab createJcraftItemGroup() {

@@ -72,6 +72,8 @@ public interface JItemRegistry {
 
     RegistrySupplier<LivingArrowItem> LIVING_ARROW = register("living_arrow", () -> new LivingArrowItem(settings().rarity(Rarity.RARE).fireResistant()));
 
+    // the order of the cosplay here is the way it's ordered in the creative tab later
+
     RegistrySupplier<Item> DIO_P1_WIG = register("dio_p1_wig", () -> new DioP1ClothesItem(ArmorMaterials.NETHERITE, ArmorItem.Type.HELMET, settings().fireResistant()));
     RegistrySupplier<Item> DIO_P1_JACKET = register("dio_p1_jacket", () -> new DioP1ClothesItem(ArmorMaterials.NETHERITE, ArmorItem.Type.CHESTPLATE, settings().fireResistant()));
     RegistrySupplier<Item> DIO_P1_PANTS = register("dio_p1_pants", () -> new DioP1ClothesItem(ArmorMaterials.NETHERITE, ArmorItem.Type.LEGGINGS, settings().fireResistant()));

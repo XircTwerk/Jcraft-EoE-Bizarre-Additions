@@ -19,6 +19,7 @@ import net.minecraft.data.models.model.ModelTemplates;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ArmorItem;
 
+import java.util.Locale;
 import java.util.Optional;
 
 public class JModelProvider extends FabricModelProvider {
@@ -166,7 +167,8 @@ public class JModelProvider extends FabricModelProvider {
     private void generateCosplayModels(final @NonNull ItemModelGenerators generator) {
         for (final CosplayItem<?> cosplayItem : CosplayItem.all()) {
             for (final RegistrySupplier<? extends ArmorItem> item : cosplayItem) {
-                generator.generateFlatItem(item.get(), ModelTemplates.FLAT_ITEM);
+                generator.generateLayeredItem(item.getId().withPath(p -> "item/" + p),
+                        JCraft.id("item/" + cosplayItem.getName()), JCraft.id("item/cosplay/" + item.get().getMaterial().getName().toLowerCase(Locale.ROOT)));
             }
         }
     }

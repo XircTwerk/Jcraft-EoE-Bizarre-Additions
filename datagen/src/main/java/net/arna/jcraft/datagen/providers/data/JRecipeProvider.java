@@ -9,6 +9,7 @@ import net.minecraft.advancements.critereon.*;
 import net.minecraft.data.recipes.*;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -366,7 +367,7 @@ public class JRecipeProvider extends FabricRecipeProvider {
                 .unlockedBy("has_netherite_chestplate", InventoryChangeTrigger.TriggerInstance.hasItems(Items.NETHERITE_CHESTPLATE))
                 .save(exporter);
         // Dio's cape
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, JItemRegistry.DIO_CAPE.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, JItemRegistry.DIO_CAPE.get(ArmorMaterials.NETHERITE).get())
                 .pattern("RLR")
                 .pattern("LCL")
                 .pattern("LLL")

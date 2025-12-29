@@ -19,6 +19,7 @@ import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.KilledTrigger;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.Item;
 
 import java.util.List;
@@ -257,7 +258,7 @@ public class JAdvancementProvider extends FabricAdvancementProvider {
         consumer.accept(obtainAllSpecsBuilder.build(JCraft.id("obtain_all_specs")));
         // obtain any cosplay
         final Advancement obtainCosplay = Advancement.Builder.advancement()
-                .display(JItemRegistry.DIO_CAPE.get(),
+                .display(JItemRegistry.DIO_CAPE.get(ArmorMaterials.NETHERITE).get(),
                         Component.translatable("advancements.jcraft.obtain_cosplay.title"),
                         Component.translatable("advancements.jcraft.obtain_cosplay.description"),
                         null,
@@ -600,7 +601,7 @@ public class JAdvancementProvider extends FabricAdvancementProvider {
                 .parent(obtainDioP1Outfit)
                 .addCriterion("has_dio_headband", InventoryChangeTrigger.TriggerInstance.hasItems(JItemRegistry.DIO_HEADBAND.get()))
                 .addCriterion("has_dio_jacket", InventoryChangeTrigger.TriggerInstance.hasItems(JItemRegistry.DIO_JACKET.get()))
-                .addCriterion("has_dio_cape", InventoryChangeTrigger.TriggerInstance.hasItems(JItemRegistry.DIO_CAPE.get()))
+                .addCriterion("has_dio_cape", InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(JItemRegistry.DIO_CAPE.getTag()).build()))
                 .addCriterion("has_dio_pants", InventoryChangeTrigger.TriggerInstance.hasItems(JItemRegistry.DIO_PANTS.get()))
                 .addCriterion("has_dio_boots", InventoryChangeTrigger.TriggerInstance.hasItems(JItemRegistry.DIO_BOOTS.get()))
                 .rewards(AdvancementRewards.Builder.experience(200))

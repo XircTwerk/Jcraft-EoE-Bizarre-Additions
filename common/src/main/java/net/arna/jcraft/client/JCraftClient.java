@@ -6,6 +6,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import dev.architectury.registry.ReloadListenerRegistry;
 import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
 import dev.architectury.registry.client.particle.ParticleProviderRegistry;
+import dev.architectury.registry.registries.RegistrySupplier;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import lombok.Getter;
@@ -47,6 +48,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.Unit;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ArmorItem;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -126,7 +128,9 @@ public class JCraftClient {
                 DIOtardRenderer::new,
                 JItemRegistry.DIO_PANTS.get(),
                 JItemRegistry.DIO_BOOTS.get());
-        AzArmorRendererRegistry.register(DIOCapeRenderer::new, JItemRegistry.DIO_CAPE.get());
+        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.DIO_CAPE) {
+            AzArmorRendererRegistry.register(DIOCapeRenderer::new, item.get());
+        }
         AzArmorRendererRegistry.register(
                 ArmorRenderer.simple("diooutfit"),
                 JItemRegistry.DIO_P1_WIG.get(),

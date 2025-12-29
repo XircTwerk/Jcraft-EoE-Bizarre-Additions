@@ -1,19 +1,20 @@
 package net.arna.jcraft.api.registry;
 
-import dev.architectury.registry.CreativeTabRegistry;
+import dev.architectury.registry.registries.RegistrySupplier;
 import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.spec.SpecType;
 import net.arna.jcraft.api.spec.SpecTypeUtil;
 import net.arna.jcraft.api.stand.StandType;
 import net.arna.jcraft.api.stand.StandTypeUtil;
+import net.arna.jcraft.common.item.CosplayItem;
 import net.arna.jcraft.common.item.SpecDiscItem;
 import net.arna.jcraft.common.item.StandDiscItem;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -274,7 +275,7 @@ public interface JCreativeMenuTabRegistry {
     static CreativeModeTab createJcraftCosplayGroup() {
         return CreativeModeTab.builder(CreativeModeTab.Row.TOP, 2)
                 .title(Component.translatable("itemGroup.jcraft.cosplay"))
-                .icon(() -> JItemRegistry.DIO_CAPE.get().getDefaultInstance())
+                .icon(() -> JItemRegistry.DIO_CAPE.get(ArmorMaterials.NETHERITE).get().getDefaultInstance())
                 // order of the creative tab
                 .displayItems((displayContext, entries) -> {
                     // cosplay
@@ -291,7 +292,7 @@ public interface JCreativeMenuTabRegistry {
                     entries.accept(JItemRegistry.JOTARO_BOOTS.get());
                     entries.accept(JItemRegistry.DIO_HEADBAND.get());
                     entries.accept(JItemRegistry.DIO_JACKET.get());
-                    entries.accept(JItemRegistry.DIO_CAPE.get());
+                    //entries.accept(JItemRegistry.DIO_CAPE.get());
                     entries.accept(JItemRegistry.DIO_PANTS.get());
                     entries.accept(JItemRegistry.DIO_BOOTS.get());
                     entries.accept(JItemRegistry.KAKYOIN_WIG.get());
@@ -358,6 +359,11 @@ public interface JCreativeMenuTabRegistry {
                     entries.accept(JItemRegistry.VALENTINE_JACKET.get());
                     entries.accept(JItemRegistry.VALENTINE_PANTS.get());
                     entries.accept(JItemRegistry.VALENTINE_BOOTS.get());
+                    for (final CosplayItem<?> cosplayItem : CosplayItem.all()) {
+                        for (final RegistrySupplier<? extends ArmorItem> item : cosplayItem) {
+                            entries.accept(item.get());
+                        }
+                    }
                 })
                 .build();
     }

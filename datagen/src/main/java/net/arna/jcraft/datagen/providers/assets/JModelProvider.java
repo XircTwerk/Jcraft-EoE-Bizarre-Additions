@@ -52,7 +52,7 @@ public class JModelProvider extends FabricModelProvider {
         generator.generateFlatItem(JItemRegistry.DIO_P1_PANTS.get(), ModelTemplates.FLAT_ITEM);
         generator.generateFlatItem(JItemRegistry.STRAIZO_PONCHO.get(), ModelTemplates.FLAT_ITEM);
         generator.generateFlatItem(JItemRegistry.DIO_BOOTS.get(), ModelTemplates.FLAT_ITEM);
-        generator.generateFlatItem(JItemRegistry.DIO_CAPE.get(), ModelTemplates.FLAT_ITEM);
+        //generator.generateFlatItem(JItemRegistry.DIO_CAPE.get(), ModelTemplates.FLAT_ITEM);
         generator.generateFlatItem(JItemRegistry.DIO_HEADBAND.get(), ModelTemplates.FLAT_ITEM);
         generator.generateFlatItem(JItemRegistry.DIO_JACKET.get(), ModelTemplates.FLAT_ITEM);
         generator.generateFlatItem(JItemRegistry.DIO_PANTS.get(), ModelTemplates.FLAT_ITEM);

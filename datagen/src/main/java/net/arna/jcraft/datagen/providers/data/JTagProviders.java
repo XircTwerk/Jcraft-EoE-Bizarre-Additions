@@ -127,7 +127,7 @@ public class JTagProviders {
             cosplay.add(JItemRegistry.KAKYOIN_PANTS.get());
             cosplay.add(JItemRegistry.KAKYOIN_BOOTS.get());
             cosplay.add(JItemRegistry.DIO_HEADBAND.get());
-            cosplay.add(JItemRegistry.DIO_CAPE.get());
+            //cosplay.add(JItemRegistry.DIO_CAPE.get());
             cosplay.add(JItemRegistry.DIO_JACKET.get());
             cosplay.add(JItemRegistry.DIO_PANTS.get());
             cosplay.add(JItemRegistry.DIO_BOOTS.get());
@@ -277,7 +277,7 @@ public class JTagProviders {
             blindsOnImpact.add(Items.NETHERRACK);
             blindsOnImpact.add(Items.GLOWSTONE);
             blindsOnImpact.add(Items.SHROOMLIGHT);
-            blindsOnImpact.add(JItemRegistry.DIO_CAPE.getId());
+            blindsOnImpact.addTag(JItemRegistry.DIO_CAPE.getTag());
             blindsOnImpact.add(JItemRegistry.KARS_HEADWRAP.getId());
 
             final var slowsOnImpact = getOrCreateTagBuilder(JTagRegistry.SLOWS_ON_IMPACT);

@@ -4,6 +4,7 @@ import com.mojang.brigadier.StringReader;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.networking.NetworkManager;
 import dev.architectury.registry.registries.DeferredRegister;
+import dev.architectury.registry.registries.RegistrySupplier;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -28,6 +29,7 @@ import net.arna.jcraft.common.entity.projectile.KnifeProjectile;
 import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
 import net.arna.jcraft.common.gravity.config.GravityChangerConfig;
 import net.arna.jcraft.common.gravity.util.GravityChannel;
+import net.arna.jcraft.common.item.CosplayItem;
 import net.arna.jcraft.common.loot.JLootTableHelper;
 import net.arna.jcraft.common.network.RemoteStandInteractPacket;
 import net.arna.jcraft.common.network.c2s.*;
@@ -68,6 +70,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -257,7 +260,7 @@ public final class JCraft {
                 JItemRegistry.DIEGO_PANTS.get(),
                 JItemRegistry.DIEGO_BOOTS.get(),
                 JItemRegistry.DIO_HEADBAND.get(),
-                JItemRegistry.DIO_CAPE.get(),
+                //JItemRegistry.DIO_CAPE.get(),
                 JItemRegistry.DIO_JACKET.get(),
                 JItemRegistry.DIO_PANTS.get(),
                 JItemRegistry.DIO_BOOTS.get(),
@@ -330,6 +333,11 @@ public final class JCraft {
                 JItemRegistry.VALENTINE_PANTS.get(),
                 JItemRegistry.FINAL_KIRA_BOOTS.get()
         );
+        for (final CosplayItem<?> cosplayItem : CosplayItem.all()) {
+            for (final RegistrySupplier<? extends ArmorItem> item : cosplayItem) {
+                AzIdentityRegistry.register(item.get());
+            }
+        }
     }
 
     public static void postInit() {

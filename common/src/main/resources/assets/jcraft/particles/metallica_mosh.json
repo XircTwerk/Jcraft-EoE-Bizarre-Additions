@@ -1,0 +1,24 @@
+{
+  "textures": [
+    "jcraft:particle/metallica/mosh/1",
+    "jcraft:particle/metallica/mosh/2",
+    "jcraft:particle/metallica/mosh/3",
+    "jcraft:particle/metallica/mosh/4",
+    "jcraft:particle/metallica/mosh_2/1",
+    "jcraft:particle/metallica/mosh_2/2",
+    "jcraft:particle/metallica/mosh_2/3",
+    "jcraft:particle/metallica/mosh_2/4",
+    "jcraft:particle/metallica/mosh_3/1",
+    "jcraft:particle/metallica/mosh_3/2",
+    "jcraft:particle/metallica/mosh_3/3",
+    "jcraft:particle/metallica/mosh_3/4",
+    "jcraft:particle/metallica/mosh_4/1",
+    "jcraft:particle/metallica/mosh_4/2",
+    "jcraft:particle/metallica/mosh_4/3",
+    "jcraft:particle/metallica/mosh_4/4",
+    "jcraft:particle/metallica/mosh_5/1",
+    "jcraft:particle/metallica/mosh_5/2",
+    "jcraft:particle/metallica/mosh_5/3",
+    "jcraft:particle/metallica/mosh_5/4"
+  ]
+}

@@ -11,6 +11,7 @@ import net.arna.jcraft.api.attack.enums.MobilityType;
 import net.arna.jcraft.api.attack.enums.MoveClass;
 import net.arna.jcraft.api.attack.moves.AbstractMove;
 import net.arna.jcraft.api.component.living.CommonHamonComponent;
+import net.arna.jcraft.api.registry.JAdvancementTriggerRegistry;
 import net.arna.jcraft.api.registry.JParticleTypeRegistry;
 import net.arna.jcraft.api.registry.JSoundRegistry;
 import net.arna.jcraft.api.registry.JSpecTypeRegistry;
@@ -20,6 +21,7 @@ import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.common.ai.AttackerBrainInfo;
 import net.arna.jcraft.common.attack.actions.LaunchUpAction;
 import net.arna.jcraft.common.attack.actions.LungeAction;
+import net.arna.jcraft.common.attack.actions.NotifyHamonStompAction;
 import net.arna.jcraft.common.attack.actions.UserAnimationAction;
 import net.arna.jcraft.common.attack.conditions.HamonChargeCondition;
 import net.arna.jcraft.common.attack.moves.hamon.*;
@@ -107,6 +109,7 @@ public class HamonSpec extends JSpec<HamonSpec, HamonSpec.State> {
             .withImpactSound(JSoundRegistry.IMPACT_4)
             .withHitSpark(JParticleType.HIT_SPARK_1)
             .withStaticY()
+            .withAction(NotifyHamonStompAction.run())
             .withInfo(
                     Component.literal("Stomp"),
                     Component.literal("Charge with hamon for Ripple, a powerful stomp that creates a Hamon Wave.")
@@ -185,7 +188,7 @@ public class HamonSpec extends JSpec<HamonSpec, HamonSpec.State> {
     // These aren't stored in any movemap and have fields that must be unique to them, so we make copies.
     private final ZoomPunchAttack zoomPunchAttack = ZOOM_PUNCH.copy();
     private final RippleAttack rippleAttack = RIPPLE_ATTACK.copy();
-    private final SendoAttack sendoKick = SENDO_KICK.copy();
+    private final SendoAttack sendoKick = SENDO_KICK.copy().markAerialVariant();
     private final SendoAttack sendoUppercut = SENDO_UPPERCUT.copy();
 
     private static void registerMoves(MoveMap<HamonSpec, HamonSpec.State> moves) {
@@ -272,6 +275,22 @@ public class HamonSpec extends JSpec<HamonSpec, HamonSpec.State> {
             }
 
             hamon.setHamonCharge(charge);
+            if (charge >= MAX_CHARGE && user instanceof final ServerPlayer player) {
+                JAdvancementTriggerRegistry.HAMON1.trigger(player);
+            }
+        }
+
+        if (hamon.getLastZoomPunchedTick() >= 0) {
+            hamon.increaseLastZoomPunchedTick();
+        }
+        if (hamon.getLastSendoedTick() >= 0) {
+            hamon.increaseLastSendoedTick();
+        }
+        if (hamon.getLastSendoAiredTick() >= 0) {
+            hamon.increaseLastSendoAiredTick();
+        }
+        if (hamon.getLastStompedTick() >= 0) {
+            hamon.increaseLastStompedTick();
         }
 
         zoomPunchAttack.tick(this);
@@ -337,6 +356,9 @@ public class HamonSpec extends JSpec<HamonSpec, HamonSpec.State> {
 
     public void setUseHamonNext(boolean use) {
         useHamonNext = use;
+        if (use && user instanceof final ServerPlayer player) {
+            JAdvancementTriggerRegistry.HAMON2.trigger(player);
+        }
         updateClientHamonBar();
     }
 

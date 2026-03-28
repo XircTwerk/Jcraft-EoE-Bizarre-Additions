@@ -175,7 +175,6 @@ public class JRecipeProvider extends FabricRecipeProvider {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, JItemRegistry.REQUIEM_ARROW.get())
                 .requires(JItemRegistry.STAND_ARROW.get())
                 .requires(JItemRegistry.REQUIEM_RUBY.get())
-                .requires(Items.TIPPED_ARROW)
                 .unlockedBy("has_arrow", InventoryChangeTrigger.TriggerInstance.hasItems(JItemRegistry.STAND_ARROW.get()))
                 .unlockedBy("has_ruby", InventoryChangeTrigger.TriggerInstance.hasItems(JItemRegistry.REQUIEM_RUBY.get()))
                 .save(exporter);
@@ -1096,15 +1095,15 @@ public class JRecipeProvider extends FabricRecipeProvider {
                 .define('G', Items.GRINDSTONE)
                 .unlockedBy("has_iron_block", InventoryChangeTrigger.TriggerInstance.hasItems(Items.IRON_BLOCK))
                 .save(exporter);
-        // road roller
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, JItemRegistry.STEEL_BALL.get())
-                .pattern(" I ")
-                .pattern("ILI")
-                .pattern(" I ")
-                .define('I', Items.IRON_INGOT)
-                .define('L', Items.LIME_DYE)
-                .unlockedBy("has_iron_ingot", InventoryChangeTrigger.TriggerInstance.hasItems(Items.IRON_INGOT))
-                .save(exporter);
+        // steel ball
+//        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, JItemRegistry.STEEL_BALL.get())
+//                .pattern(" I ")
+//                .pattern("ILI")
+//                .pattern(" I ")
+//                .define('I', Items.IRON_INGOT)
+//                .define('L', Items.LIME_DYE)
+//                .unlockedBy("has_iron_ingot", InventoryChangeTrigger.TriggerInstance.hasItems(Items.IRON_INGOT))
+//                .save(exporter);
         // training dummy
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, JItemRegistry.TRAINING_DUMMY.get())
                 .pattern("CWC")

@@ -21,12 +21,17 @@ public class HamonSpecUser extends SpecUserMob {
     protected void registerGoals() {
         super.registerGoals();
 
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, VampireSpecUser.class, true));
-        // attacks same entities as an Iron Golem
-        this.targetSelector
-                .addGoal(
-                        3, new NearestAttackableTargetGoal<>(this, Mob.class, 5, false, false, livingEntity -> livingEntity instanceof Enemy && !(livingEntity instanceof Creeper))
-                );
+        // Hamon attacks vampires
+        targetSelector.addGoal(
+                2,
+                new NearestAttackableTargetGoal<>(this, VampireSpecUser.class, true)
+        );
+
+        // Hamon attacks Enemy mobs (not Creepers)
+        targetSelector.addGoal(
+                3,
+                new NearestAttackableTargetGoal<>(this, Mob.class, 5, false, false, livingEntity -> livingEntity instanceof Enemy && !(livingEntity instanceof Creeper))
+        );
     }
 
     public static AttributeSupplier.Builder createUserAttributes() {

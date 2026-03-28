@@ -10,17 +10,20 @@ import net.arna.jcraft.api.Attacks;
 import net.arna.jcraft.api.attack.MoveType;
 import net.arna.jcraft.api.attack.enums.StunType;
 import net.arna.jcraft.api.attack.moves.AbstractSimpleAttack;
+import net.arna.jcraft.api.component.living.CommonHamonComponent;
 import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
 import net.arna.jcraft.api.registry.JParticleTypeRegistry;
 import net.arna.jcraft.api.registry.JSoundRegistry;
 import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.arna.jcraft.common.spec.HamonSpec;
 import net.arna.jcraft.common.util.JUtils;
+import net.arna.jcraft.platform.JComponentPlatformUtils;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Set;
@@ -94,9 +97,20 @@ public class SendoAttack extends AbstractSimpleAttack<SendoAttack, HamonSpec> {
             target.playSound(JSoundRegistry.HAMON_CRACKLES.get(), 1.0f, 1.0f);
         }
 
-        if (JUtils.getSpec(user) instanceof HamonSpec hamonSpec)
-            for (LivingEntity target : targets)
+        if (JUtils.getSpec(user) instanceof HamonSpec hamonSpec) {
+            for (LivingEntity target : targets) {
                 hamonSpec.processTarget(target);
+                if (user instanceof final ServerPlayer player && target instanceof Enemy) {
+                    final CommonHamonComponent hamon = JComponentPlatformUtils.getHamon(player);
+                    if (!isAerialVariant() && !isCrouchingVariant()) {
+                        hamon.setLastSendoed(target.getUUID());
+                    }
+                    else if (isAerialVariant()) {
+                        hamon.setLastSendoAired(target.getUUID());
+                    }
+                }
+            }
+        }
 
         return targets;
     }

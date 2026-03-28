@@ -5,8 +5,15 @@ import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.registry.*;
 import net.arna.jcraft.api.spec.SpecType;
 import net.arna.jcraft.api.stand.StandType;
+import net.arna.jcraft.common.advancements.Hamon1Trigger;
+import net.arna.jcraft.common.advancements.Hamon2Trigger;
+import net.arna.jcraft.common.advancements.Hamon3Trigger;
+import net.arna.jcraft.common.advancements.Hamon4Trigger;
+import net.arna.jcraft.common.advancements.Hamon5Trigger;
+import net.arna.jcraft.common.advancements.Hamon6Trigger;
 import net.arna.jcraft.common.advancements.ObtainedSpecTrigger;
 import net.arna.jcraft.common.advancements.ObtainedStandTrigger;
+import net.arna.jcraft.common.item.SpecDiscItem;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricAdvancementProvider;
 import net.minecraft.advancements.Advancement;
@@ -17,6 +24,7 @@ import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.KilledTrigger;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -654,7 +662,7 @@ public class JAdvancementProvider extends FabricAdvancementProvider {
                 .rewards(AdvancementRewards.Builder.experience(800))
                 .build(JCraft.id("obtain_dios_diary"));
         consumer.accept(obtainDiosDiary);
-        // obtain stand
+        // kill dummy
         final Advancement killDummy = Advancement.Builder.advancement()
                 .display(JItemRegistry.TRAINING_DUMMY.get(),
                         Component.translatable("advancements.jcraft.kill_dummy.title"),
@@ -669,5 +677,85 @@ public class JAdvancementProvider extends FabricAdvancementProvider {
                 .rewards(AdvancementRewards.Builder.experience(1000))
                 .build(JCraft.id("kill_dummy"));
         consumer.accept(killDummy);
+        // hamon advancements
+        final ItemStack hamon = SpecDiscItem.createDiscStack(JSpecTypeRegistry.HAMON.get());
+        final Advancement hamon1 = Advancement.Builder.advancement()
+                .display(hamon,
+                        Component.translatable("advancements.jcraft.hamon1.title"),
+                        Component.translatable("advancements.jcraft.hamon1.description"),
+                        null,
+                        FrameType.TASK,
+                        true,
+                        true,
+                        false)
+                .parent(obtainAnySpec)
+                .addCriterion("breathed", Hamon1Trigger.TriggerInstance.trigger())
+                .build(JCraft.id("hamon1"));
+        consumer.accept(hamon1);
+        final Advancement hamon2 = Advancement.Builder.advancement()
+                .display(hamon,
+                        Component.translatable("advancements.jcraft.hamon2.title"),
+                        Component.translatable("advancements.jcraft.hamon2.description"),
+                        null,
+                        FrameType.TASK,
+                        true,
+                        true,
+                        false)
+                .parent(hamon1)
+                .addCriterion("toggled", Hamon2Trigger.TriggerInstance.trigger())
+                .build(JCraft.id("hamon2"));
+        consumer.accept(hamon2);
+        final Advancement hamon3 = Advancement.Builder.advancement()
+                .display(hamon,
+                        Component.translatable("advancements.jcraft.hamon3.title"),
+                        Component.translatable("advancements.jcraft.hamon3.description"),
+                        null,
+                        FrameType.TASK,
+                        true,
+                        true,
+                        false)
+                .parent(hamon2)
+                .addCriterion("punched", Hamon3Trigger.TriggerInstance.trigger())
+                .build(JCraft.id("hamon3"));
+        consumer.accept(hamon3);
+        final Advancement hamon4 = Advancement.Builder.advancement()
+                .display(hamon,
+                        Component.translatable("advancements.jcraft.hamon4.title"),
+                        Component.translatable("advancements.jcraft.hamon4.description"),
+                        null,
+                        FrameType.GOAL,
+                        true,
+                        true,
+                        false)
+                .parent(hamon3)
+                .addCriterion("sendoed", Hamon4Trigger.TriggerInstance.trigger())
+                .build(JCraft.id("hamon4"));
+        consumer.accept(hamon4);
+        final Advancement hamon5 = Advancement.Builder.advancement()
+                .display(hamon,
+                        Component.translatable("advancements.jcraft.hamon5.title"),
+                        Component.translatable("advancements.jcraft.hamon5.description"),
+                        null,
+                        FrameType.GOAL,
+                        true,
+                        true,
+                        false)
+                .parent(hamon4)
+                .addCriterion("waved", Hamon5Trigger.TriggerInstance.hitAtLeastEnemies(3))
+                .build(JCraft.id("hamon5"));
+        consumer.accept(hamon5);
+        final Advancement hamon6 = Advancement.Builder.advancement()
+                .display(hamon,
+                        Component.translatable("advancements.jcraft.hamon6.title"),
+                        Component.translatable("advancements.jcraft.hamon6.description"),
+                        null,
+                        FrameType.CHALLENGE,
+                        true,
+                        true,
+                        false)
+                .parent(hamon5)
+                .addCriterion("waved", Hamon6Trigger.TriggerInstance.trigger())
+                .build(JCraft.id("hamon6"));
+        consumer.accept(hamon6);
     }
 }

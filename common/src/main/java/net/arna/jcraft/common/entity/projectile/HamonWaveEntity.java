@@ -5,6 +5,7 @@ import net.arna.jcraft.api.AttackData;
 import net.arna.jcraft.api.Attacks;
 import net.arna.jcraft.api.attack.enums.StunType;
 import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
+import net.arna.jcraft.api.registry.JAdvancementTriggerRegistry;
 import net.arna.jcraft.api.registry.JEntityTypeRegistry;
 import net.arna.jcraft.api.registry.JParticleTypeRegistry;
 import net.arna.jcraft.api.registry.JSoundRegistry;
@@ -13,28 +14,37 @@ import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
 import net.arna.jcraft.common.gravity.util.RotationUtil;
 import net.arna.jcraft.common.spec.HamonSpec;
 import net.arna.jcraft.common.util.JUtils;
+import net.arna.jcraft.platform.JComponentPlatformUtils;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 public class HamonWaveEntity extends JAttackEntity {
     public final int LIFETIME = 30;
     public final float MAX_SIZE = 10.0f;
     private DamageSource damageSource = null;
+
+    private final Set<UUID> hitEnemies = new HashSet<>();
+
     public HamonWaveEntity(Level world) {
         super(JEntityTypeRegistry.HAMON_WAVE.get(), world);
     }
@@ -169,6 +179,9 @@ public class HamonWaveEntity extends JAttackEntity {
                         damageSource, master, CommonHitPropertyComponent.HitAnimation.LAUNCH,
                         null, false, false
                 ));
+                if (living instanceof Enemy) {
+                    hitEnemies.add(living.getUUID());
+                }
 
                 if (hamonSpec != null) hamonSpec.processTarget(living);
 
@@ -179,6 +192,14 @@ public class HamonWaveEntity extends JAttackEntity {
         if (anyHit) {
             playSound(JSoundRegistry.TWOH_CHARGE.get());
         }
+    }
+
+    @Override
+    public void discard() {
+        if (master instanceof final ServerPlayer player) {
+            JAdvancementTriggerRegistry.HAMON5.trigger(player, hitEnemies.size());
+        }
+        super.discard();
     }
 
     // Physical Properties

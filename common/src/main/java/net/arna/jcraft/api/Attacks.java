@@ -8,11 +8,15 @@ import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.attack.moves.AbstractCounterAttack;
 import net.arna.jcraft.api.attack.moves.AbstractMove;
 import net.arna.jcraft.api.attack.moves.AbstractSimpleAttack;
+import net.arna.jcraft.api.component.living.CommonHamonComponent;
+import net.arna.jcraft.api.registry.JAdvancementTriggerRegistry;
 import net.arna.jcraft.api.registry.JPacketRegistry;
 import net.arna.jcraft.api.registry.JSoundRegistry;
+import net.arna.jcraft.api.registry.JSpecTypeRegistry;
 import net.arna.jcraft.api.registry.JStatRegistry;
 import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.arna.jcraft.api.spec.JSpec;
+import net.arna.jcraft.api.spec.SpecType;
 import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.common.config.JServerConfig;
 import net.arna.jcraft.common.entity.TrainingDummyEntity;
@@ -367,6 +371,25 @@ public interface Attacks {
 
         damage(attacker, damage, source, victim);
 
+        if (livingAttacker != null) {
+            final JSpec<?, ?> userSpec = JUtils.getSpec(livingAttacker);
+            final SpecType userSpecType = userSpec.getType();
+            // combo acknowledger
+            if (userSpecType == JSpecTypeRegistry.HAMON.get() && livingAttacker instanceof ServerPlayer player) {
+                final CommonHamonComponent hamon = JComponentPlatformUtils.getHamon(player);
+                if (victim.getUUID().equals(hamon.getLastSendoAired()) && victim.getUUID().equals(hamon.getLastStomped()) &&
+                        // make sure stomp was used after sendo air
+                        hamon.getLastStompedTick() < hamon.getLastSendoAiredTick() &&
+                        // but not too long ago (30 seconds)
+                        hamon.getLastSendoAiredTick() - hamon.getLastStompedTick() <= 600 &&
+                        // check that stomp was last used move TODO do something less hacky than "was it used within the last five seconds"
+                        hamon.getLastStompedTick() <= 100
+                ) {
+                    JAdvancementTriggerRegistry.HAMON6.trigger(player);
+                }
+            }
+        }
+
         if ( (victim.isDeadOrDying() || victim.getHealth() <= 0f) && livingAttacker != null) {
             final StandEntity<?, ?> standAttacker = JUtils.getStand(livingAttacker);
             if (standAttacker != null) {
@@ -375,6 +398,22 @@ public interface Attacks {
             if (stand != null && stand.hasUser() && // if killed entity was a using a stand
                     (standAttacker != null ? standAttacker.getUser() : livingAttacker) instanceof final Player player && !player.level().isClientSide()) {
                 player.awardStat(JStatRegistry.STAND_USERS_KILLED.get());
+            }
+            final JSpec<?,?> userSpec = JUtils.getSpec(livingAttacker);
+            final SpecType userSpecType = userSpec.getType();
+            // combo acknowledger
+            if (userSpecType == JSpecTypeRegistry.HAMON.get() && livingAttacker instanceof ServerPlayer player) {
+                final CommonHamonComponent hamon = JComponentPlatformUtils.getHamon(player);
+                if (victim.getUUID().equals(hamon.getLastZoomPunched()) && victim.getUUID().equals(hamon.getLastSendoed()) &&
+                        // make sure sendo was used after zoom punch
+                        hamon.getLastSendoedTick() < hamon.getLastZoomPunchedTick() &&
+                        // but not too long ago (30 seconds)
+                        hamon.getLastZoomPunchedTick() - hamon.getLastSendoedTick() <= 600 &&
+                        // check that sendo was last used move TODO do something less hacky than "was it used within the last five seconds"
+                        hamon.getLastSendoedTick() <= 100
+                ) {
+                    JAdvancementTriggerRegistry.HAMON4.trigger(player);
+                }
             }
         }
 

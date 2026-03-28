@@ -129,7 +129,7 @@ public interface JEntityRendererRegister {
             new RendererData<>(JEntityTypeRegistry.ITEM_TOSS_PROJECTILE, ItemTossProjectileRenderer::new),
 
             new RendererData<>(JEntityTypeRegistry.BRAWLER_SPEC_USER, context -> new SpecUserRenderer<>(context, JCraft.id("geo/humanoid.geo.json"), JCraft.id("textures/entity/jonathan.png"))),
-            new RendererData<>(JEntityTypeRegistry.HAMON_SPEC_USER, context -> new SpecUserRenderer<>(context, JCraft.id("geo/humanoid.geo.json"), JCraft.id("textures/entity/jonathan.png"))),
+            new RendererData<>(JEntityTypeRegistry.HAMON_SPEC_USER, context -> new SpecUserRenderer<>(context, JCraft.id("geo/hamon_monk.geo.json"), JCraft.id("textures/entity/tonpetty.png"))),
             new RendererData<>(JEntityTypeRegistry.VAMPIRE_SPEC_USER, context -> new SpecUserRenderer<>(context, JCraft.id("geo/humanoid.geo.json"), JCraft.id("textures/entity/vampire_spec_user.png"))),
             new RendererData<>(JEntityTypeRegistry.ANUBIS_SPEC_USER, context -> new SpecUserRenderer<>(context, JCraft.id("geo/chaka.geo.json"), JCraft.id("textures/entity/chaka.png"))),
     };

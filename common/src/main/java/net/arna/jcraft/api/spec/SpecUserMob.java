@@ -108,7 +108,7 @@ public class SpecUserMob extends PathfinderMob implements JSpecHolder, IFoodData
         goalSelector.addGoal(10, new OpenDoorGoal(this, true));
 
         targetSelector.addGoal(1, new HurtByTargetGoal(this));
-        targetSelector.addGoal(2, new NearestAttackableTargetGoal(this, Player.class, true));
+        //targetSelector.addGoal(2, new NearestAttackableTargetGoal(this, Player.class, true));
     }
 
     @Override

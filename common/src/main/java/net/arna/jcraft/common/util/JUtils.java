@@ -32,12 +32,14 @@ import net.arna.jcraft.common.network.s2c.PlayerAnimPacket;
 import net.arna.jcraft.common.network.s2c.ServerChannelFeedbackPacket;
 import net.arna.jcraft.common.splatter.JSplatterManager;
 import net.arna.jcraft.platform.JComponentPlatformUtils;
+import net.minecraft.advancements.Advancement;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerChunkCache;
@@ -903,5 +905,17 @@ public final class JUtils {
     public static <T> @NonNull T chooseRandom(@NonNull RandomSource rng, T... items) {
         if (items == null || items.length == 0) throw new IllegalArgumentException("At least one item must be provided.");
         return items[rng.nextInt(items.length)];
+    }
+
+    public static boolean hasAdvancement(final ServerPlayer player, final ResourceLocation advancementLoc) {
+        final MinecraftServer server = player.getServer();
+        if (server == null) {
+            return false;
+        }
+        final Advancement advancement = server.getAdvancements().getAdvancement(advancementLoc);
+        if (advancement == null) {
+            return false;
+        }
+        return player.getAdvancements().getOrStartProgress(advancement).isDone();
     }
 }

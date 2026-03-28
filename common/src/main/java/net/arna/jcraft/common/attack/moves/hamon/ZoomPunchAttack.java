@@ -5,9 +5,14 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.NonNull;
 import net.arna.jcraft.api.attack.MoveType;
 import net.arna.jcraft.api.attack.moves.AbstractSimpleAttack;
+import net.arna.jcraft.api.component.living.CommonHamonComponent;
+import net.arna.jcraft.api.registry.JAdvancementTriggerRegistry;
 import net.arna.jcraft.common.spec.HamonSpec;
 import net.arna.jcraft.common.util.JUtils;
+import net.arna.jcraft.platform.JComponentPlatformUtils;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Enemy;
 
 import java.util.Set;
 
@@ -68,9 +73,18 @@ public final class ZoomPunchAttack extends AbstractSimpleAttack<ZoomPunchAttack,
     public @NonNull Set<LivingEntity> perform(HamonSpec attacker, LivingEntity user) {
         final Set<LivingEntity> targets = super.perform(attacker, user);
 
-        if (JUtils.getSpec(user) instanceof HamonSpec hamonSpec)
-            for (LivingEntity target : targets)
+        if (JUtils.getSpec(user) instanceof final HamonSpec hamonSpec) {
+            for (LivingEntity target : targets) {
                 hamonSpec.processTarget(target);
+                if (user instanceof final ServerPlayer player && target instanceof Enemy) {
+                    JAdvancementTriggerRegistry.HAMON3.trigger(player);
+                    final CommonHamonComponent hamon = JComponentPlatformUtils.getHamon(player);
+                    if (player.getServer() != null) {
+                        hamon.setLastZoomPunched(target.getUUID());
+                    }
+                }
+            }
+        }
 
         return targets;
     }

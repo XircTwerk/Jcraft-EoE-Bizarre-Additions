@@ -13,27 +13,29 @@ import lombok.NonNull;
 import lombok.Setter;
 import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.MoveSelectionResult;
-import net.arna.jcraft.api.attack.*;
+import net.arna.jcraft.api.attack.IAttacker;
+import net.arna.jcraft.api.attack.MoveMap;
+import net.arna.jcraft.api.attack.MoveType;
 import net.arna.jcraft.api.attack.core.MoveAction;
 import net.arna.jcraft.api.attack.core.MoveCondition;
-import net.arna.jcraft.api.attack.MoveMap;
 import net.arna.jcraft.api.attack.core.RunMoment;
 import net.arna.jcraft.api.attack.enums.MobilityType;
 import net.arna.jcraft.api.attack.enums.MoveClass;
 import net.arna.jcraft.api.attack.enums.MoveInputType;
+import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.common.attack.actions.PlaySoundAction;
 import net.arna.jcraft.common.attack.core.data.BaseMoveExtras;
-import net.arna.jcraft.common.util.ExtraProducts;
 import net.arna.jcraft.common.attack.moves.shared.SimpleAttack;
-import net.arna.jcraft.api.stand.StandEntity;
+import net.arna.jcraft.common.compat.FtbChunksCompat;
 import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
+import net.arna.jcraft.common.util.ExtraProducts;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -833,14 +835,14 @@ public abstract class AbstractMove<T extends AbstractMove<T, A>, A extends IAtta
     public static boolean mayBreak(final @NonNull Level level, @Nullable final LivingEntity user, @Nullable final BlockPos pos,
                                    @Nullable Predicate<BlockState> pred) {
         ServerLevel serverLevel = level instanceof ServerLevel sl ? sl : null;
-        Player player = user instanceof Player p ? p : null;
+        ServerPlayer player = user instanceof ServerPlayer p ? p : null;
 
         boolean isPlayer = player != null;
         boolean mobGriefing = level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING);
         boolean standGriefing = level.getGameRules().getBoolean(JCraft.STAND_GRIEFING);
         boolean isSpawnProtected = serverLevel != null && player != null && pos != null &&
                 serverLevel.getServer().isUnderSpawnProtection(serverLevel, pos, player);
-        boolean mayBuild = !isPlayer || player.mayBuild();
+        boolean mayBuild = !isPlayer || player.mayBuild() && FtbChunksCompat.get().mayEdit(player, serverLevel, pos);
 
         boolean mayAttempt = (isPlayer || mobGriefing) && standGriefing && !isSpawnProtected && mayBuild;
         if (!mayAttempt || pos == null) return mayAttempt;

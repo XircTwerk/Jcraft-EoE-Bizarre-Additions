@@ -261,6 +261,7 @@ public interface JCreativeMenuTabRegistry {
                     // spawn eggs part 1
                     entries.accept(JItemRegistry.BRAWLER_SPAWN_EGG.get());
                     entries.accept(JItemRegistry.HAMON_SPAWN_EGG.get());
+                    entries.accept(JItemRegistry.TONPETTY_SPAWN_EGG.get());
                     entries.accept(JItemRegistry.VAMPIRE_SPAWN_EGG.get());
                     // spawn eggs part 3
                     entries.accept(JItemRegistry.ANUBIS_USER_SPAWN_EGG.get());

@@ -12,6 +12,7 @@ import net.arna.jcraft.common.entity.npc.AyaTsujiEntity;
 import net.arna.jcraft.common.entity.npc.DarbyOlderEntity;
 import net.arna.jcraft.common.entity.npc.DarbyYoungerEntity;
 import net.arna.jcraft.common.entity.npc.PetshopEntity;
+import net.arna.jcraft.common.entity.npc.TonpettyEntity;
 import net.arna.jcraft.common.entity.projectile.*;
 import net.arna.jcraft.common.entity.spec.AnubisSpecUser;
 import net.arna.jcraft.common.entity.spec.BrawlerSpecUser;
@@ -611,6 +612,14 @@ public interface JEntityTypeRegistry {
             ).sized(0.6f, 1.8f).build("atum")
     );
 
+    RegistrySupplier<EntityType<TonpettyEntity>> TONPETTY = ENTITY_TYPE_REGISTRY.register(JCraft.id("tonpetty"),
+            () -> EntityType.Builder.of(
+                            (EntityType<TonpettyEntity> entityType, Level world) -> new TonpettyEntity(world),
+                            MobCategory.CREATURE
+                    ).sized(0.6f, 2f)
+                    .build("tonpetty")
+    );
+
     RegistrySupplier<EntityType<ChariotRequiemEntity>> CHARIOT_REQUIEM = ENTITY_TYPE_REGISTRY.register(JCraft.id("chariot_requiem"),
             () -> EntityType.Builder.of(
                     WorldOnlyEntityFactory.from(ChariotRequiemEntity::new),
@@ -788,6 +797,7 @@ public interface JEntityTypeRegistry {
         EntityAttributeRegistry.register(AYA_TSUJI, AyaTsujiEntity::createAyaTsujiAttributes);
         EntityAttributeRegistry.register(DARBY_OLDER, DarbyOlderEntity::createDarbyOlderAttributes);
         EntityAttributeRegistry.register(DARBY_YOUNGER, DarbyYoungerEntity::createDarbyYoungerAttributes);
+        EntityAttributeRegistry.register(TONPETTY, TonpettyEntity::createTonpettiAttributes);
 
         EntityAttributeRegistry.register(METALLICA, MetallicaEntity::createMobAttributes);
         EntityAttributeRegistry.register(THE_HAND, TheHandEntity::createMobAttributes);

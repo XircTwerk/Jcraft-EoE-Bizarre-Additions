@@ -103,6 +103,7 @@
   "commands.gravity.set.other": "Set %s's gravity to %s",
   "commands.gravity.set.self": "Set own gravity to %s",
   "container.jcraft.main_menu": "JCraft Menu",
+  "death.attack.jcraft.hamoninit": "%1$s got killed by a pinkie finger",
   "death.attack.jcraft.jbleeding": "%1$s bled out",
   "death.attack.jcraft.jbleeding.item": "%1$s bled out while fighting %2$s while wielding %3$s",
   "death.attack.jcraft.jbleeding.player": "%1$s bled out while fighting %2$s",
@@ -121,6 +122,7 @@
   "death.attack.jcraft.wsacid.player": "%1$s was melted by %2$s",
   "death.attack.jcraft.wsacid.player.item": "%1$s was melted by %2$s while wielding %3$s",
   "death.attack.player.player": "%1$s was retired",
+  "dialogue.tonpetty.greeting": "Tonpetty: Do you wish to walk the path of the Hermit?",
   "effect.jcraft.dazed_effect": "Dazed",
   "effect.jcraft.hypoxia": "Hypoxia",
   "effect.jcraft.jbleeding": "Bleeding",
@@ -633,6 +635,7 @@
   "item.jcraft.stellar_iron_ingot": "Stellar Iron Ingot",
   "item.jcraft.stone_mask": "Stone Mask",
   "item.jcraft.straizo_poncho": "Straizo's Poncho",
+  "item.jcraft.tonpetty_spwan_egg": "Tonpetty Spawn Egg",
   "item.jcraft.training_dummy": "Training Dummy",
   "item.jcraft.valentine_boots": "Valentine's Boots",
   "item.jcraft.valentine_jacket": "Valentine's Overcoat",
@@ -1539,5 +1542,6 @@
   "text.autoconfig.jcraft.title": "JCraft Config",
   "tooltip.jcraft.peacemaker.shots": "Shots:",
   "warning.jcraft.spec.change": "Using this will change your spec, are you sure?",
+  "warning.jcraft.spec.change.mob": "Interacting with this entity will change your spec, are you sure?",
   "warning.jcraft.stand.change": "Using this will change your stand, are you sure?"
 }

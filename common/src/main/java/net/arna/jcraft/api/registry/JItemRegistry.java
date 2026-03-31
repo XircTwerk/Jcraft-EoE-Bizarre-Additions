@@ -199,6 +199,8 @@ public interface JItemRegistry {
             () -> new ArchitecturySpawnEggItem(JEntityTypeRegistry.BRAWLER_SPEC_USER, BASE_COLOR, PART_1_COLOR, settings()));
     RegistrySupplier<Item> HAMON_SPAWN_EGG = register("hamon_spawn_egg",
             () -> new ArchitecturySpawnEggItem(JEntityTypeRegistry.HAMON_SPEC_USER, BASE_COLOR, PART_1_COLOR, settings()));
+    RegistrySupplier<Item> TONPETTY_SPAWN_EGG = register("tonpetty_spawn_egg",
+            () -> new ArchitecturySpawnEggItem(JEntityTypeRegistry.TONPETTY, BASE_COLOR, PART_1_COLOR, settings()));
     RegistrySupplier<Item> VAMPIRE_SPAWN_EGG = register("vampire_spawn_egg",
             () -> new ArchitecturySpawnEggItem(JEntityTypeRegistry.VAMPIRE_SPEC_USER, PART_2_COLOR, PART_1_COLOR, settings()));
     RegistrySupplier<Item> ANUBIS_USER_SPAWN_EGG = register("anubis_user_spawn_egg",

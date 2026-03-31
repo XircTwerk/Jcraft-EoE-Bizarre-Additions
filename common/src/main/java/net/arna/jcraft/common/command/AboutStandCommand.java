@@ -30,7 +30,7 @@ public class AboutStandCommand {
         StandEntity<?, ?> stand = JUtils.getStand(player);
 
         if (stand == null) {
-            context.getSource().sendSuccess(() -> Component.translatable("jcraft.commands.error.nostand"), true);
+            context.getSource().sendSuccess(() -> Component.translatable("jcraft.commands.error.nostand"), false);
             return 0;
         }
 

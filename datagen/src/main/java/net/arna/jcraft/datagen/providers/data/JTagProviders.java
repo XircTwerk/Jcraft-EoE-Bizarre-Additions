@@ -666,6 +666,19 @@ public class JTagProviders {
             bloodlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.SAND_TORNADO.get()));
             bloodlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.SHEER_HEART_ATTACK.get()));
 
+            // ironless entities
+            TagBuilder ironlessEntitiesBuilder = getOrCreateRawBuilder(JTagRegistry.IRONLESS_ENTITIES);
+            ironlessEntitiesBuilder.addTag(JTagRegistry.STANDS.location());
+            ironlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(EntityType.SNOW_GOLEM));
+            ironlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.TRAINING_DUMMY.get()));
+            ironlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.BLOCK_PROJECTILE.get()));
+            ironlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.HG_NET.get()));
+            ironlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.HAMON_WAVE.get()));
+            ironlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.LIFE_DETECTOR.get()));
+            ironlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.RED_BIND.get()));
+            ironlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.SAND_TORNADO.get()));
+            ironlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.SHEER_HEART_ATTACK.get()));
+
             // impossible to stun
             getOrCreateRawBuilder(JTagRegistry.CANNOT_BE_STUNNED).addElement(BuiltInRegistries.ENTITY_TYPE.getKey(EntityType.WARDEN));
 

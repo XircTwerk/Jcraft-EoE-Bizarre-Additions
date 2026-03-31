@@ -41,6 +41,7 @@ public interface JTagRegistry {
 
     TagKey<EntityType<?>> FERROUS_ENTITIES = TagKey.create(Registries.ENTITY_TYPE, JCraft.id("ferrous_entities"));
     TagKey<EntityType<?>> BLOODLESS_ENTITIES = TagKey.create(Registries.ENTITY_TYPE, JCraft.id("bloodless_entities"));
+    TagKey<EntityType<?>> IRONLESS_ENTITIES = TagKey.create(Registries.ENTITY_TYPE, JCraft.id("ironless_entities"));
     TagKey<EntityType<?>> CAN_HAVE_STAND = TagKey.create(Registries.ENTITY_TYPE, JCraft.id("can_have_stand"));
     TagKey<EntityType<?>> CANNOT_BE_STUNNED = TagKey.create(Registries.ENTITY_TYPE, JCraft.id("cannot_be_stunned"));
     TagKey<EntityType<?>> STANDS = TagKey.create(Registries.ENTITY_TYPE, JCraft.id("stands"));

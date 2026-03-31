@@ -276,6 +276,15 @@ public interface JEntityTypeRegistry {
                     1.8f
             ).build("crazy_diamond"));
 
+    RegistrySupplier<EntityType<AerosmithEntity>> AEROSMITH = ENTITY_TYPE_REGISTRY.register(JCraft.id("aerosmith"),
+            () -> EntityType.Builder.of(
+                    WorldOnlyEntityFactory.from(AerosmithEntity::new),
+                    MobCategory.CREATURE
+            ).sized(
+                    0.6f,
+                    1.8f
+            ).build("aerosmith"));
+
     RegistrySupplier<EntityType<GEREntity>> GER = ENTITY_TYPE_REGISTRY.register(JCraft.id("ger"),
             () -> EntityType.Builder.of(
                     WorldOnlyEntityFactory.from(GEREntity::new),
@@ -755,6 +764,7 @@ public interface JEntityTypeRegistry {
         EntityAttributeRegistry.register(THE_SUN, TheSunEntity::createMobAttributes);
         EntityAttributeRegistry.register(HORUS, HorusEntity::createMobAttributes);
         EntityAttributeRegistry.register(CRAZY_DIAMOND, CrazyDiamondEntity::createMobAttributes);
+        EntityAttributeRegistry.register(AEROSMITH, AerosmithEntity::createMobAttributes);
         EntityAttributeRegistry.register(CINDERELLA, CinderellaEntity::createMobAttributes);
         EntityAttributeRegistry.register(OSIRIS, OsirisEntity::createMobAttributes);
         EntityAttributeRegistry.register(ATUM, AtumEntity::createMobAttributes);

@@ -8,6 +8,7 @@ import net.arna.jcraft.api.registry.JStatRegistry;
 import net.arna.jcraft.api.spec.SpecTypeUtil;
 import net.arna.jcraft.common.entity.damage.JDamageSources;
 import net.arna.jcraft.common.entity.spec.HamonSpecUser;
+import net.arna.jcraft.common.util.JUtils;
 import net.arna.jcraft.platform.JComponentPlatformUtils;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementProgress;
@@ -63,22 +64,22 @@ public class TonpettyEntity extends HamonSpecUser {
         // Hamon lessons
         if (specData.getType() == JSpecTypeRegistry.HAMON.get()) {
             if (player instanceof ServerPlayer sp) {
-                if (hasAdvancement(sp, JCraft.id("hamon6"))) {
+                if (JUtils.hasAdvancement(sp, JCraft.id("hamon6"))) {
                     player.sendSystemMessage(Component.translatable("dialogue.tonpetty.master"));
                 }
-                else if (hasAdvancement(sp, JCraft.id("hamon5"))) {
+                else if (JUtils.hasAdvancement(sp, JCraft.id("hamon5"))) {
                     player.sendSystemMessage(Component.translatable("dialogue.tonpetty.hamon6"));
                 }
-                else if (hasAdvancement(sp, JCraft.id("hamon4"))) {
+                else if (JUtils.hasAdvancement(sp, JCraft.id("hamon4"))) {
                     player.sendSystemMessage(Component.translatable("dialogue.tonpetty.hamon5"));
                 }
-                else if (hasAdvancement(sp, JCraft.id("hamon3"))) {
+                else if (JUtils.hasAdvancement(sp, JCraft.id("hamon3"))) {
                     player.sendSystemMessage(Component.translatable("dialogue.tonpetty.hamon4"));
                 }
-                else if (hasAdvancement(sp, JCraft.id("hamon2"))) {
+                else if (JUtils.hasAdvancement(sp, JCraft.id("hamon2"))) {
                     player.sendSystemMessage(Component.translatable("dialogue.tonpetty.hamon3"));
                 }
-                else if (hasAdvancement(sp, JCraft.id("hamon1"))) {
+                else if (JUtils.hasAdvancement(sp, JCraft.id("hamon1"))) {
                     player.sendSystemMessage(Component.translatable("dialogue.tonpetty.hamon2"));
                 }
                 else {
@@ -104,14 +105,4 @@ public class TonpettyEntity extends HamonSpecUser {
         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 20.0).add(Attributes.MOVEMENT_SPEED, 0.25);
     }
 
-    private static boolean hasAdvancement(final ServerPlayer player, final ResourceLocation advancementLoc) {
-        if (player.getServer() == null) {
-            return false;
-        }
-        final Advancement advancement = player.getServer().getAdvancements().getAdvancement(advancementLoc);
-        if (advancement == null) {
-            return false;
-        }
-        return player.getAdvancements().getOrStartProgress(advancement).isDone();
-    }
 }

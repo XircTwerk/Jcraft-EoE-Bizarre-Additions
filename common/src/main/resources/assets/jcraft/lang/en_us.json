@@ -1544,6 +1544,7 @@
   "text.autoconfig.jcraft.option.iconHudPeekAllMoves": "Peek Moves in Icon HUD",
   "text.autoconfig.jcraft.option.standAuras": "Stand Auras",
   "text.autoconfig.jcraft.option.timeEraseShader": "Time Erase Shader",
+  "text.autoconfig.jcraft.option.uiDuration": "UI Duration",
   "text.autoconfig.jcraft.option.uiPosition": "UI Position",
   "text.autoconfig.jcraft.option.verticalHudOffset": "Vertical HUD Offset (+DOWN/-UP)",
   "text.autoconfig.jcraft.title": "JCraft Config",

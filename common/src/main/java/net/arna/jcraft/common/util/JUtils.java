@@ -8,7 +8,6 @@ import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.AttackData;
 import net.arna.jcraft.api.attack.enums.MoveInputType;
 import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
-import net.arna.jcraft.api.registry.JEntityTypeRegistry;
 import net.arna.jcraft.api.registry.JSoundRegistry;
 import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.arna.jcraft.api.registry.JTagRegistry;
@@ -20,7 +19,6 @@ import net.arna.jcraft.api.stand.StandTypeUtil;
 import net.arna.jcraft.common.config.JServerConfig;
 import net.arna.jcraft.common.entity.damage.JDamageSources;
 import net.arna.jcraft.common.entity.projectile.ItemTossProjectile;
-import net.arna.jcraft.common.entity.projectile.JAttackEntity;
 import net.arna.jcraft.common.entity.projectile.KnifeProjectile;
 import net.arna.jcraft.common.entity.projectile.ScalpelProjectile;
 import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
@@ -626,27 +624,18 @@ public final class JUtils {
             Map.entry(EntityType.HUSK, 0.1f),
 
             Map.entry(EntityType.VILLAGER, 1.5f),
-            Map.entry(EntityType.PLAYER, 1.5f),
-
-            Map.entry(EntityType.IRON_GOLEM, 0.0f),
-            Map.entry(EntityType.SNOW_GOLEM, 0.0f),
-
-            Map.entry(JEntityTypeRegistry.ROAD_ROLLER.get(), 0.0f),
-
-            Map.entry(JEntityTypeRegistry.SHEER_HEART_ATTACK.get(), 0.0f)
+            Map.entry(EntityType.PLAYER, 1.5f)
     );
 
     public static float getBloodMult(LivingEntity entity) {
         EntityType<?> type = entity.getType();
 
-        if (entity instanceof StandEntity<?,?>) return 0;
+        if (type.is(JTagRegistry.BLOODLESS_ENTITIES)) {
+            return 0;
+        }
 
         if (type.is(EntityTypeTags.RAIDERS)) {
             return 1.5f;
-        }
-
-        if (type.is(EntityTypeTags.SKELETONS) || entity instanceof JAttackEntity) {
-            return 0;
         }
 
         if (type.is(EntityTypeTags.AXOLOTL_HUNT_TARGETS)) // Fishes

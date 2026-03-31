@@ -40,6 +40,7 @@ public interface JTagRegistry {
     TagKey<Block> AU_REPLACED_WITH_AIR = TagKey.create(Registries.BLOCK, JCraft.id("au_replaced_with_air"));
 
     TagKey<EntityType<?>> FERROUS_ENTITIES = TagKey.create(Registries.ENTITY_TYPE, JCraft.id("ferrous_entities"));
+    TagKey<EntityType<?>> BLOODLESS_ENTITIES = TagKey.create(Registries.ENTITY_TYPE, JCraft.id("bloodless_entities"));
     TagKey<EntityType<?>> CAN_HAVE_STAND = TagKey.create(Registries.ENTITY_TYPE, JCraft.id("can_have_stand"));
     TagKey<EntityType<?>> CANNOT_BE_STUNNED = TagKey.create(Registries.ENTITY_TYPE, JCraft.id("cannot_be_stunned"));
     TagKey<EntityType<?>> STANDS = TagKey.create(Registries.ENTITY_TYPE, JCraft.id("stands"));

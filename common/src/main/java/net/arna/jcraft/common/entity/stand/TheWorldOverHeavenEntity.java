@@ -338,9 +338,9 @@ public class TheWorldOverHeavenEntity extends StandEntity<TheWorldOverHeavenEnti
 
     // Animation code
     public enum State implements StandAnimationState<TheWorldOverHeavenEntity> {
-        IDLE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.twoh.idle", AzPlayBehaviors.LOOP)),
+        IDLE(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.twoh.idle", AzPlayBehaviors.LOOP)),
         LIGHT(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.twoh.light", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
-        BLOCK(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.twoh.block", AzPlayBehaviors.LOOP)),
+        BLOCK(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.twoh.block", AzPlayBehaviors.LOOP)),
         HEAVY(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.twoh.heavy", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
         BARRAGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.twoh.barrage", AzPlayBehaviors.LOOP)),
         SMITE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.twoh.smite", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),

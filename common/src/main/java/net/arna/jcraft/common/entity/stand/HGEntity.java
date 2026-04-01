@@ -331,9 +331,10 @@ public class HGEntity extends StandEntity<HGEntity, HGEntity.State> {
                 if (f == 0) {
                     if (s > 0) {
                         setStateNoReset(State.RIGHT);
-                    }
-                    if (s < 0) {
+                    } else if (s < 0) {
                         setStateNoReset(State.LEFT);
+                    } else {
+                        setStateNoReset(State.IDLE);
                     }
                 } else {
                     if (f < 0) {

@@ -4,12 +4,13 @@ import lombok.NonNull;
 import mod.azure.azurelib.animation.dispatch.command.AzCommand;
 import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
 import net.arna.jcraft.JCraft;
+import net.arna.jcraft.api.AttackData;
 import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
+import net.arna.jcraft.api.registry.JEntityTypeRegistry;
+import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.common.splatter.SplatterType;
 import net.arna.jcraft.common.util.JUtils;
-import net.arna.jcraft.api.registry.JEntityTypeRegistry;
-import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -85,8 +86,13 @@ public class WSAcidProjectile extends AbstractArrow {
             if (entity instanceof StandEntity<?, ?> stand && stand.hasUser()) {
                 target = stand.getUserOrThrow();
             }
-            damageLogic(level(), target, Vec3.ZERO, 10, 1, false, 5f, false, 6,
-                    level().damageSources().thrown(this, owner), owner, CommonHitPropertyComponent.HitAnimation.MID);
+
+            final Level level = level();
+            damageLogic(level, target,
+                    new AttackData(Vec3.ZERO, 10, 1, false, 5f, false, 6,
+                    level.damageSources().thrown(this, owner), owner, CommonHitPropertyComponent.HitAnimation.MID,
+                    null, false, false, false)
+            );
             target.addEffect(new MobEffectInstance(JStatusRegistry.WSPOISON.get(), 60, 0, false, true));
             discard();
         }

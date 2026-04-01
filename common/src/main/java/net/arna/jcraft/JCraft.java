@@ -187,6 +187,8 @@ public final class JCraft {
         ITEM_REGISTRY.register();
         BLOCK_ENTITY_TYPE_REGISTRY.register();
 
+        JRecipeRegistry.register();
+
         // Custom registries
         STAND_TYPE_REGISTRY.register();
         SPEC_TYPE_REGISTRY.register();

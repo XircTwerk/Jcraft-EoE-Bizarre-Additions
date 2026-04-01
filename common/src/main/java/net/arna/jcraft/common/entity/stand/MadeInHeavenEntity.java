@@ -106,7 +106,7 @@ public class MadeInHeavenEntity extends StandEntity<MadeInHeavenEntity, MadeInHe
                     Component.literal("Kick"),
                     Component.literal("quick combo finisher")
             );
-    public static final SimpleAttack<MadeInHeavenEntity> SLICE = new SimpleAttack<MadeInHeavenEntity>(8,
+    public static final SimpleAttack<MadeInHeavenEntity> SLICE = new SimpleAttack<MadeInHeavenEntity>(11,
             5, 8, 0.75f, 4f, 10, 1.5f, 0.15f, -0.1f)
             .noLoopPrevention()
             .withFollowup(LIGHT_FOLLOWUP)

@@ -221,9 +221,9 @@ public final class SPTWEntity extends AbstractStarPlatinumEntity<SPTWEntity, SPT
 
     // Animation code
     public enum State implements StandAnimationState<SPTWEntity> {
-        IDLE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.sptw.idle", AzPlayBehaviors.LOOP)),
+        IDLE(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.sptw.idle", AzPlayBehaviors.LOOP)),
         PUNCH(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.sptw.punch", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
-        BLOCK(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.sptw.block", AzPlayBehaviors.LOOP)),
+        BLOCK(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.sptw.block", AzPlayBehaviors.LOOP)),
         HEAVY(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.sptw.heavy", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
         GROUND_BREAKER(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.sptw.ground_break", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
         BARRAGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.sptw.barrage", AzPlayBehaviors.LOOP)),

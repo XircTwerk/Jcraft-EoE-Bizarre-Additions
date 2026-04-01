@@ -433,9 +433,9 @@ public class TheFoolEntity extends StandEntity<TheFoolEntity, TheFoolEntity.Stat
     // Animation code
     public enum State implements StandAnimationState<TheFoolEntity> {
         // TODO reenable crouchblock
-        IDLE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.thefool.idle", AzPlayBehaviors.LOOP)),
+        IDLE(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.thefool.idle", AzPlayBehaviors.LOOP)),
         SWIPE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.thefool.light", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
-        BLOCK(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.thefool.block", AzPlayBehaviors.LOOP)),
+        BLOCK(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.thefool.block", AzPlayBehaviors.LOOP)),
         COMBO(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.thefool.combo", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
         AIR_BARRAGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.thefool.airbarrage", AzPlayBehaviors.LOOP)),
         LAUNCH(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.thefool.launch", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),

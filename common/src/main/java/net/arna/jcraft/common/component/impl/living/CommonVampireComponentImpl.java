@@ -1,4 +1,4 @@
-package net.arna.jcraft.common.component.impl;
+package net.arna.jcraft.common.component.impl.living;
 
 import lombok.Getter;
 import net.arna.jcraft.api.component.living.CommonVampireComponent;

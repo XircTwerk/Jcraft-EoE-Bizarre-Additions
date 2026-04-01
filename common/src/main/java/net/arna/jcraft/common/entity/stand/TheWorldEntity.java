@@ -267,9 +267,9 @@ public final class TheWorldEntity extends AbstractTheWorldEntity<TheWorldEntity,
 
     // Animation code
     public enum State implements StandAnimationState<TheWorldEntity> {
-        IDLE(Attacks.createAnimationCommand("base_controller", "animation.theworld.idle", AzPlayBehaviors.LOOP)),
+        IDLE(AzCommand.create("base_controller", "animation.theworld.idle", AzPlayBehaviors.LOOP)),
         LIGHT(Attacks.createAnimationCommand("base_controller", "animation.theworld.light", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
-        BLOCK(Attacks.createAnimationCommand("base_controller", "animation.theworld.block", AzPlayBehaviors.LOOP)),
+        BLOCK(AzCommand.create("base_controller", "animation.theworld.block", AzPlayBehaviors.LOOP)),
         DONUT(Attacks.createAnimationCommand("base_controller", "animation.theworld.donut", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
         BARRAGE(Attacks.createAnimationCommand("base_controller", "animation.theworld.barrage", AzPlayBehaviors.LOOP)),
         TIME_STOP(Attacks.createAnimationCommand("base_controller", "animation.theworld.timestop", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),

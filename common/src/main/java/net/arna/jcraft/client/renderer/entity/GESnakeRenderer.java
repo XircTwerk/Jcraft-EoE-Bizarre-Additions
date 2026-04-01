@@ -48,8 +48,8 @@ public class GESnakeRenderer extends AbstractEntityRenderer<GESnakeEntity> {
 
         @Override
         public void registerControllers(@NonNull AzAnimationControllerContainer<GESnakeEntity> animationControllerContainer) {
+            animationControllerContainer.add(AzAnimationController.builder(this, GESnakeEntity.MOVEMENT_CONTROLLER).setTransitionLength(5).build());
             animationControllerContainer.add(AzAnimationController.builder(this, GESnakeEntity.ATTACK_CONTROLLER).setTransitionLength(0).build());
-            animationControllerContainer.add(AzAnimationController.builder(this, GESnakeEntity.MOVEMENT_CONTROLLER).setTransitionLength(0).build());
         }
     }
 

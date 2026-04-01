@@ -72,7 +72,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-import static net.arna.jcraft.JCraft.comboBreak;
 import static net.arna.jcraft.api.Attacks.damageLogic;
 
 public abstract class StandEntity<E extends StandEntity<E, S>, S extends Enum<S> & StandAnimationState<E>>
@@ -1319,8 +1318,8 @@ public abstract class StandEntity<E extends StandEntity<E, S>, S extends Enum<S>
         final CombatEntityContext attackerCtx = combatCtx.getAttackerCtx();
         final CombatEntityContext targetCtx = combatCtx.getTargetCtx();
 
-        Mob mob = (Mob) attackerCtx.entity(); // Guaranteed by contract
-        PathfinderMob pathfinder = (mob instanceof PathfinderMob pathfinderMob) ? pathfinderMob : null;
+        final Mob mob = (Mob) attackerCtx.entity(); // Guaranteed by contract
+        final PathfinderMob pathfinder = (mob instanceof PathfinderMob pathfinderMob) ? pathfinderMob : null;
         final LivingEntity target = targetCtx.entity();
         final LookControl lookControl = mob.getLookControl();
         final JumpControl jumpControl = mob.getJumpControl();
@@ -1438,23 +1437,8 @@ public abstract class StandEntity<E extends StandEntity<E, S>, S extends Enum<S>
                 }
             }
             case COMBOED -> {
-                if (aiLevel <= IJAttackerBrain.BEGINNER_LEVEL) return;
-                final MobEffectInstance stun = combatCtx.getAttackerCtx().stun();
-                if (stun == null) return;
-
                 wantToBlock = true;
-
-                final boolean lowHP = user.getHealth() < user.getMaxHealth() / 2.0f || user.getHealth() < 5f;
-                final boolean enemyIsActing = targetCtx.standAttack() != null || targetCtx.specAttack() != null;
-
-                boolean burstCondition;
-                if (aiLevel >= IJAttackerBrain.COMPETITIVE_LEVEL) burstCondition = lowHP && enemyIsActing || random.nextFloat() < 0.02f;
-                else if (aiLevel >= IJAttackerBrain.INTERMEDIATE_LEVEL) burstCondition = lowHP || enemyIsActing || random.nextFloat() < 0.05f;
-                else burstCondition = random.nextFloat() < 0.1f;
-
-                if (burstCondition) {
-                    comboBreak((ServerLevel) level(), user, stun);
-                }
+                decideComboBreak(aiLevel, combatCtx);
             }
             default -> throw new IllegalStateException("Unexpected value: " + info.getState());
         }

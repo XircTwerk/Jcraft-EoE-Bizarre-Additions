@@ -176,14 +176,14 @@ public class WhiteSnakeEntity extends StandEntity<WhiteSnakeEntity, WhiteSnakeEn
                     Component.literal("Take Memory Disk"),
                     Component.literal("uninterruptible& unblockable, gives mining fatigue & weakness for 30s")
             );
-    public static final ChargedSpewAttack CHARGED_SPEW = new ChargedSpewAttack(40,
+    public static final ChargedSpewAttack CHARGED_SPEW = new ChargedSpewAttack(160,
             20, 26, 0.75f, 0f, 0, 2f, 0f, 0f)
             .withBlockableType(BlockableType.NON_BLOCKABLE_EFFECTS_ONLY)
             .withInfo(
                     Component.literal("Poison Spew"),
                     Component.literal("fires a spread of 5 acid projectiles that slow enemies and persist on the surface they hits for 5s")
             );
-    public static final PoisonSpewAttack POISON_SPEW = new PoisonSpewAttack(20,
+    public static final PoisonSpewAttack POISON_SPEW = new PoisonSpewAttack(100,
             10, 14, 0.75f, 0f, 0, 2f, 0f, 0f)
             .withBlockableType(BlockableType.NON_BLOCKABLE_EFFECTS_ONLY)
             .withCrouchingVariant(CHARGED_SPEW)
@@ -372,9 +372,9 @@ public class WhiteSnakeEntity extends StandEntity<WhiteSnakeEntity, WhiteSnakeEn
     // Animation code
     public enum State implements StandAnimationState<WhiteSnakeEntity> {
         // TODO reenable remote idle
-        IDLE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.whitesnake.idle", AzPlayBehaviors.LOOP)),
+        IDLE(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.whitesnake.idle", AzPlayBehaviors.LOOP)),
         LIGHT(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.whitesnake.light", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
-        BLOCK(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.whitesnake.block", AzPlayBehaviors.LOOP)),
+        BLOCK(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.whitesnake.block", AzPlayBehaviors.LOOP)),
         MEDIUM(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.whitesnake.medium", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
         BARRAGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.whitesnake.barrage", AzPlayBehaviors.LOOP)),
         LEG_CRUSHER(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.whitesnake.legcrusher", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),

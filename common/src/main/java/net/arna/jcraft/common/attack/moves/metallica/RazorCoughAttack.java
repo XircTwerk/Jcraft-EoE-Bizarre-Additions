@@ -3,15 +3,16 @@ package net.arna.jcraft.common.attack.moves.metallica;
 import com.mojang.datafixers.kinds.App;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.NonNull;
+import net.arna.jcraft.api.MoveSelectionResult;
 import net.arna.jcraft.api.attack.MoveType;
 import net.arna.jcraft.api.attack.moves.AbstractMove;
+import net.arna.jcraft.api.registry.JSoundRegistry;
+import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.common.entity.stand.MetallicaEntity;
 import net.arna.jcraft.common.tickable.MagneticFields;
 import net.arna.jcraft.common.tickable.RazorCoughs;
 import net.arna.jcraft.common.util.JUtils;
-import net.arna.jcraft.api.registry.JSoundRegistry;
-import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,6 +20,7 @@ import net.minecraft.world.entity.player.Player;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RazorCoughAttack extends AbstractMove<RazorCoughAttack, MetallicaEntity> {
     public RazorCoughAttack(int cooldown, int windup, int duration) {
@@ -75,6 +77,29 @@ public class RazorCoughAttack extends AbstractMove<RazorCoughAttack, MetallicaEn
         });
 
         return Set.of();
+    }
+
+    @Override
+    public MoveSelectionResult specificMoveSelectionCriterion(
+            MetallicaEntity attacker, LivingEntity mob, LivingEntity target,
+            int stunTicks, int enemyMoveStun, double distance,
+            StandEntity<?, ?> enemyStand, AbstractMove<?, ?> enemyAttack) {
+        final LivingEntity user = attacker.getUserOrThrow();
+        final AtomicBoolean hitFound = new AtomicBoolean(false);
+        final Set<Entity> filter = Set.of(attacker, user);
+
+        MagneticFields.forAllOfOwner(user, (field) -> {
+            final Set<LivingEntity> hit = JUtils.generateHitboxNoDisplay(attacker.level(), field.pos, field.getStrength(), e -> !filter.contains(e));
+
+            if (!hit.isEmpty()) {
+                hitFound.set(true);
+                return false;
+            }
+
+            return true;
+        });
+
+        return hitFound.get() ? MoveSelectionResult.USE : MoveSelectionResult.STOP;
     }
 
     @Override

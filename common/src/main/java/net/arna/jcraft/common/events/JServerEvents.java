@@ -21,6 +21,7 @@ import net.arna.jcraft.common.item.MockItem;
 import net.arna.jcraft.common.marker.BlockMarkerMoves;
 import net.arna.jcraft.common.network.s2c.AttackerDataPacket;
 import net.arna.jcraft.common.saveddata.ExclusiveStandsData;
+import net.arna.jcraft.common.spec.VampireSpec;
 import net.arna.jcraft.common.tickable.*;
 import net.arna.jcraft.common.util.*;
 import net.arna.jcraft.mixin_logic.EntityAddon;
@@ -90,6 +91,12 @@ public class JServerEvents {
         JCraft.getExclusiveStandsData().saveToDefaultFile(server);
     }
 
+    public static AABB createBurstHitbox(final Vec3 pPos) {
+        final Vec3 min = pPos.subtract(2.0, 2.0, 2.0);
+        final Vec3 max = pPos.add(2.0, 2.0, 2.0);
+        return new AABB(min, max);
+    }
+
     public static void serverPostTick(MinecraftServer server) {
         if (JCraft.preloadLockTicks > 0) {
             JCraft.preloadLockTicks--;
@@ -141,7 +148,7 @@ public class JServerEvents {
 
             Vec3 pPos = player.getEyePosition();
 
-            AABB burstHitbox = AbstractSimpleAttack.createBox(pPos, 4);
+            AABB burstHitbox = createBurstHitbox(pPos);
             List<? extends Entity> toPush = player.level().getEntitiesOfClass(Entity.class, burstHitbox,
                     EntitySelector.LIVING_ENTITY_STILL_ALIVE.and(e -> !filter.contains(e)));
             JUtils.displayHitbox(player.level(), burstHitbox);
@@ -495,7 +502,7 @@ public class JServerEvents {
                             killerPlayer.getFoodData().eat(20, 20f);
                             CommonVampireComponent vampireComponent = JComponentPlatformUtils.getVampirism(killerPlayer);
                             if (vampireComponent.isVampire()) {
-                                vampireComponent.setBlood(20.0f);
+                                vampireComponent.setBlood(VampireSpec.MAX_BLOOD);
                             }
                         }
 

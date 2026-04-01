@@ -30,6 +30,7 @@ public interface JParticleTypeRegistry {
     RegistrySupplier<SimpleParticleType> PURPLE_HAZE_CLOUD = PARTICLES.register("purple_haze_cloud", () -> new SimpleParticleType(false));
     RegistrySupplier<SimpleParticleType> PURPLE_HAZE_PARTICLE = PARTICLES.register("purple_haze_particle", () -> new SimpleParticleType(false));
     RegistrySupplier<SimpleParticleType> DAMAGE_NUMBER = PARTICLES.register("damage_number", () -> new SimpleParticleType(false));
+    RegistrySupplier<SimpleParticleType> HAMON_SPARK = PARTICLES.register("hamon_spark", () -> new SimpleParticleType(false));
 
     /*
     TODO: impl this properly (fuck forge)

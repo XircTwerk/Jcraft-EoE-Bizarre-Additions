@@ -22,10 +22,12 @@ import net.arna.jcraft.common.attack.moves.purplehaze.distortion.DistortionMove;
 import net.arna.jcraft.common.attack.moves.shared.*;
 import net.arna.jcraft.common.util.CooldownType;
 import net.arna.jcraft.common.util.JParticleType;
+import net.arna.jcraft.common.util.JUtils;
 import net.arna.jcraft.common.util.StandAnimationState;
 import net.arna.jcraft.api.registry.JSoundRegistry;
 import net.arna.jcraft.api.registry.JStandTypeRegistry;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import org.joml.Vector3f;
 
@@ -142,18 +144,26 @@ public final class PurpleHazeDistortionEntity extends AbstractPurpleHazeEntity<P
 
     @Override
     protected void tickRemoteState(double f, double s, boolean dashing) {
-        if (getMoveStun() <= 0) { // Replace idle anim
-            if (s > 0) {
-                setStateNoReset(dashing ? State.RIGHT : State.RIGHT_DASH);
-            }
-            if (s < 0) {
-                setStateNoReset(dashing ? State.LEFT : State.LEFT_DASH);
-            }
-            if (f < 0) {
-                setStateNoReset(dashing ? State.BACKWARD : State.BACKWARD_DASH);
-            }
-            if (f > 0) {
-                setStateNoReset(dashing ? State.FORWARD : State.FORWARD_DASH);
+        LivingEntity user = getUserOrThrow();
+
+        if (getMoveStun() <= 0) {
+            if (JUtils.canAct(user)) {
+                if (f == 0) {
+                    if (s > 0) {
+                        setStateNoReset(onGround() ? State.RIGHT : State.RIGHT_DASH);
+                    } else if (s < 0) {
+                        setStateNoReset(onGround() ? State.LEFT : State.LEFT_DASH);
+                    } else {
+                        setStateNoReset(State.IDLE);
+                    }
+                } else {
+                    if (f < 0) {
+                        setStateNoReset(onGround() ? State.BACKWARD : State.BACKWARD_DASH);
+                    }
+                    if (f > 0) {
+                        setStateNoReset(onGround() ? State.FORWARD : State.FORWARD_DASH);
+                    }
+                }
             }
         }
     }

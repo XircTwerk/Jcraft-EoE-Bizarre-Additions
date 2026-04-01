@@ -288,12 +288,12 @@ public class TheHandEntity extends StandEntity<TheHandEntity, TheHandEntity.Stat
     }
 
     public enum State implements StandAnimationState<TheHandEntity> {
-        IDLE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.the_hand.idle", AzPlayBehaviors.LOOP)),
+        IDLE(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.the_hand.idle", AzPlayBehaviors.LOOP)),
         LIGHT(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.the_hand.light", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
         LIGHT_FOLLOWUP(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.the_hand.light2", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
         CROUCHING_LIGHT(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.the_hand.crouching_light", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
         CROUCHING_LIGHT_FOLLOWUP(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.the_hand.crouching_light2", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
-        BLOCK(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.the_hand.block", AzPlayBehaviors.LOOP)),
+        BLOCK(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.the_hand.block", AzPlayBehaviors.LOOP)),
         KICK(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.the_hand.heavy", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
         BARRAGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.the_hand.barrage", AzPlayBehaviors.LOOP)),
         ERASE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.the_hand.erase", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),

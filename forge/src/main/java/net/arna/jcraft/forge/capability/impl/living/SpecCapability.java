@@ -1,6 +1,7 @@
-package net.arna.jcraft.forge.capability.impl.player;
+package net.arna.jcraft.forge.capability.impl.living;
 
 import dev.architectury.networking.NetworkManager;
+import net.arna.jcraft.JCraft;
 import net.arna.jcraft.common.component.impl.player.CommonSpecComponentImpl;
 import net.arna.jcraft.forge.JNetworkingForge;
 import net.arna.jcraft.forge.capability.api.JCapability;
@@ -16,12 +17,10 @@ import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 
-import static net.arna.jcraft.JCraft.MOD_ID;
-
 public class SpecCapability extends CommonSpecComponentImpl implements JCapability {
 
-    public static ResourceLocation SPEC_S2C = new ResourceLocation(MOD_ID, "spec_s2c");
-    public static ResourceLocation SPEC_C2S = new ResourceLocation(MOD_ID, "spec_c2s");
+    public static ResourceLocation SPEC_S2C = JCraft.id("spec_s2c");
+    public static ResourceLocation SPEC_C2S = JCraft.id("spec_c2s");
 
     public static Capability<SpecCapability> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {
     });

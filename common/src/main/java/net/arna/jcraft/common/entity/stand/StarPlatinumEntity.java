@@ -282,10 +282,10 @@ public final class StarPlatinumEntity extends AbstractStarPlatinumEntity<StarPla
 
     // Animation code
     public enum State implements StandAnimationState<StarPlatinumEntity> {
-        IDLE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.star_platinum.idle", AzPlayBehaviors.LOOP)),
-        INHALE_IDLE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.star_platinum.inhaleidle", AzPlayBehaviors.LOOP)),
+        IDLE(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.star_platinum.idle", AzPlayBehaviors.LOOP)),
+        INHALE_IDLE(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.star_platinum.inhaleidle", AzPlayBehaviors.LOOP)),
         PUNCH(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.star_platinum.light", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
-        BLOCK(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.star_platinum.block", AzPlayBehaviors.LOOP)),
+        BLOCK(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.star_platinum.block", AzPlayBehaviors.LOOP)),
         HEAVY(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.star_platinum.heavy", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
         GROUND_BREAKER(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.star_platinum.ground_slam", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
         BARRAGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.star_platinum.barrage", AzPlayBehaviors.LOOP)),

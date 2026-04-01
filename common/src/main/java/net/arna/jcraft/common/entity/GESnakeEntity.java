@@ -4,18 +4,13 @@ import lombok.NonNull;
 import mod.azure.azurelib.animation.dispatch.command.AzCommand;
 import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
 import mod.azure.azurelib.util.MoveAnalysis;
-import net.arna.jcraft.JCraft;
 import net.arna.jcraft.common.entity.ai.goal.StunningMeleeAttackGoal;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
-import net.minecraft.world.entity.ai.goal.FloatGoal;
-import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
-import net.minecraft.world.entity.ai.goal.LeapAtTargetGoal;
-import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.OwnerHurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.OwnerHurtTargetGoal;
 import net.minecraft.world.level.Level;
@@ -77,6 +72,6 @@ public class GESnakeEntity extends TamableAnimal {
         }
     }
 
-    public static final AzCommand MOVE = AzCommand.create(JCraft.BASE_CONTROLLER, "animation.gesnake.move", AzPlayBehaviors.LOOP);
+    public static final AzCommand MOVE = AzCommand.create(MOVEMENT_CONTROLLER, "animation.gesnake.move", AzPlayBehaviors.LOOP);
     public static final AzCommand ATTACK = AzCommand.create(ATTACK_CONTROLLER, "animation.gesnake.attack");
 }

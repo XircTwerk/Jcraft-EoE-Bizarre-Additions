@@ -44,6 +44,8 @@ import org.joml.Vector3f;
  */
 @Getter
 public final class ShadowTheWorldEntity extends AbstractTheWorldEntity<ShadowTheWorldEntity, ShadowTheWorldEntity.State> {
+    public static final String DESUMMON_CONTROLLER = "desummon";
+
     public static final MoveSet<ShadowTheWorldEntity, State> MOVE_SET = MoveSetManager.create(JStandTypeRegistry.SHADOW_THE_WORLD,
             ShadowTheWorldEntity::registerMoves, State.class);
     public static final StandData DATA = StandData.builder()
@@ -211,12 +213,14 @@ public final class ShadowTheWorldEntity extends AbstractTheWorldEntity<ShadowThe
         moves.register(MoveClass.UTILITY, TIME_SKIP, State.IDLE);
     }
 
+    private final AzCommand DESUMMON = AzCommand.create(DESUMMON_CONTROLLER, "animation.shadow_the_world.desummon");
     public void startAnimatedDesummon() {
         entityData.set(DESUMMONING, true);
         //todo: playSound(JSoundRegistry.SHADOW_THE_WORLD_DESUMMON);
         if (isFree()) return;
         setFree(true);
         setFreePos(position().toVector3f());
+        DESUMMON.sendForEntity(this);
     }
 
     public boolean isAnimatedDesummoning() {

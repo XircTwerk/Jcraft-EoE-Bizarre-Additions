@@ -47,7 +47,9 @@ public final class CountdownMove extends AbstractMove<CountdownMove, MandomEntit
             Identifiers.FALL_DISTANCE,
             Identifiers.FOOD_DATA,
             Identifiers.BLOOD_GAUGE,
+            Identifiers.HAMON_CHARGE,
             Identifiers.HEALTH,
+            Identifiers.AIR,
             Identifiers.ACTIVE_EFFECTS,
             Identifiers.VEHICLE
     );

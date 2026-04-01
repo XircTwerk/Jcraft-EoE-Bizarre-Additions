@@ -2,6 +2,7 @@ package net.arna.jcraft.datagen.providers.data;
 
 import dev.architectury.registry.registries.RegistrySupplier;
 import lombok.SneakyThrows;
+import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.registry.JBlockRegistry;
 import net.arna.jcraft.api.registry.JEntityTypeRegistry;
 import net.arna.jcraft.api.registry.JItemRegistry;
@@ -27,6 +28,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -670,11 +672,41 @@ public class JTagProviders {
 
             ferrousEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.RAZOR.get()));
 
+            // bloodless entities
+            TagBuilder bloodlessEntitiesBuilder = getOrCreateRawBuilder(JTagRegistry.BLOODLESS_ENTITIES);
+            bloodlessEntitiesBuilder.addOptionalTag(EntityTypeTags.SKELETONS.location());
+            bloodlessEntitiesBuilder.addTag(JTagRegistry.STANDS.location());
+            bloodlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(EntityType.IRON_GOLEM));
+            bloodlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(EntityType.SNOW_GOLEM));
+            bloodlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.TRAINING_DUMMY.get()));
+            bloodlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.ROAD_ROLLER.get()));
+            bloodlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.BLOCK_PROJECTILE.get()));
+            bloodlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.HG_NET.get()));
+            bloodlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.HAMON_WAVE.get()));
+            bloodlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.LIFE_DETECTOR.get()));
+            bloodlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.RED_BIND.get()));
+            bloodlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.SAND_TORNADO.get()));
+            bloodlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.SHEER_HEART_ATTACK.get()));
+
+            // ironless entities
+            TagBuilder ironlessEntitiesBuilder = getOrCreateRawBuilder(JTagRegistry.IRONLESS_ENTITIES);
+            ironlessEntitiesBuilder.addTag(JTagRegistry.STANDS.location());
+            ironlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(EntityType.SNOW_GOLEM));
+            ironlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.TRAINING_DUMMY.get()));
+            ironlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.BLOCK_PROJECTILE.get()));
+            ironlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.HG_NET.get()));
+            ironlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.HAMON_WAVE.get()));
+            ironlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.LIFE_DETECTOR.get()));
+            ironlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.RED_BIND.get()));
+            ironlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.SAND_TORNADO.get()));
+            ironlessEntitiesBuilder.addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.SHEER_HEART_ATTACK.get()));
+
             // impossible to stun
             getOrCreateRawBuilder(JTagRegistry.CANNOT_BE_STUNNED).addElement(BuiltInRegistries.ENTITY_TYPE.getKey(EntityType.WARDEN));
 
             // spec users
             getOrCreateRawBuilder(JTagRegistry.SPEC_USER).addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.BRAWLER_SPEC_USER.get()));
+            getOrCreateRawBuilder(JTagRegistry.SPEC_USER).addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.HAMON_SPEC_USER.get()));
             getOrCreateRawBuilder(JTagRegistry.SPEC_USER).addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.VAMPIRE_SPEC_USER.get()));
             getOrCreateRawBuilder(JTagRegistry.SPEC_USER).addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.ANUBIS_SPEC_USER.get()));
 
@@ -741,6 +773,18 @@ public class JTagProviders {
             getOrCreateTagBuilder(TagKey.create(Registries.ENTITY_TYPE,
                     new ResourceLocation("irons_spellbooks", "cant_root")))
                     .addTag(JTagRegistry.STANDS);
+        }
+    }
+
+    public static class JTemplatePoolTags extends FabricTagProvider<StructureTemplatePool> {
+
+        public JTemplatePoolTags(final FabricDataOutput output, final CompletableFuture<HolderLookup.Provider> registriesFuture) {
+            super(output, Registries.TEMPLATE_POOL, registriesFuture);
+        }
+
+        @Override
+        protected void addTags(final HolderLookup.Provider arg) {
+            getOrCreateRawBuilder(JTagRegistry.STONE_BASE).addOptionalElement(JCraft.id("monastery/lower_center_pool"));
         }
     }
 

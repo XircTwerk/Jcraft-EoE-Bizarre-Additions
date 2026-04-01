@@ -8,8 +8,8 @@ import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.AttackData;
 import net.arna.jcraft.api.attack.enums.MoveInputType;
 import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
-import net.arna.jcraft.api.registry.JEntityTypeRegistry;
 import net.arna.jcraft.api.registry.JSoundRegistry;
+import net.arna.jcraft.api.registry.JStatRegistry;
 import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.arna.jcraft.api.registry.JTagRegistry;
 import net.arna.jcraft.api.spec.JSpec;
@@ -20,7 +20,6 @@ import net.arna.jcraft.api.stand.StandTypeUtil;
 import net.arna.jcraft.common.config.JServerConfig;
 import net.arna.jcraft.common.entity.damage.JDamageSources;
 import net.arna.jcraft.common.entity.projectile.ItemTossProjectile;
-import net.arna.jcraft.common.entity.projectile.JAttackEntity;
 import net.arna.jcraft.common.entity.projectile.KnifeProjectile;
 import net.arna.jcraft.common.entity.projectile.ScalpelProjectile;
 import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
@@ -32,12 +31,15 @@ import net.arna.jcraft.common.network.s2c.PlayerAnimPacket;
 import net.arna.jcraft.common.network.s2c.ServerChannelFeedbackPacket;
 import net.arna.jcraft.common.splatter.JSplatterManager;
 import net.arna.jcraft.platform.JComponentPlatformUtils;
+import net.minecraft.advancements.Advancement;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerChunkCache;
@@ -46,6 +48,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerPlayerConnection;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -213,6 +216,25 @@ public final class JUtils {
         Set<LivingEntity> toReturn = new HashSet<>(hit);
         for (LivingEntity l : hit)
         //JCraft.LOGGER.info("Stand: " + stand);
+        {
+            if (l instanceof StandEntity<?, ?> stand && stand.hasUser()) {
+                toReturn.add(stand.getUserOrThrow());
+            }
+        }
+
+        return toReturn;
+    }
+
+    public static Set<LivingEntity> generateHitboxNoDisplay(Level world, Vec3 center, double hitboxSize, Predicate<Entity> predicate) {
+        double size = hitboxSize / 2;
+
+        Vec3 v1 = center.subtract(size, size, size);
+        Vec3 v2 = center.add(size, size, size);
+
+        List<LivingEntity> hit = world.getEntitiesOfClass(LivingEntity.class, new AABB(v1, v2),
+                EntitySelector.NO_CREATIVE_OR_SPECTATOR.and(predicate));
+        Set<LivingEntity> toReturn = new HashSet<>(hit);
+        for (LivingEntity l : hit)
         {
             if (l instanceof StandEntity<?, ?> stand && stand.hasUser()) {
                 toReturn.add(stand.getUserOrThrow());
@@ -605,27 +627,18 @@ public final class JUtils {
             Map.entry(EntityType.HUSK, 0.1f),
 
             Map.entry(EntityType.VILLAGER, 1.5f),
-            Map.entry(EntityType.PLAYER, 1.5f),
-
-            Map.entry(EntityType.IRON_GOLEM, 0.0f),
-            Map.entry(EntityType.SNOW_GOLEM, 0.0f),
-
-            Map.entry(JEntityTypeRegistry.ROAD_ROLLER.get(), 0.0f),
-
-            Map.entry(JEntityTypeRegistry.SHEER_HEART_ATTACK.get(), 0.0f)
+            Map.entry(EntityType.PLAYER, 1.5f)
     );
 
     public static float getBloodMult(LivingEntity entity) {
         EntityType<?> type = entity.getType();
 
-        if (entity instanceof StandEntity<?,?>) return 0;
+        if (type.is(JTagRegistry.BLOODLESS_ENTITIES)) {
+            return 0;
+        }
 
         if (type.is(EntityTypeTags.RAIDERS)) {
             return 1.5f;
-        }
-
-        if (type.is(EntityTypeTags.SKELETONS) || entity instanceof JAttackEntity) {
-            return 0;
         }
 
         if (type.is(EntityTypeTags.AXOLOTL_HUNT_TARGETS)) // Fishes
@@ -884,5 +897,23 @@ public final class JUtils {
     public static <T> @NonNull T chooseRandom(@NonNull RandomSource rng, T... items) {
         if (items == null || items.length == 0) throw new IllegalArgumentException("At least one item must be provided.");
         return items[rng.nextInt(items.length)];
+    }
+
+    public static boolean hasAdvancement(final ServerPlayer player, final ResourceLocation advancementLoc) {
+        final MinecraftServer server = player.getServer();
+        if (server == null) {
+            return false;
+        }
+        final Advancement advancement = server.getAdvancements().getAdvancement(advancementLoc);
+        if (advancement == null) {
+            return false;
+        }
+        return player.getAdvancements().getOrStartProgress(advancement).isDone();
+    }
+
+    public static void maySendStandAboutInfo(final ServerPlayer player) {
+        if (player.getStats().getValue(Stats.CUSTOM.get(JStatRegistry.STAND_SUMMONED.get())) == 0) {
+            player.sendSystemMessage(Component.translatable("info.jcraft.first_stand"));
+        }
     }
 }

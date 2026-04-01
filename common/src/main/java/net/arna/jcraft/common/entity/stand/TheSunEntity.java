@@ -561,7 +561,7 @@ public final class TheSunEntity extends StandEntity<TheSunEntity, TheSunEntity.S
 
     // Animation code
     public enum State implements StandAnimationState<TheSunEntity> {
-        IDLE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.sun.idle", AzPlayBehaviors.LOOP)),
+        IDLE(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.sun.idle", AzPlayBehaviors.LOOP)),
         ;
 
         private final AzCommand animator;

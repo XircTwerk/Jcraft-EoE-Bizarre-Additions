@@ -354,9 +354,10 @@ public final class PurpleHazeEntity extends AbstractPurpleHazeEntity<PurpleHazeE
                 if (f == 0) {
                     if (s > 0) {
                         setStateNoReset(onGround() ? State.RIGHT : State.RIGHT_DASH);
-                    }
-                    if (s < 0) {
+                    } else if (s < 0) {
                         setStateNoReset(onGround() ? State.LEFT : State.LEFT_DASH);
+                    } else {
+                        setStateNoReset(State.IDLE);
                     }
                 } else {
                     if (f < 0) {

@@ -133,6 +133,9 @@ public class TrainingDummyEntity extends Mob implements ICustomDamageHandler {
             if (!player.level().isClientSide()) {
                 ItemStack dummyItem = new ItemStack(JItemRegistry.TRAINING_DUMMY.get());
                 player.getInventory().add(dummyItem);
+                if (isLeashed()) {
+                    dropLeash(false, true);
+                }
                 this.discard();
             }
             return InteractionResult.SUCCESS;

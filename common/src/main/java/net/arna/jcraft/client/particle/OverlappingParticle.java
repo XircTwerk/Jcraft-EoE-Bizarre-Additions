@@ -3,24 +3,20 @@ package net.arna.jcraft.client.particle;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.SimpleParticleType;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-// POC particle. Feel free to remove.
-// Any particle that renders with the JParticleTextureSheet.INVERSION_SHEET
-// will be rendered with an inverted effect.
-// For the time being, colors are ignored
-public class InversionParticle extends RisingParticle {
+public class OverlappingParticle extends RisingParticle {
 
-    protected InversionParticle(final ClientLevel clientWorld, final double d, final double e, final double f, final double g, final double h, final double i,
-                                final SpriteSet spriteProvider) {
-        super(clientWorld, d, e, f, g, h, i);
-        quadSize *= 1f;
+    public OverlappingParticle(ClientLevel clientLevel, double x, double y, double z, double vx, double vy, double vz,
+                               final SpriteSet spriteProvider) {
+        super(clientLevel, x, y, z, vx, vy, vz);
         pickSprite(spriteProvider);
     }
 
     @Override
-    public ParticleRenderType getRenderType() {
-        return JParticleTextureSheet.INVERSION_SHEET;
+    public @NotNull ParticleRenderType getRenderType() {
+        return JParticleTextureSheet.OVERLAP_SHEET;
     }
 
     public static class Factory implements ParticleProvider<SimpleParticleType> {
@@ -34,7 +30,7 @@ public class InversionParticle extends RisingParticle {
         @Override
         public Particle createParticle(final SimpleParticleType parameters, final ClientLevel world, final double x,
                                        final double y, final double z, final double velocityX, final double velocityY, final double velocityZ) {
-            return new InversionParticle(world, x, y, z, velocityX, velocityY, velocityZ, spriteProvider);
+            return new OverlappingParticle(world, x, y, z, velocityX, velocityY, velocityZ, spriteProvider);
         }
     }
 }

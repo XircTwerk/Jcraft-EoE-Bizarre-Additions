@@ -5,12 +5,22 @@ import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.controller.AzAnimationControllerContainer;
 import mod.azure.azurelib.animation.impl.AzItemAnimator;
+import mod.azure.azurelib.model.AzBakedModel;
+import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.render.armor.AzArmorRenderer;
 import mod.azure.azurelib.render.armor.AzArmorRendererConfig;
 import mod.azure.azurelib.render.armor.AzArmorRendererPipelineContext;
 import mod.azure.azurelib.render.armor.bone.AzArmorBoneContext;
 import net.arna.jcraft.JCraft;
+import net.arna.jcraft.mixin.client.PlayerModelAccessor;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -122,6 +132,7 @@ public class ArmorRenderer extends AzArmorRenderer {
                 AzArmorRendererConfig.builder(model, texture)
                         .setAnimatorProvider(animatorSupplier)
                         .setBoneProvider(BONE_PROVIDER)
+                        .setPrerenderEntry(ArmorRenderer::scaleBonesForSlimModel)
                         .setPipelineContext(pipeline -> new AzArmorRendererPipelineContext(pipeline) {
                             private final AzArmorBoneContext ourContext = boneContext;
 
@@ -160,80 +171,27 @@ public class ArmorRenderer extends AzArmorRenderer {
         return () -> new ArmorRenderer(() -> new FlutteringArmorAnimator(id), id);
     }
 
-    /*
-    public JArmor(final GeoModel<T> model) {
-        super(model);
-    }
-
-    @Override
-    public GeoBone getHeadBone() {
-        return this.model.getBone("helmet").orElse(super.getHeadBone());
-    }
-
-    @Nullable
-    @Override
-    public GeoBone getBodyBone() {
-        return this.model.getBone("chestplate").orElse(super.getBodyBone());
-    }
-
-    @Nullable
-    @Override
-    public GeoBone getRightArmBone() {
-        return this.model.getBone("rightArm").orElse(super.getRightArmBone());
-    }
-
-    @Nullable
-    @Override
-    public GeoBone getLeftArmBone() {
-        return this.model.getBone("leftArm").orElse(super.getLeftArmBone());
-    }
-
-    @Nullable
-    @Override
-    public GeoBone getRightLegBone() {
-        return this.model.getBone("rightLeg").orElse(super.getRightLegBone());
-    }
-
-    @Nullable
-    @Override
-    public GeoBone getLeftLegBone() {
-        return this.model.getBone("leftLeg").orElse(super.getLeftLegBone());
-    }
-
-    @Nullable
-    @Override
-    public GeoBone getRightBootBone() {
-        return this.model.getBone("rightBoot").orElse(super.getRightBootBone());
-    }
-
-    @Nullable
-    @Override
-    public GeoBone getLeftBootBone() {
-        return this.model.getBone("leftBoot").orElse(super.getLeftBootBone());
-    }
-
-    @Override
-    public void prepForRender(@Nullable Entity entity, ItemStack stack, @Nullable EquipmentSlot slot, @Nullable HumanoidModel<?> baseModel) {
-        super.prepForRender(entity, stack, slot, baseModel);
-
+    private static AzRendererPipelineContext<UUID, ItemStack> scaleBonesForSlimModel(AzRendererPipelineContext<UUID, ItemStack> ctx) {
         // Scale the arms to 3/4 of their original size for slim models.
         // Slim models have 3 pixel wide arms rather than 4 pixel wide arms
 
         // We use this convoluted method to check if the player's model is slim
         // because I don't trust comparing player.getModelName() to "slim"
         // as it may not always be accurate in combination with other mods or future updates.
+        Entity entity = ctx.currentEntity();
+        AzBakedModel model = ctx.bakedModel();
 
-        if (!(entity instanceof AbstractClientPlayer player)) return;
+        if (!(entity instanceof AbstractClientPlayer player)) return ctx;
         EntityRenderer<? super AbstractClientPlayer> renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(player);
 
-        if (!(renderer instanceof PlayerRenderer playerRenderer)) return;
+        if (!(renderer instanceof PlayerRenderer playerRenderer)) return ctx;
         PlayerModel<AbstractClientPlayer> playerModel = playerRenderer.getModel();
 
         if (!((PlayerModelAccessor) playerModel).isSlim())
-            return;
+            return ctx;
 
-        GeoBone leftArm = getLeftArmBone();
-        GeoBone rightArm = getRightArmBone();
+        AzBone leftArm = BONE_PROVIDER.getLeftArmBone(model);
+        AzBone rightArm = BONE_PROVIDER.getRightArmBone(model);
 
         if (leftArm != null && rightArm != null) {
             leftArm.setScaleX(0.75f);
@@ -241,7 +199,9 @@ public class ArmorRenderer extends AzArmorRenderer {
             rightArm.setScaleX(0.75f);
             rightArm.setPivotX(4.5f);
         }
-    }*/
+
+        return ctx;
+    }
 
     /**
      * Basic {@link AzItemAnimator} implementation that can be used or extended for all kinds of {@link net.minecraft.world.item.ArmorItem} animators.

@@ -31,7 +31,6 @@
     "client.ParticleAccessor",
     "client.ParticleManagerMixin",
     "client.PlayerModelAccessor",
-    "client.PostChainMixin",
     "client.RenderTargetMixin",
     "client.TextureManagerMixin",
     "client.gravity.BiomeEffectSoundPlayerMixin",

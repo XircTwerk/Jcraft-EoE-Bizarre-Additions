@@ -653,7 +653,7 @@ public class JAdvancementProvider extends FabricAdvancementProvider {
         if (pieces.length == 0) {
             throw new IllegalArgumentException("At least one cosplay piece must be specified!");
         }
-        final String keyBase = "advancements." + JCraft.MOD_ID + "obtain_" + name;
+        final String keyBase = "advancements." + JCraft.MOD_ID + ".obtain_" + name;
         var builder = Advancement.Builder.advancement()
                 .display(display,
                         Component.translatable(keyBase + ".title"),

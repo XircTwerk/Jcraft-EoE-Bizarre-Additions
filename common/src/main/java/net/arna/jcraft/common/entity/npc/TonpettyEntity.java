@@ -38,6 +38,7 @@ public class TonpettyEntity extends HamonSpecUser {
 
     public TonpettyEntity(final Level level) {
         super(JEntityTypeRegistry.TONPETTY.get(), level);
+        setPersistenceRequired();
     }
 
     @Override

@@ -52,7 +52,10 @@ public class SpecUserMob extends PathfinderMob implements JSpecHolder, IFoodData
 
         component = JComponentPlatformUtils.getSpecData(this);
 
-        if (level.isClientSide()) return;
+        setPersistenceRequired();
+        if (level.isClientSide()) {
+            return;
+        }
         JEnemies.add(this);
     }
 

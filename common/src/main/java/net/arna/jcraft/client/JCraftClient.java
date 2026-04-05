@@ -110,7 +110,7 @@ public class JCraftClient {
 
         initCosplay();
 
-        InversionShaderHandler.INSTANCE.init();
+        SpecialParticleShaderHandler.INSTANCE.init();
         ZaWarudoShaderHandler.INSTANCE.init();
         CrimsonShaderHandler.INSTANCE.init();
         EpitaphVignetteShaderHandler.INSTANCE.init();
@@ -484,6 +484,9 @@ public class JCraftClient {
     }
 
     public static void registerParticleSpriteSets() {
+        // TODO Forge version is currently handled separately cuz Forge is ass.
+        // See JCraftForgeClient#onParticleFactoryRegistration(RegisterParticleProvidersEvent)
+
         ParticleProviderRegistry.register(JParticleTypeRegistry.COMBO_BREAK, ComboBreakerParticle.Factory::new);
         ParticleProviderRegistry.register(JParticleTypeRegistry.COOLDOWN_CANCEL, CooldownCancelParticle.Factory::new);
         ParticleProviderRegistry.register(JParticleTypeRegistry.HITSPARK_1, provider -> new HitsparkParticle.Factory(provider, 0.4f, 5));
@@ -503,6 +506,7 @@ public class JCraftClient {
         ParticleProviderRegistry.register(JParticleTypeRegistry.AURA_ARC, AuraArcParticle.Factory::new);
         ParticleProviderRegistry.register(JParticleTypeRegistry.AURA_BLOB, AuraBlobParticle.Factory::new);
         ParticleProviderRegistry.register(JParticleTypeRegistry.INVERSION, InversionParticle.Factory::new);
+        ParticleProviderRegistry.register(JParticleTypeRegistry.OVERLAP, OverlappingParticle.Factory::new);
         ParticleProviderRegistry.register(JParticleTypeRegistry.SUN_LOCK_ON, BackstabParticle.Factory::new); // 9 frames, reusing
         ParticleProviderRegistry.register(JParticleTypeRegistry.PURPLE_HAZE_CLOUD, PurpleHazeCloudParticle.Factory::new);
         ParticleProviderRegistry.register(JParticleTypeRegistry.PURPLE_HAZE_PARTICLE, PurpleHazeErraticParticle.Factory::new);

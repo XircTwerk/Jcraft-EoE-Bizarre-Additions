@@ -317,7 +317,7 @@ public class JCraftClient {
         for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.KOSAKU_BOOTS) {
             AzArmorRendererRegistry.register(KosakuArmorRenderer::new, item.get());
         }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.PUCCI_PANTS) {
+        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.PUCCIS_HAT) {
             AzArmorRendererRegistry.register(ArmorRenderer.simple("puccis_hat"), item.get());
         }
         for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.PUCCI_ROBE) {

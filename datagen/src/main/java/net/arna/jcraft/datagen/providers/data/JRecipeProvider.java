@@ -485,6 +485,30 @@ public class JRecipeProvider extends FabricRecipeProvider {
                 "B B"
         },
                 new SymbolItem('B', Items.BROWN_WOOL));
+        generateCosplayRecipes(JItemRegistry.POLNAREFF_WIG, exporter, new String[] {
+                "W",
+                "W",
+                "X"
+        },
+                new SymbolItem('W', Items.WHITE_WOOL));
+        generateCosplayRecipes(JItemRegistry.POLNAREFF_SHIRT, exporter, new String[] {
+                "  B",
+                "BXB",
+                "BBB"
+        },
+                new SymbolItem('B', Items.BLACK_WOOL));
+        generateCosplayRecipes(JItemRegistry.POLNAREFF_PANTS, exporter, new String[] {
+                "WRW",
+                "WXW",
+                "W W"
+        },
+                new SymbolItem('R', Items.RED_WOOL),
+                new SymbolItem('W', Items.WHITE_WOOL));
+        generateCosplayRecipes(JItemRegistry.POLNAREFF_BOOTS, exporter, new String[] {
+                "B B",
+                "BXB"
+        },
+                new SymbolItem('B', Items.BLACK_WOOL));
         generateCosplayRecipes(JItemRegistry.DIO_HEADBAND, exporter, new String[] {
                 "GXG"
         },

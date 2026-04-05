@@ -335,6 +335,18 @@ public class JAdvancementProvider extends FabricAdvancementProvider {
                 JItemRegistry.KAKYOIN_BOOTS
         );
         consumer.accept(obtainKakyoinOutfit);
+        // obtain Polnareff outfit
+        final Advancement obtainPolnareffOutfit = generateCosplayAdvancement(
+                "polnareff_outfit",
+                JItemRegistry.POLNAREFF_WIG.get(ArmorMaterials.NETHERITE).get(),
+                FrameType.CHALLENGE,
+                obtainCosplay,
+                JItemRegistry.POLNAREFF_WIG,
+                JItemRegistry.POLNAREFF_SHIRT,
+                JItemRegistry.POLNAREFF_PANTS,
+                JItemRegistry.POLNAREFF_BOOTS
+        );
+        consumer.accept(obtainPolnareffOutfit);
         // obtain Kira outfit
         final Advancement obtainKiraOutfit = generateCosplayAdvancement(
                 "kira_outfit",

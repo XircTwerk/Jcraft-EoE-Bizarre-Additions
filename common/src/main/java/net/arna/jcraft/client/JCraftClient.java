@@ -290,6 +290,18 @@ public class JCraftClient {
         for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.KAKYOIN_BOOTS) {
             AzArmorRendererRegistry.register(ArmorRenderer.simple("kakyoinclothes"), item.get());
         }
+        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.POLNAREFF_WIG) {
+            AzArmorRendererRegistry.register(ArmorRenderer.simple("polnareffoutfit"), item.get());
+        }
+        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.POLNAREFF_SHIRT) {
+            AzArmorRendererRegistry.register(ArmorRenderer.simple("polnareffoutfit"), item.get());
+        }
+        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.POLNAREFF_PANTS) {
+            AzArmorRendererRegistry.register(ArmorRenderer.simple("polnareffoutfit"), item.get());
+        }
+        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.POLNAREFF_BOOTS) {
+            AzArmorRendererRegistry.register(ArmorRenderer.simple("polnareffoutfit"), item.get());
+        }
         for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.KARS_HEADWRAP) {
             AzArmorRendererRegistry.register(ArmorRenderer.simple("karsoutfit"), item.get());
         }

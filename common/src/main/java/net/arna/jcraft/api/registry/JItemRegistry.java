@@ -120,6 +120,11 @@ public interface JItemRegistry {
     CosplayItem<KakyoinClothesItem> KAKYOIN_PANTS = registerLeggings("kakyoin_pants", KakyoinClothesItem::new);
     CosplayItem<KakyoinClothesItem> KAKYOIN_BOOTS = registerBoots("kakyoin_boots", KakyoinClothesItem::new);
 
+    CosplayItem<ArmorItem> POLNAREFF_WIG = registerHelmet("polnareff_wig", ArmorItem::new);
+    CosplayItem<ArmorItem> POLNAREFF_SHIRT = registerChestplate("polnareff_shirt", ArmorItem::new);
+    CosplayItem<ArmorItem> POLNAREFF_PANTS = registerLeggings("polnareff_pants", ArmorItem::new);
+    CosplayItem<ArmorItem> POLNAREFF_BOOTS = registerBoots("polnareff_boots", ArmorItem::new);
+
     CosplayItem<KiraOutfitItem> KIRA_WIG = registerHelmet("kira_wig", KiraOutfitItem::new);
     CosplayItem<KiraJacketItem> KIRA_JACKET = registerChestplate("kira_jacket", KiraJacketItem::new);
     CosplayItem<KiraOutfitItem> KIRA_PANTS = registerLeggings("kira_pants", KiraOutfitItem::new);

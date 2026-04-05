@@ -9,10 +9,10 @@ public class OhDIOtardRenderer extends ArmorRenderer {
     public static final String ID = "oh_diotard";
 
     public OhDIOtardRenderer() {
-        super(() -> new ArmorAnimator(ID), new DIOtardBoneContext(), ID);
+        super(() -> new ArmorAnimator(ID), new OhDIOtardBoneContext(), ID);
     }
 
-    protected static class DIOtardBoneContext extends AzArmorBoneContext {
+    protected static class OhDIOtardBoneContext extends AzArmorBoneContext {
         public void applyBoneVisibilityBySlot(EquipmentSlot currentSlot) {
             setAllVisible(false);
 

@@ -95,6 +95,11 @@ public interface JItemRegistry {
     CosplayItem<DIOtardItem> DIO_BOOTS = registerBoots("dio_boots", DIOtardItem::new);
     CosplayItem<FlutteringArmorItem> DIO_CAPE = registerChestplate("dio_cape", FlutteringArmorItem::new);
 
+    CosplayItem<ArmorItem> OH_DIO_WIG = registerHelmet("oh_dio_wig", ArmorItem::new);
+    CosplayItem<ArmorItem> OH_DIO_JACKET = registerChestplate("oh_dio_jacket", ArmorItem::new);
+    CosplayItem<ArmorItem> OH_DIO_PANTS = registerLeggings("oh_dio_pants", ArmorItem::new);
+    CosplayItem<ArmorItem> OH_DIO_BOOTS = registerBoots("oh_dio_boots", ArmorItem::new);
+
     CosplayItem<HeavenAttainedItem> HEAVEN_ATTAINED_WIG = registerHelmet("heaven_attained_wig", HeavenAttainedItem::new);
     CosplayItem<FlutteringArmorItem> HEAVEN_ATTAINED_SHIRT = registerChestplate("heaven_attained_shirt", FlutteringArmorItem::new);
     CosplayItem<HeavenAttainedItem> HEAVEN_ATTAINED_PANTS = registerLeggings("heaven_attained_pants", HeavenAttainedItem::new);

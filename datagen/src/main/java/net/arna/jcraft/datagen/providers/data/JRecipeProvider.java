@@ -539,6 +539,33 @@ public class JRecipeProvider extends FabricRecipeProvider {
                 "Y Y"
         },
                 new SymbolItem('Y', Items.YELLOW_WOOL));
+        generateCosplayRecipes(JItemRegistry.OH_DIO_WIG, exporter, new String[] {
+                "OWO",
+                "WXW"
+        },
+                new SymbolItem('O', Items.ORANGE_WOOL),
+                new SymbolItem('W', Items.WHEAT));
+        generateCosplayRecipes(JItemRegistry.OH_DIO_JACKET, exporter, new String[] {
+                "PPP",
+                "BXB",
+                "GBG"
+        },
+                new SymbolItem('B', Items.BLACK_WOOL),
+                new SymbolItem('G', Items.GRAY_WOOL),
+                new SymbolItem('P', Items.PURPLE_WOOL));
+        generateCosplayRecipes(JItemRegistry.OH_DIO_PANTS, exporter, new String[] {
+                "LLL",
+                "BXB",
+                "B B"
+        },
+                new SymbolItem('B', Items.LIGHT_BLUE_WOOL),
+                new SymbolItem('L', Items.LIGHT_GRAY_WOOL));
+        generateCosplayRecipes(JItemRegistry.OH_DIO_BOOTS, exporter, new String[] {
+                "LXL",
+                "G G"
+        },
+                new SymbolItem('G', Items.GREEN_WOOL),
+                new SymbolItem('L', Items.LIME_WOOL));
         generateCosplayRecipes(JItemRegistry.HEAVEN_ATTAINED_WIG, exporter, new String[] {
                 "WWW",
                 "WXW",

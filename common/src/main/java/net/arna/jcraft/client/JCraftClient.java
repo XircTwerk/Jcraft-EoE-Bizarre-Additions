@@ -176,6 +176,18 @@ public class JCraftClient {
         for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.DIO_P1_BOOTS) {
             AzArmorRendererRegistry.register(ArmorRenderer.simple("diooutfit"), item.get());
         }
+        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.OH_DIO_WIG) {
+            AzArmorRendererRegistry.register(ArmorRenderer.simple("oh_diojacket"), item.get());
+        }
+        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.OH_DIO_JACKET) {
+            AzArmorRendererRegistry.register(ArmorRenderer.simple("oh_diojacket"), item.get());
+        }
+        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.OH_DIO_PANTS) {
+            AzArmorRendererRegistry.register(OhDIOtardRenderer::new, item.get());
+        }
+        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.OH_DIO_BOOTS) {
+            AzArmorRendererRegistry.register(OhDIOtardRenderer::new, item.get());
+        }
         for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.DOPPIO_WIG) {
             AzArmorRendererRegistry.register(ArmorRenderer.simple("doppiotop"), item.get());
         }

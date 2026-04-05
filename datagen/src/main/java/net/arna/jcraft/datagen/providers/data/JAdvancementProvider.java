@@ -510,12 +510,24 @@ public class JAdvancementProvider extends FabricAdvancementProvider {
                 JItemRegistry.DIO_BOOTS
         );
         consumer.accept(obtainDioOutfit);
+        // obtain OH DIO outfit
+        final Advancement obtainOhDioOutfit = generateCosplayAdvancement(
+                "oh_dio_outfit",
+                JItemRegistry.OH_DIO_WIG.get(ArmorMaterials.NETHERITE).get(),
+                FrameType.CHALLENGE,
+                obtainDioOutfit,
+                JItemRegistry.OH_DIO_WIG,
+                JItemRegistry.OH_DIO_JACKET,
+                JItemRegistry.OH_DIO_PANTS,
+                JItemRegistry.OH_DIO_BOOTS
+        );
+        consumer.accept(obtainOhDioOutfit);
         // obtain Heaven Attained outfit
         final Advancement obtainHeavenAttainedOutfit = generateCosplayAdvancement(
                 "heaven_attained_outfit",
                 JItemRegistry.HEAVEN_ATTAINED_WIG.get(ArmorMaterials.NETHERITE).get(),
                 FrameType.CHALLENGE,
-                obtainDioP1Outfit,
+                obtainOhDioOutfit,
                 JItemRegistry.HEAVEN_ATTAINED_WIG,
                 JItemRegistry.HEAVEN_ATTAINED_SHIRT,
                 JItemRegistry.HEAVEN_ATTAINED_PANTS,

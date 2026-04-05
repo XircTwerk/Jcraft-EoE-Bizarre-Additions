@@ -21,6 +21,7 @@
     "client.GameNarratorMixin",
     "client.GameRendererMixin",
     "client.HeldItemFeatureRendererMixin",
+    "client.HorseRendererMixin",
     "client.InGameHudMixin",
     "client.ItemModelShaperMixin",
     "client.ItemRendererMixin",

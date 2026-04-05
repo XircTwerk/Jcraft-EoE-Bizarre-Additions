@@ -302,6 +302,21 @@ public class JCraftClient {
         for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.KAKYOIN_BOOTS) {
             AzArmorRendererRegistry.register(ArmorRenderer.simple("kakyoinclothes"), item.get());
         }
+        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.MOUNTAIN_TIM_HAT) {
+            AzArmorRendererRegistry.register(ArmorRenderer.simple("mountain_tim_clothes"), item.get());
+        }
+        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.MOUNTAIN_TIM_SHIRT) {
+            AzArmorRendererRegistry.register(ArmorRenderer.simple("mountain_tim_top"), item.get());
+        }
+        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.MOUNTAIN_TIM_COAT) {
+            AzArmorRendererRegistry.register(MountainTimCoatRenderer::new, item.get());
+        }
+        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.MOUNTAIN_TIM_PANTS) {
+            AzArmorRendererRegistry.register(MountainTimPantsRenderer::new, item.get());
+        }
+        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.MOUNTAIN_TIM_BOOTS) {
+            AzArmorRendererRegistry.register(ArmorRenderer.simple("mountain_tim_clothes"), item.get());
+        }
         for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.POLNAREFF_WIG) {
             AzArmorRendererRegistry.register(ArmorRenderer.simple("polnareffoutfit"), item.get());
         }

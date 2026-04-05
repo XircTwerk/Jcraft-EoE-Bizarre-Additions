@@ -181,6 +181,12 @@ public interface JItemRegistry {
     CosplayItem<DiegoOutfitItem> DIEGO_PANTS = registerLeggings("diego_pants", DiegoOutfitItem::new);
     CosplayItem<DiegoOutfitItem> DIEGO_BOOTS = registerBoots("diego_boots", DiegoOutfitItem::new);
 
+    CosplayItem<ArmorItem> MOUNTAIN_TIM_HAT = registerVampireHat("mountain_tim_hat", ArmorItem::new);
+    CosplayItem<ArmorItem> MOUNTAIN_TIM_SHIRT = registerChestplate("mountain_tim_shirt", ArmorItem::new);
+    CosplayItem<FlutteringArmorItem> MOUNTAIN_TIM_COAT = registerChestplate("mountain_tim_coat", FlutteringArmorItem::new);
+    CosplayItem<ArmorItem> MOUNTAIN_TIM_PANTS = registerLeggings("mountain_tim_pants", ArmorItem::new);
+    CosplayItem<ArmorItem> MOUNTAIN_TIM_BOOTS = registerBoots("mountain_tim_boots", ArmorItem::new);
+
     CosplayItem<RingoOutfitItem> RINGO_OUTFIT = registerLeggings("ringo_outfit", RingoOutfitItem::new);
     CosplayItem<RingoOutfitItem> RINGO_BOOTS = registerBoots("ringo_boots", RingoOutfitItem::new);
 

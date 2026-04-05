@@ -223,7 +223,8 @@ public class JAdvancementProvider extends FabricAdvancementProvider {
                 JItemRegistry.RED_HAT,
                 JItemRegistry.PUCCIS_HAT,
                 JItemRegistry.RISOTTO_CAP,
-                JItemRegistry.DIEGO_HAT);
+                JItemRegistry.DIEGO_HAT,
+                JItemRegistry.MOUNTAIN_TIM_HAT);
         consumer.accept(obtainSunProtection);
         // obtain blood bottle
         final Advancement obtainBloodBottle = Advancement.Builder.advancement()
@@ -534,6 +535,19 @@ public class JAdvancementProvider extends FabricAdvancementProvider {
                 JItemRegistry.HEAVEN_ATTAINED_BOOTS
         );
         consumer.accept(obtainHeavenAttainedOutfit);
+        // obtain DIO outfit
+        final Advancement obtainMountainTimOutfit = generateCosplayAdvancement(
+                "mountain_tim_outfit",
+                JItemRegistry.MOUNTAIN_TIM_HAT.get(ArmorMaterials.IRON).get(),
+                FrameType.CHALLENGE,
+                obtainCosplay,
+                JItemRegistry.MOUNTAIN_TIM_HAT,
+                JItemRegistry.MOUNTAIN_TIM_SHIRT,
+                JItemRegistry.MOUNTAIN_TIM_COAT,
+                JItemRegistry.MOUNTAIN_TIM_PANTS,
+                JItemRegistry.MOUNTAIN_TIM_BOOTS
+        );
+        consumer.accept(obtainMountainTimOutfit);
         // obtain Diary Page
         final Advancement obtainDiaryPage = Advancement.Builder.advancement()
                 .display(JItemRegistry.DIARY_PAGE.get(),

@@ -72,7 +72,13 @@ public interface JItemRegistry {
 
     RegistrySupplier<LivingArrowItem> LIVING_ARROW = register("living_arrow", () -> new LivingArrowItem(settings().rarity(Rarity.RARE).fireResistant()));
 
+    RegistrySupplier<Item> SHIV = register("shiv", () -> new ShivItem(Tiers.IRON, settings()));
+
+    RegistrySupplier<Item> STONE_MASK = register("stone_mask", () -> new StoneMaskItem(ArmorMaterials.CHAIN, ArmorItem.Type.HELMET, settings()));
+
     // the order of the cosplay here is the way it's ordered in the creative tab later
+
+    CosplayItem<HatItem> RED_HAT = registerVampireHat("red_hat", (material, slot, settings) -> new HatItem(material, settings));
 
     CosplayItem<DioP1ClothesItem> DIO_P1_WIG = registerHelmet("dio_p1_wig", DioP1ClothesItem::new);
     CosplayItem<DioP1ClothesItem> DIO_P1_JACKET = registerChestplate("dio_p1_jacket", DioP1ClothesItem::new);
@@ -80,6 +86,8 @@ public interface JItemRegistry {
     CosplayItem<DioP1ClothesItem> DIO_P1_BOOTS = registerBoots("dio_p1_boots", DioP1ClothesItem::new);
 
     CosplayItem<StraizoPonchoItem> STRAIZO_PONCHO = registerChestplate("straizo_poncho", StraizoPonchoItem::new);
+
+    CosplayItem<HatItem> KARS_HEADWRAP = registerVampireHat("kars_headwrap", (material, slot, settings) -> new HatItem(material, settings));
 
     CosplayItem<DIOJacketItem> DIO_HEADBAND = registerHelmet("dio_headband", DIOJacketItem::new);
     CosplayItem<DIOJacketItem> DIO_JACKET = registerChestplate("dio_jacket", DIOJacketItem::new);
@@ -91,13 +99,6 @@ public interface JItemRegistry {
     CosplayItem<FlutteringArmorItem> HEAVEN_ATTAINED_SHIRT = registerChestplate("heaven_attained_shirt", FlutteringArmorItem::new);
     CosplayItem<HeavenAttainedItem> HEAVEN_ATTAINED_PANTS = registerLeggings("heaven_attained_pants", HeavenAttainedItem::new);
     CosplayItem<HeavenAttainedItem> HEAVEN_ATTAINED_BOOTS = registerBoots("heaven_attained_boots", HeavenAttainedItem::new);
-
-    CosplayItem<HatItem> KARS_HEADWRAP = registerVampireHat("kars_headwrap", (material, slot, settings) -> new HatItem(material, settings));
-    CosplayItem<HatItem> RED_HAT = registerVampireHat("red_hat", (material, slot, settings) -> new HatItem(material, settings));
-    CosplayItem<HatItem> PUCCIS_HAT = registerVampireHat("puccis_hat", (material, slot, settings) -> new HatItem(material, settings));
-
-    RegistrySupplier<Item> STONE_MASK = register("stone_mask", () -> new StoneMaskItem(ArmorMaterials.CHAIN, ArmorItem.Type.HELMET, settings()));
-    RegistrySupplier<Item> SHIV = register("shiv", () -> new ShivItem(Tiers.IRON, settings()));
 
     CosplayItem<JotaroClothesItem> JOTARO_CAP = registerHelmet("jotaro_cap", JotaroClothesItem::new);
     CosplayItem<FlutteringArmorItem> JOTARO_JACKET = registerChestplate("jotaro_jacket", FlutteringArmorItem::new);
@@ -150,6 +151,7 @@ public interface JItemRegistry {
     CosplayItem<DiavoloClothesItem> DIAVOLO_PANTS = registerLeggings("diavolo_pants", DiavoloClothesItem::new);
     CosplayItem<DiavoloClothesItem> DIAVOLO_BOOTS = registerBoots("diavolo_boots", DiavoloClothesItem::new);
 
+    CosplayItem<HatItem> PUCCIS_HAT = registerVampireHat("puccis_hat", (material, slot, settings) -> new HatItem(material, settings));
     CosplayItem<PucciRobeItem> PUCCI_ROBE = registerChestplate("pucci_robe", PucciRobeItem::new);
     CosplayItem<PucciBottomItem> PUCCI_PANTS = registerLeggings("pucci_pants", PucciBottomItem::new);
     CosplayItem<PucciBottomItem> PUCCI_BOOTS = registerBoots("pucci_boots", PucciBottomItem::new);

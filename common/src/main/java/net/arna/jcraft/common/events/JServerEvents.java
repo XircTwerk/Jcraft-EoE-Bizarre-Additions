@@ -61,6 +61,7 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.phys.AABB;
@@ -344,16 +345,6 @@ public class JServerEvents {
                         }
                     } else { // if not attracted to a specific position, it's a general item to attract
                         JCraft.markItemOfInterest(item, itemAttractionInterest(stack.getItem()));
-                    }
-                }
-                else {
-                    final Optional<BlockMarkerMove> move = BlockMarkerMoves.findFirst(m -> m.isRecording() && m.isInRange(item.blockPosition(), item.level()));
-                    if (move.isPresent()) {
-                        if (item.getOwner() != null || RewindMockItem.isMockItem(stack)) {
-                            return EventResult.pass();
-                        }
-                        ItemStack mockStack = RewindMockItem.createMockStack(stack, move.get());
-                        item.setItem(mockStack);
                     }
                 }
             }
@@ -662,6 +653,24 @@ public class JServerEvents {
         BlockMarkerMoves.mergeQueues();
         BlockMarkerMoves.forEach(move -> move.addBlock(blockPos, oldBlockState, level));
 
+        return EventResult.pass();
+    }
+
+    public static EventResult processBlockLoot(final @NonNull List<ItemStack> loot, final @NonNull BlockState state, final @NonNull ServerLevel serverLevel, final @NonNull BlockPos pos, final @Nullable BlockEntity blockEntity) {
+        final Optional<BlockMarkerMove> move = BlockMarkerMoves.findFirst(m -> m.isRecording() && m.isInRange(pos, serverLevel));
+        if (move.isPresent()) {
+            final List<ItemStack> modifiedList = new LinkedList<>();
+            for (ItemStack stack : loot) {
+                if (RewindMockItem.isMockItem(stack)) {
+                    modifiedList.add(stack);
+                }
+                else {
+                    modifiedList.add(RewindMockItem.createMockStack(stack, move.get()));
+                }
+            }
+            loot.clear();
+            loot.addAll(modifiedList);
+        }
         return EventResult.pass();
     }
 }

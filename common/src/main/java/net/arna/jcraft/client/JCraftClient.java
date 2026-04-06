@@ -218,7 +218,7 @@ public class JCraftClient {
         AzArmorRendererRegistry.register(ArmorRenderer.simple("stone_mask"), JItemRegistry.STONE_MASK.get());
         initCosplay(JItemRegistry.STRAIZO_PONCHO, ArmorRenderer.simple("straizoponcho"));
         initCosplay(JItemRegistry.STRAIZO_PONCHO, ArmorRenderer.simple("straizoponcho"));
-        initCosplay(JItemRegistry.VALENTINE_WIG, ValentineTopRenderer::new);
+        initCosplay(JItemRegistry.VALENTINE_WIG, ValentineWigRenderer::new);
         initCosplay(JItemRegistry.VALENTINE_JACKET, ValentineTopRenderer::new);
         initCosplay(JItemRegistry.VALENTINE_PANTS, ValentineBottomRenderer::new);
         initCosplay(JItemRegistry.VALENTINE_BOOTS, ValentineBottomRenderer::new);

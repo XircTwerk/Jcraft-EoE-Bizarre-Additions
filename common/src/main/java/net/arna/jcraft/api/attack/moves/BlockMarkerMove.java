@@ -4,6 +4,9 @@ import lombok.NonNull;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.List;
+import java.util.UUID;
+
 public interface BlockMarkerMove {
 
     boolean isResolving();
@@ -21,5 +24,9 @@ public interface BlockMarkerMove {
     boolean isInRange(final @NonNull BlockPos pos);
 
     boolean isRecording();
+
+    UUID getUuid();
+
+    List<Boolean> getIteration();
 
 }

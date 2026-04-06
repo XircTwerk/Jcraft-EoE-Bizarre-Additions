@@ -5,6 +5,7 @@ import dev.architectury.event.EventResult;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.arna.jcraft.JCraft;
+import net.arna.jcraft.api.attack.moves.BlockMarkerMove;
 import net.arna.jcraft.api.component.living.CommonStandComponent;
 import net.arna.jcraft.api.component.living.CommonVampireComponent;
 import net.arna.jcraft.api.registry.*;
@@ -345,15 +346,12 @@ public class JServerEvents {
                     }
                 }
                 else {
-                    final boolean[] shouldMock = new boolean[] {false};
-                    BlockMarkerMoves.forEach(move -> {
-                        shouldMock[0] |= move.isRecording() && move.isInRange(item.blockPosition());
-                    });
-                    if (shouldMock[0]) {
+                    final Optional<BlockMarkerMove> move = BlockMarkerMoves.findFirst(m -> m.isRecording() && m.isInRange(item.blockPosition()));
+                    if (move.isPresent()) {
                         if (item.getOwner() != null || RewindMockItem.isMockItem(stack)) {
                             return EventResult.pass();
                         }
-                        ItemStack mockStack = RewindMockItem.createMockStack(stack);
+                        ItemStack mockStack = RewindMockItem.createMockStack(stack, move.get());
                         item.setItem(mockStack);
                     }
                 }

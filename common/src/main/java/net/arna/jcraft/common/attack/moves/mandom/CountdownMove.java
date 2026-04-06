@@ -78,6 +78,10 @@ public final class CountdownMove extends AbstractMove<CountdownMove, MandomEntit
     @Getter
     private int countdownTicks;
     private BlockPos attackerBlockPos;
+    @Getter
+    private final UUID uuid = UUID.randomUUID();
+    @Getter
+    private final List<Boolean> iteration = new LinkedList<>();
 
     public CountdownMove(final int cooldown, final int windup, final int duration, final float moveDistance, final int radius, final int maxCountdownTicks,
                          final @NonNull Set<ResourceLocation> rewindIds,
@@ -140,6 +144,9 @@ public final class CountdownMove extends AbstractMove<CountdownMove, MandomEntit
 
     @Override
     public @NonNull Set<LivingEntity> perform(final MandomEntity attacker, final LivingEntity user) {
+        if (isRecording()) {
+            getIteration().add(false);
+        }
         BlockMarkerMoves.add(attacker, this);
         final List<Entity> toCapture = attacker.level().getEntitiesOfClass(Entity.class,
                 attacker.getBoundingBox().inflate(radius),

@@ -318,7 +318,7 @@ public class JServerEvents {
 
             // ... in the AU
             if (world.dimension().equals(JDimensionRegistry.AU_DIMENSION_KEY)) {
-                if (item.getOwner() != null || AuMockItem.isMockItem(stack)) {
+                if (item.getOwner() != null || stack.getItem() instanceof AuMockItem) {
                     return EventResult.pass();
                 }
 
@@ -329,7 +329,7 @@ public class JServerEvents {
                 }
                 item.setItem(mockStack);
             } else { // ... outside the AU
-                if (AuMockItem.isMockItem(stack)) {
+                if (stack.getItem() instanceof AuMockItem) {
                     // Mark it as an item of interest, and save relevant data
                     CompoundTag stackData = stack.getOrCreateTag();
                     if (stackData.contains("AttractPos")) { // if attracted to a specific position
@@ -662,7 +662,7 @@ public class JServerEvents {
             if (move.isPresent()) {
                 final List<ItemStack> modifiedList = new LinkedList<>();
                 for (ItemStack stack : loot) {
-                    if (RewindMockItem.isMockItem(stack)) {
+                    if (stack.getItem() instanceof RewindMockItem) {
                         modifiedList.add(stack);
                     } else {
                         modifiedList.add(RewindMockItem.createMockStack(stack, move.get()));

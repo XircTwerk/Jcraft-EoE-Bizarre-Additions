@@ -18,17 +18,12 @@ import net.minecraft.world.level.Level;
 import java.util.Optional;
 import java.util.UUID;
 
-public class RewindMockItem extends Item {
-    private static final ItemStack FALLBACK = new ItemStack(Items.DIRT);
-
-    public RewindMockItem() {
-        super(new Properties());
-    }
+public class RewindMockItem extends MockItem {
 
     @Override
     public InteractionResultHolder<ItemStack> use(final Level level, final Player player, final InteractionHand usedHand) {
         final ItemStack mockItem = player.getItemInHand(usedHand);
-        if (!isMockItem(mockItem)) { // should never happen
+        if (!(mockItem.getItem() instanceof RewindMockItem)) { // should never happen
             return InteractionResultHolder.fail(mockItem);
         }
         final ItemStack resolvedItem = resolveMockStack(mockItem);
@@ -39,50 +34,21 @@ public class RewindMockItem extends Item {
         return InteractionResultHolder.success(resolvedItem);
     }
 
-    public static boolean isMockItem(ItemStack stack) {
-        // Crashes on startup due to FireBlock.bootStrap(), requiring this
-        if (!JItemRegistry.REWIND_MOCK_ITEM.isPresent()) return false;
-        return stack.getItem() == JItemRegistry.REWIND_MOCK_ITEM.get();
-    }
-
-    public static ItemStack getMockedStack(ItemStack mockItemStack) {
-        CompoundTag nbt = mockItemStack.getTag();
-        if (nbt == null || !nbt.contains("RewindMockItem", Tag.TAG_STRING)) {
-            return FALLBACK;
-        }
-
-        String mockItemId = nbt.getString("RewindMockItem");
-        Item mockItem = BuiltInRegistries.ITEM.get(new ResourceLocation(mockItemId));
-
-        CompoundTag mockData = nbt.contains("MockData", Tag.TAG_COMPOUND) ? nbt.getCompound("MockData") : null;
-
-        ItemStack mockedStack = new ItemStack(mockItem, mockItemStack.getCount());
-        mockedStack.setTag(mockData);
-
-        return mockedStack;
-    }
-
     public static ItemStack createMockStack(ItemStack stack, BlockMarkerMove move) {
         // No need to create a mock stack if it already is one
-        if (isMockItem(stack)) {
+        if (stack.getItem() instanceof RewindMockItem) {
             return stack;
         }
 
-        ItemStack mockStack = new ItemStack(JItemRegistry.REWIND_MOCK_ITEM.get(), stack.getCount());
+        ItemStack mockStack = MockItem.createMockStack(stack, JItemRegistry.REWIND_MOCK_ITEM);
         CompoundTag nbt = mockStack.getOrCreateTag();
-        // Register which item it's mocking and copy all relevant NBT data
-        nbt.putString("RewindMockItem", BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
-        if (stack.getTag() != null) {
-            nbt.put("MockData", stack.getTag());
-        }
         nbt.putUUID("RewindUuid", move.getUuid());
         nbt.putInt("RewindRun", move.getIteration().size());
-
         return mockStack;
     }
 
     public static ItemStack resolveMockStack(ItemStack stack) {
-        if (!isMockItem(stack)) {
+        if (!(stack.getItem() instanceof RewindMockItem)) {
             return stack;
         }
         CompoundTag nbt = stack.getOrCreateTag();
@@ -105,11 +71,7 @@ public class RewindMockItem extends Item {
             return ItemStack.EMPTY;
         }
         // otherwise rewind didn't happen, make item real
-        return getMockedStack(stack);
+        return MockItem.getMockedStack(stack);
     }
 
-    @Override
-    public String getDescriptionId(ItemStack stack) {
-        return getMockedStack(stack).getDescriptionId();
-    }
 }

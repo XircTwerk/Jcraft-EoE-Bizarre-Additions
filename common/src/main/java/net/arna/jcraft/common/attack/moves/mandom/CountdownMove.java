@@ -13,6 +13,7 @@ import net.arna.jcraft.api.attack.moves.AbstractMove;
 import net.arna.jcraft.api.attack.moves.BlockMarkerMove;
 import net.arna.jcraft.api.component.living.CommonCooldownsComponent;
 import net.arna.jcraft.api.registry.JPacketRegistry;
+import net.arna.jcraft.common.config.JServerConfig;
 import net.arna.jcraft.common.entity.stand.MandomEntity;
 import net.arna.jcraft.common.marker.*;
 import net.arna.jcraft.common.util.CooldownType;
@@ -55,7 +56,7 @@ public final class CountdownMove extends AbstractMove<CountdownMove, MandomEntit
             Identifiers.VEHICLE
     );
     static final BlockMarkerType BLOCK_MARKER_TYPE = new BlockMarkerType(
-            (pos, state) -> true,
+            (pos, state) -> JServerConfig.MANDOM_AFFECTS_BLOCKS.getValue(),
             (marker, level) -> true
     );
     @Getter

@@ -657,19 +657,20 @@ public class JServerEvents {
     }
 
     public static EventResult processBlockLoot(final @NonNull List<ItemStack> loot, final @NonNull BlockState state, final @NonNull ServerLevel serverLevel, final @NonNull BlockPos pos, final @Nullable BlockEntity blockEntity) {
-        final Optional<BlockMarkerMove> move = BlockMarkerMoves.findFirst(m -> m.isRecording() && m.isInRange(pos, serverLevel));
-        if (move.isPresent()) {
-            final List<ItemStack> modifiedList = new LinkedList<>();
-            for (ItemStack stack : loot) {
-                if (RewindMockItem.isMockItem(stack)) {
-                    modifiedList.add(stack);
+        if (JServerConfig.MANDOM_AFFECTS_BLOCKS.getValue()) {
+            final Optional<BlockMarkerMove> move = BlockMarkerMoves.findFirst(m -> m.isRecording() && m.isInRange(pos, serverLevel));
+            if (move.isPresent()) {
+                final List<ItemStack> modifiedList = new LinkedList<>();
+                for (ItemStack stack : loot) {
+                    if (RewindMockItem.isMockItem(stack)) {
+                        modifiedList.add(stack);
+                    } else {
+                        modifiedList.add(RewindMockItem.createMockStack(stack, move.get()));
+                    }
                 }
-                else {
-                    modifiedList.add(RewindMockItem.createMockStack(stack, move.get()));
-                }
+                loot.clear();
+                loot.addAll(modifiedList);
             }
-            loot.clear();
-            loot.addAll(modifiedList);
         }
         return EventResult.pass();
     }

@@ -1219,6 +1219,7 @@
   "jcraft.serverconfig.option.invisCreamVoid": "Cream's Void Invisible",
   "jcraft.serverconfig.option.kcTimeErasureDuration": "King Crimson Time Erasure Duration",
   "jcraft.serverconfig.option.killVampirism": "Heal On Kill",
+  "jcraft.serverconfig.option.mandomAffectsBlocks": "Mandom affects Blocks",
   "jcraft.serverconfig.option.meteorSpawnRate": "Meteor Spawn Rate (%)",
   "jcraft.serverconfig.option.mihAccelerateTicks": "Made in Heaven time accel duration",
   "jcraft.serverconfig.option.mihTimeAccelerationDuration": "Made in Heaven Time Accel Duration",

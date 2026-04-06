@@ -51,6 +51,7 @@
     "AnvilMenuMixin",
     "BaseSpawnerMixin",
     "BedBlockMixin",
+    "BlockMixin",
     "ChunkLightProviderAccessor",
     "EndCrystalEntityMixin",
     "EnderEyeItemMixin",

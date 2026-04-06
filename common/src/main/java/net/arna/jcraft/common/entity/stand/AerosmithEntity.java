@@ -34,6 +34,8 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
 
     public AerosmithEntity(final Level world) {
         super(JStandTypeRegistry.AEROSMITH.get(), world);
+        setYDistanceOffset(1.2f); // TODO for patrol mode 10f
+        setNoGravity(true);
     }
 
     @Override

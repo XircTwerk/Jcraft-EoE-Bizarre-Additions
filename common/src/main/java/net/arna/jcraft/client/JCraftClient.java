@@ -12,6 +12,7 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import lombok.Getter;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
+import mod.azure.azurelib.render.armor.AzArmorRenderer;
 import mod.azure.azurelib.render.armor.AzArmorRendererRegistry;
 import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.pose.PoseModifiers;
@@ -33,6 +34,7 @@ import net.arna.jcraft.client.util.ClientEntityHandlerImpl;
 import net.arna.jcraft.client.util.TrackedKeyBinding;
 import net.arna.jcraft.api.attack.enums.MoveInputType;
 import net.arna.jcraft.api.stand.StandEntity;
+import net.arna.jcraft.common.item.CosplayItem;
 import net.arna.jcraft.common.util.MovementInputType;
 import net.arna.jcraft.api.registry.JParticleTypeRegistry;
 import net.fabricmc.api.EnvType;
@@ -125,291 +127,109 @@ public class JCraftClient {
     }
 
     private static void initCosplay() {
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.DIAVOLO_WIG) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("diavoloclothes"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.DIAVOLO_SHIRT) {
-            AzArmorRendererRegistry.register(ArmorRenderer.flutter("diavoloshirt"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.DIAVOLO_PANTS) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("diavoloclothes"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.DIAVOLO_BOOTS) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("diavoloclothes"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.DIEGO_HAT) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("diegooutfit"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.DIEGO_SHIRT) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("diegooutfit"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.DIEGO_PANTS) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("diegooutfit"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.DIEGO_BOOTS) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("diegooutfit"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.DIO_HEADBAND) {
-            AzArmorRendererRegistry.register(ArmorRenderer.flutter("diojacket"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.DIO_JACKET) {
-            AzArmorRendererRegistry.register(ArmorRenderer.flutter("diojacket"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.DIO_PANTS) {
-            AzArmorRendererRegistry.register(DIOtardRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.DIO_BOOTS) {
-            AzArmorRendererRegistry.register(DIOtardRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.DIO_CAPE) {
-            AzArmorRendererRegistry.register(DIOCapeRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.DIO_P1_WIG) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("diooutfit"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.DIO_P1_JACKET) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("diooutfit"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.DIO_P1_PANTS) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("diooutfit"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.DIO_P1_BOOTS) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("diooutfit"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.OH_DIO_WIG) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("oh_diojacket"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.OH_DIO_JACKET) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("oh_diojacket"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.OH_DIO_PANTS) {
-            AzArmorRendererRegistry.register(OhDIOtardRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.OH_DIO_BOOTS) {
-            AzArmorRendererRegistry.register(OhDIOtardRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.DOPPIO_WIG) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("doppiotop"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.DOPPIO_SHIRT) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("doppiotop"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.FINAL_KIRA_WIG) {
-            AzArmorRendererRegistry.register(FinalKiraArmorRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.FINAL_KIRA_JACKET) {
-            AzArmorRendererRegistry.register(FinalKiraJacketRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.FINAL_KIRA_PANTS) {
-            AzArmorRendererRegistry.register(FinalKiraArmorRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.FINAL_KIRA_BOOTS) {
-            AzArmorRendererRegistry.register(FinalKiraArmorRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.GIORNO_WIG) {
-            AzArmorRendererRegistry.register(GiornoArmorRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.GIORNO_JACKET) {
-            AzArmorRendererRegistry.register(GiornoJacketRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.GIORNO_PANTS) {
-            AzArmorRendererRegistry.register(GiornoArmorRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.GIORNO_BOOTS) {
-            AzArmorRendererRegistry.register(GiornoArmorRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.GYRO_HAT) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("gyrotop"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.GYRO_SHIRT) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("gyrotop"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.GYRO_PANTS) {
-            AzArmorRendererRegistry.register(GyroBottomRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.GYRO_BOOTS) {
-            AzArmorRendererRegistry.register(GyroBottomRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.HEAVEN_ATTAINED_WIG) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("heavenattainedoutfit"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.HEAVEN_ATTAINED_SHIRT) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("heavenattainedoutfit"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.HEAVEN_ATTAINED_PANTS) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("heavenattainedoutfit"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.HEAVEN_ATTAINED_BOOTS) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("heavenattainedoutfit"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.JOHNNY_CAP) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("johnnyclothes"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.JOHNNY_JACKET) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("johnnyclothes"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.JOHNNY_PANTS) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("johnnyclothes"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.JOHNNY_BOOTS) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("johnnyclothes"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.JOTARO_CAP) {
-            AzArmorRendererRegistry.register(JotaroArmorRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.JOTARO_JACKET) {
-            AzArmorRendererRegistry.register(JotaroCoatRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.JOTARO_PANTS) {
-            AzArmorRendererRegistry.register(JotaroArmorRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.JOTARO_BOOTS) {
-            AzArmorRendererRegistry.register(JotaroArmorRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.JOTARO_P4_CAP) {
-            AzArmorRendererRegistry.register(JotaroArmorP4Renderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.JOTARO_P4_JACKET) {
-            AzArmorRendererRegistry.register(JotaroCoatP4Renderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.JOTARO_P4_PANTS) {
-            AzArmorRendererRegistry.register(JotaroArmorP4Renderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.JOTARO_P4_BOOTS) {
-            AzArmorRendererRegistry.register(JotaroArmorP4Renderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.JOTARO_P6_CAP) {
-            AzArmorRendererRegistry.register(JotaroArmorP6Renderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.JOTARO_P6_JACKET) {
-            AzArmorRendererRegistry.register(JotaroCoatP6Renderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.JOTARO_P6_PANTS) {
-            AzArmorRendererRegistry.register(JotaroArmorP6Renderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.JOTARO_P6_BOOTS) {
-            AzArmorRendererRegistry.register(JotaroArmorP6Renderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.KAKYOIN_WIG) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("kakyoinclothes"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.KAKYOIN_COAT) {
-            AzArmorRendererRegistry.register(KakyoinCoatRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.KAKYOIN_PANTS) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("kakyoinclothes"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.KAKYOIN_BOOTS) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("kakyoinclothes"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.MOUNTAIN_TIM_HAT) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("mountain_tim_clothes"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.MOUNTAIN_TIM_SHIRT) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("mountain_tim_top"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.MOUNTAIN_TIM_COAT) {
-            AzArmorRendererRegistry.register(MountainTimCoatRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.MOUNTAIN_TIM_PANTS) {
-            AzArmorRendererRegistry.register(MountainTimPantsRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.MOUNTAIN_TIM_BOOTS) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("mountain_tim_clothes"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.POLNAREFF_WIG) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("polnareffoutfit"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.POLNAREFF_SHIRT) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("polnareffoutfit"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.POLNAREFF_PANTS) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("polnareffoutfit"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.POLNAREFF_BOOTS) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("polnareffoutfit"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.KARS_HEADWRAP) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("karsoutfit"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.KIRA_WIG) {
-            AzArmorRendererRegistry.register(KiraArmorRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.KIRA_JACKET) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("kirajacket"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.KIRA_PANTS) {
-            AzArmorRendererRegistry.register(KiraArmorRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.KIRA_BOOTS) {
-            AzArmorRendererRegistry.register(KiraArmorRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.KOSAKU_WIG) {
-            AzArmorRendererRegistry.register(KosakuArmorRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.KOSAKU_JACKET) {
-            AzArmorRendererRegistry.register(KosakuJacketRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.KOSAKU_PANTS) {
-            AzArmorRendererRegistry.register(KosakuArmorRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.KOSAKU_BOOTS) {
-            AzArmorRendererRegistry.register(KosakuArmorRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.PUCCIS_HAT) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("puccis_hat"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.PUCCI_ROBE) {
-            AzArmorRendererRegistry.register(PucciRobeRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.PUCCI_PANTS) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("puccibottom"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.PUCCI_BOOTS) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("puccibottom"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.RED_HAT) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("red_hat"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.RINGO_OUTFIT) {
-            AzArmorRendererRegistry.register(RingoOutfitRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.RINGO_BOOTS) {
-            AzArmorRendererRegistry.register(RingoOutfitRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.RISOTTO_JACKET) {
-            AzArmorRendererRegistry.register(RisottoCapRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.RISOTTO_JACKET) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("risottotop"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.RISOTTO_PANTS) {
-            AzArmorRendererRegistry.register(RisottoBottomRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.RISOTTO_BOOTS) {
-            AzArmorRendererRegistry.register(RisottoBottomRenderer::new, item.get());
-        }
+        initCosplay(JItemRegistry.DIAVOLO_WIG, ArmorRenderer.simple("diavoloclothes"));
+        initCosplay(JItemRegistry.DIAVOLO_SHIRT, ArmorRenderer.flutter("diavoloshirt"));
+        initCosplay(JItemRegistry.DIAVOLO_PANTS, ArmorRenderer.simple("diavoloclothes"));
+        initCosplay(JItemRegistry.DIAVOLO_BOOTS, ArmorRenderer.simple("diavoloclothes"));
+        initCosplay(JItemRegistry.DIEGO_HAT, ArmorRenderer.simple("diegooutfit"));
+        initCosplay(JItemRegistry.DIEGO_SHIRT, ArmorRenderer.simple("diegooutfit"));
+        initCosplay(JItemRegistry.DIEGO_PANTS, ArmorRenderer.simple("diegooutfit"));
+        initCosplay(JItemRegistry.DIEGO_BOOTS, ArmorRenderer.simple("diegooutfit"));
+        initCosplay(JItemRegistry.DIO_HEADBAND, ArmorRenderer.flutter("diojacket"));
+        initCosplay(JItemRegistry.DIO_JACKET, ArmorRenderer.flutter("diojacket"));
+        initCosplay(JItemRegistry.DIO_PANTS, DIOtardRenderer::new);
+        initCosplay(JItemRegistry.DIO_BOOTS, DIOtardRenderer::new);
+        initCosplay(JItemRegistry.DIO_CAPE, DIOCapeRenderer::new);
+        initCosplay(JItemRegistry.DIO_P1_WIG, ArmorRenderer.simple("diooutfit"));
+        initCosplay(JItemRegistry.DIO_P1_JACKET, ArmorRenderer.simple("diooutfit"));
+        initCosplay(JItemRegistry.DIO_P1_PANTS, ArmorRenderer.simple("diooutfit"));
+        initCosplay(JItemRegistry.DIO_P1_BOOTS, ArmorRenderer.simple("diooutfit"));
+        initCosplay(JItemRegistry.OH_DIO_WIG, ArmorRenderer.simple("oh_diojacket"));
+        initCosplay(JItemRegistry.OH_DIO_JACKET, ArmorRenderer.simple("oh_diojacket"));
+        initCosplay(JItemRegistry.OH_DIO_PANTS, OhDIOtardRenderer::new);
+        initCosplay(JItemRegistry.OH_DIO_BOOTS, OhDIOtardRenderer::new);
+        initCosplay(JItemRegistry.DOPPIO_WIG, ArmorRenderer.simple("doppiotop"));
+        initCosplay(JItemRegistry.DOPPIO_SHIRT, ArmorRenderer.simple("doppiotop"));
+        initCosplay(JItemRegistry.FINAL_KIRA_WIG, FinalKiraArmorRenderer::new);
+        initCosplay(JItemRegistry.FINAL_KIRA_JACKET, FinalKiraJacketRenderer::new);
+        initCosplay(JItemRegistry.FINAL_KIRA_PANTS, FinalKiraArmorRenderer::new);
+        initCosplay(JItemRegistry.FINAL_KIRA_BOOTS, FinalKiraArmorRenderer::new);
+        initCosplay(JItemRegistry.GIORNO_WIG, GiornoArmorRenderer::new);
+        initCosplay(JItemRegistry.GIORNO_JACKET, GiornoJacketRenderer::new);
+        initCosplay(JItemRegistry.GIORNO_PANTS, GiornoArmorRenderer::new);
+        initCosplay(JItemRegistry.GIORNO_BOOTS, GiornoArmorRenderer::new);
+        initCosplay(JItemRegistry.GYRO_HAT, ArmorRenderer.simple("gyrotop"));
+        initCosplay(JItemRegistry.GYRO_SHIRT, ArmorRenderer.simple("gyrotop"));
+        initCosplay(JItemRegistry.GYRO_PANTS, GyroBottomRenderer::new);
+        initCosplay(JItemRegistry.GYRO_BOOTS, GyroBottomRenderer::new);
+        initCosplay(JItemRegistry.HEAVEN_ATTAINED_WIG, ArmorRenderer.simple("heavenattainedoutfit"));
+        initCosplay(JItemRegistry.HEAVEN_ATTAINED_SHIRT, ArmorRenderer.simple("heavenattainedoutfit"));
+        initCosplay(JItemRegistry.HEAVEN_ATTAINED_PANTS, ArmorRenderer.simple("heavenattainedoutfit"));
+        initCosplay(JItemRegistry.HEAVEN_ATTAINED_BOOTS, ArmorRenderer.simple("heavenattainedoutfit"));
+        initCosplay(JItemRegistry.JOHNNY_CAP, ArmorRenderer.simple("johnnyclothes"));
+        initCosplay(JItemRegistry.JOHNNY_JACKET, ArmorRenderer.simple("johnnyclothes"));
+        initCosplay(JItemRegistry.JOHNNY_PANTS, ArmorRenderer.simple("johnnyclothes"));
+        initCosplay(JItemRegistry.JOHNNY_BOOTS, ArmorRenderer.simple("johnnyclothes"));
+        initCosplay(JItemRegistry.JOTARO_CAP, JotaroArmorRenderer::new);
+        initCosplay(JItemRegistry.JOTARO_JACKET, JotaroCoatRenderer::new);
+        initCosplay(JItemRegistry.JOTARO_PANTS, JotaroArmorRenderer::new);
+        initCosplay(JItemRegistry.JOTARO_BOOTS, JotaroArmorRenderer::new);
+        initCosplay(JItemRegistry.JOTARO_P4_CAP, JotaroArmorP4Renderer::new);
+        initCosplay(JItemRegistry.JOTARO_P4_JACKET, JotaroCoatP4Renderer::new);
+        initCosplay(JItemRegistry.JOTARO_P4_PANTS, JotaroArmorP4Renderer::new);
+        initCosplay(JItemRegistry.JOTARO_P4_BOOTS, JotaroArmorP4Renderer::new);
+        initCosplay(JItemRegistry.JOTARO_P6_CAP, JotaroArmorP6Renderer::new);
+        initCosplay(JItemRegistry.JOTARO_P6_JACKET, JotaroCoatP6Renderer::new);
+        initCosplay(JItemRegistry.JOTARO_P6_PANTS, JotaroArmorP6Renderer::new);
+        initCosplay(JItemRegistry.JOTARO_P6_BOOTS, JotaroArmorP6Renderer::new);
+        initCosplay(JItemRegistry.KAKYOIN_WIG, ArmorRenderer.simple("kakyoinclothes"));
+        initCosplay(JItemRegistry.KAKYOIN_COAT, KakyoinCoatRenderer::new);
+        initCosplay(JItemRegistry.KAKYOIN_PANTS, ArmorRenderer.simple("kakyoinclothes"));
+        initCosplay(JItemRegistry.KAKYOIN_BOOTS, ArmorRenderer.simple("kakyoinclothes"));
+        initCosplay(JItemRegistry.MOUNTAIN_TIM_HAT, ArmorRenderer.simple("mountain_tim_clothes"));
+        initCosplay(JItemRegistry.MOUNTAIN_TIM_SHIRT, ArmorRenderer.simple("mountain_tim_top"));
+        initCosplay(JItemRegistry.MOUNTAIN_TIM_COAT, MountainTimCoatRenderer::new);
+        initCosplay(JItemRegistry.MOUNTAIN_TIM_PANTS, MountainTimPantsRenderer::new);
+        initCosplay(JItemRegistry.MOUNTAIN_TIM_BOOTS, ArmorRenderer.simple("mountain_tim_clothes"));
+        initCosplay(JItemRegistry.POLNAREFF_WIG, ArmorRenderer.simple("polnareffoutfit"));
+        initCosplay(JItemRegistry.POLNAREFF_SHIRT, ArmorRenderer.simple("polnareffoutfit"));
+        initCosplay(JItemRegistry.POLNAREFF_PANTS, ArmorRenderer.simple("polnareffoutfit"));
+        initCosplay(JItemRegistry.POLNAREFF_BOOTS, ArmorRenderer.simple("polnareffoutfit"));
+        initCosplay(JItemRegistry.KARS_HEADWRAP, ArmorRenderer.simple("karsoutfit"));
+        initCosplay(JItemRegistry.KIRA_WIG, KiraArmorRenderer::new);
+        initCosplay(JItemRegistry.KIRA_JACKET, ArmorRenderer.simple("kirajacket"));
+        initCosplay(JItemRegistry.KIRA_PANTS, KiraArmorRenderer::new);
+        initCosplay(JItemRegistry.KIRA_BOOTS, KiraArmorRenderer::new);
+        initCosplay(JItemRegistry.KOSAKU_WIG, KosakuArmorRenderer::new);
+        initCosplay(JItemRegistry.KOSAKU_JACKET, KosakuJacketRenderer::new);
+        initCosplay(JItemRegistry.KOSAKU_PANTS, KosakuArmorRenderer::new);
+        initCosplay(JItemRegistry.KOSAKU_BOOTS, KosakuArmorRenderer::new);
+        initCosplay(JItemRegistry.PUCCIS_HAT, ArmorRenderer.simple("puccis_hat"));
+        initCosplay(JItemRegistry.PUCCI_ROBE, PucciRobeRenderer::new);
+        initCosplay(JItemRegistry.PUCCI_PANTS, ArmorRenderer.simple("puccibottom"));
+        initCosplay(JItemRegistry.PUCCI_BOOTS, ArmorRenderer.simple("puccibottom"));
+        initCosplay(JItemRegistry.RED_HAT, ArmorRenderer.simple("red_hat"));
+        initCosplay(JItemRegistry.RINGO_OUTFIT, RingoOutfitRenderer::new);
+        initCosplay(JItemRegistry.RINGO_BOOTS, RingoOutfitRenderer::new);
+        initCosplay(JItemRegistry.RISOTTO_JACKET, RisottoCapRenderer::new);
+        initCosplay(JItemRegistry.RISOTTO_JACKET, ArmorRenderer.simple("risottotop"));
+        initCosplay(JItemRegistry.RISOTTO_PANTS, RisottoBottomRenderer::new);
+        initCosplay(JItemRegistry.RISOTTO_BOOTS, RisottoBottomRenderer::new);
         AzArmorRendererRegistry.register(ArmorRenderer.simple("stone_mask"), JItemRegistry.STONE_MASK.get());
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.STRAIZO_PONCHO) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("straizoponcho"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.STRAIZO_PONCHO) {
-            AzArmorRendererRegistry.register(ArmorRenderer.simple("straizoponcho"), item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.VALENTINE_WIG) {
-            AzArmorRendererRegistry.register(ValentineTopRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.VALENTINE_JACKET) {
-            AzArmorRendererRegistry.register(ValentineTopRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.VALENTINE_PANTS) {
-            AzArmorRendererRegistry.register(ValentineBottomRenderer::new, item.get());
-        }
-        for (RegistrySupplier<? extends ArmorItem> item : JItemRegistry.VALENTINE_BOOTS) {
-            AzArmorRendererRegistry.register(ValentineBottomRenderer::new, item.get());
-        }
+        initCosplay(JItemRegistry.STRAIZO_PONCHO, ArmorRenderer.simple("straizoponcho"));
+        initCosplay(JItemRegistry.STRAIZO_PONCHO, ArmorRenderer.simple("straizoponcho"));
+        initCosplay(JItemRegistry.VALENTINE_WIG, ValentineTopRenderer::new);
+        initCosplay(JItemRegistry.VALENTINE_JACKET, ValentineTopRenderer::new);
+        initCosplay(JItemRegistry.VALENTINE_PANTS, ValentineBottomRenderer::new);
+        initCosplay(JItemRegistry.VALENTINE_BOOTS, ValentineBottomRenderer::new);
     }
 
+    private static void initCosplay(CosplayItem<?> cosplay, Supplier<AzArmorRenderer> renderer) {
+        for (RegistrySupplier<? extends ArmorItem> item : cosplay) {
+            AzArmorRendererRegistry.register(renderer, item.get());
+        }
+    }
+    
     public static void registerKeyBindings(@Nullable Consumer<KeyMapping> register) {
         if (register == null) register = KeyMappingRegistry::register;
 

@@ -1140,6 +1140,46 @@
       "jcraft:specs/vampire/spec_change"
     ]
   },
+  "hamoncrash": {
+    "sounds": [
+      "jcraft:specs/hamon/crash"
+    ]
+  },
+  "hamonecho": {
+    "sounds": [
+      "jcraft:specs/hamon/echo"
+    ]
+  },
+  "hamonring": {
+    "sounds": [
+      "jcraft:specs/hamon/ring"
+    ]
+  },
+  "hamonsurge": {
+    "sounds": [
+      "jcraft:specs/hamon/surge"
+    ]
+  },
+  "hamonswoosh": {
+    "sounds": [
+      "jcraft:specs/hamon/swoosh"
+    ]
+  },
+  "hamoncrackleimpact": {
+    "sounds": [
+      "jcraft:specs/hamon/crackle_impact"
+    ]
+  },
+  "hamoncrackles": {
+    "sounds": [
+      "jcraft:specs/hamon/crackles"
+    ]
+  },
+  "hamonbreathe": {
+    "sounds": [
+      "jcraft:specs/hamon/breathe"
+    ]
+  },
   "bulletricochet": {
     "sounds": [
       "jcraft:projectiles/bullet/ricochet"

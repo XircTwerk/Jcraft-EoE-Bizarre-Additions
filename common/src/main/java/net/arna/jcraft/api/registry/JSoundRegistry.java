@@ -302,6 +302,17 @@ public interface JSoundRegistry {
     RegistrySupplier<SoundEvent> VAMPIRE_REANIMATE = register("vampirereanimate");
     RegistrySupplier<SoundEvent> VAMPIRE_SPEC_CHANGE = register("vampirespecchange");
 
+    // Hamon
+
+    RegistrySupplier<SoundEvent> HAMON_CRASH = register("hamoncrash");
+    RegistrySupplier<SoundEvent> HAMON_ECHO = register("hamonecho");
+    RegistrySupplier<SoundEvent> HAMON_RING = register("hamonring");
+    RegistrySupplier<SoundEvent> HAMON_SURGE = register("hamonsurge");
+    RegistrySupplier<SoundEvent> HAMON_SWOOSH = register("hamonswoosh");
+    RegistrySupplier<SoundEvent> HAMON_CRACKLE_IMPACT = register("hamoncrackleimpact");
+    RegistrySupplier<SoundEvent> HAMON_BREATHE = register("hamonbreathe");
+    RegistrySupplier<SoundEvent> HAMON_CRACKLES = register("hamoncrackles");
+
     //// OTHER
     RegistrySupplier<SoundEvent> BULLET_RICOCHET = register("bulletricochet");
     RegistrySupplier<SoundEvent> BULLET_PENETRATE = register("bulletpenetrate");

@@ -2,18 +2,14 @@ package net.arna.jcraft.common.entity.projectile;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import lombok.NonNull;
-import mod.azure.azurelib.animatable.GeoEntity;
-import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
-import mod.azure.azurelib.core.animation.AnimatableManager;
-import mod.azure.azurelib.util.AzureLibUtil;
 import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
-import net.arna.jcraft.common.entity.stand.MetallicaEntity;
-import net.arna.jcraft.api.stand.StandEntity;
-import net.arna.jcraft.common.util.JUtils;
-import net.arna.jcraft.platform.JComponentPlatformUtils;
 import net.arna.jcraft.api.registry.JEntityTypeRegistry;
+import net.arna.jcraft.api.stand.StandEntity;
+import net.arna.jcraft.common.entity.stand.MetallicaEntity;
+import net.arna.jcraft.common.util.JUtils;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityEvent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -25,7 +21,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.Set;
 
-public class RazorProjectile extends AbstractArrow implements GeoEntity {
+public class RazorProjectile extends AbstractArrow {
     public static final float IRON_COST = 5.0f;
     private final IntOpenHashSet pierced = new IntOpenHashSet(4);
 
@@ -73,6 +69,12 @@ public class RazorProjectile extends AbstractArrow implements GeoEntity {
     }
 
     @Override
+    public void handleEntityEvent(byte id) {
+        super.handleEntityEvent(id);
+        if (id == EntityEvent.DEATH) remove(RemovalReason.KILLED);
+    }
+
+    @Override
     protected void onHitEntity(@NonNull EntityHitResult entityHitResult) {
         if (level().isClientSide || tickCount < 3) return;
         Entity entity = entityHitResult.getEntity();
@@ -102,12 +104,7 @@ public class RazorProjectile extends AbstractArrow implements GeoEntity {
 
     @Override
     protected boolean tryPickup(@NonNull Player player) {
-        if (JComponentPlatformUtils.getStandComponent(player).getStand() instanceof MetallicaEntity metallica) {
-            if (metallica.getIron() < MetallicaEntity.IRON_MAX) {
-                metallica.addIron(IRON_COST);
-                return true;
-            }
-        }
+        if (MetallicaEntity.ironProjectilePickup(player, IRON_COST)) return true;
         return super.tryPickup(player);
     }
 
@@ -116,10 +113,4 @@ public class RazorProjectile extends AbstractArrow implements GeoEntity {
         return ItemStack.EMPTY;
     }
 
-    // Animations
-    private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
-    @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) { }
-    @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() { return cache; }
 }

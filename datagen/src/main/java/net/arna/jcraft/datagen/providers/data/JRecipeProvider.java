@@ -3,6 +3,7 @@ package net.arna.jcraft.datagen.providers.data;
 import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.registry.JBlockRegistry;
 import net.arna.jcraft.api.registry.JItemRegistry;
+import net.arna.jcraft.datagen.builder.CrazyDiamondRecipeBuilder;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.minecraft.advancements.critereon.*;
@@ -12,6 +13,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.block.Blocks;
 
 import java.util.function.Consumer;
 
@@ -173,7 +175,6 @@ public class JRecipeProvider extends FabricRecipeProvider {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, JItemRegistry.REQUIEM_ARROW.get())
                 .requires(JItemRegistry.STAND_ARROW.get())
                 .requires(JItemRegistry.REQUIEM_RUBY.get())
-                .requires(Items.TIPPED_ARROW)
                 .unlockedBy("has_arrow", InventoryChangeTrigger.TriggerInstance.hasItems(JItemRegistry.STAND_ARROW.get()))
                 .unlockedBy("has_ruby", InventoryChangeTrigger.TriggerInstance.hasItems(JItemRegistry.REQUIEM_RUBY.get()))
                 .save(exporter);
@@ -1094,15 +1095,15 @@ public class JRecipeProvider extends FabricRecipeProvider {
                 .define('G', Items.GRINDSTONE)
                 .unlockedBy("has_iron_block", InventoryChangeTrigger.TriggerInstance.hasItems(Items.IRON_BLOCK))
                 .save(exporter);
-        // road roller
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, JItemRegistry.STEEL_BALL.get())
-                .pattern(" I ")
-                .pattern("ILI")
-                .pattern(" I ")
-                .define('I', Items.IRON_INGOT)
-                .define('L', Items.LIME_DYE)
-                .unlockedBy("has_iron_ingot", InventoryChangeTrigger.TriggerInstance.hasItems(Items.IRON_INGOT))
-                .save(exporter);
+        // steel ball
+//        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, JItemRegistry.STEEL_BALL.get())
+//                .pattern(" I ")
+//                .pattern("ILI")
+//                .pattern(" I ")
+//                .define('I', Items.IRON_INGOT)
+//                .define('L', Items.LIME_DYE)
+//                .unlockedBy("has_iron_ingot", InventoryChangeTrigger.TriggerInstance.hasItems(Items.IRON_INGOT))
+//                .save(exporter);
         // training dummy
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, JItemRegistry.TRAINING_DUMMY.get())
                 .pattern("CWC")
@@ -1113,6 +1114,70 @@ public class JRecipeProvider extends FabricRecipeProvider {
                 .unlockedBy("has_wool", InventoryChangeTrigger.TriggerInstance.hasItems(ofTag(ItemTags.WOOL)))
                 .unlockedBy("has_wool_carpet", InventoryChangeTrigger.TriggerInstance.hasItems(ofTag(ItemTags.WOOL_CARPETS)))
                 .save(exporter);
+        // crazy diamond recipes
+        new CrazyDiamondRecipeBuilder(Blocks.STONE)
+                .requires(Blocks.COBBLESTONE)
+                .save(exporter, JCraft.id("crazy_diamond/stone"));
+        new CrazyDiamondRecipeBuilder(Blocks.DEEPSLATE)
+                .requires(Blocks.COBBLED_DEEPSLATE)
+                .save(exporter, JCraft.id("crazy_diamond/deepslate"));
+        new CrazyDiamondRecipeBuilder(Blocks.OAK_LOG)
+                .requires(Blocks.STRIPPED_OAK_LOG)
+                .save(exporter, JCraft.id("crazy_diamond/oak_log"));
+        new CrazyDiamondRecipeBuilder(Blocks.OAK_WOOD)
+                .requires(Blocks.STRIPPED_OAK_WOOD)
+                .save(exporter, JCraft.id("crazy_diamond/oak_wood"));
+        new CrazyDiamondRecipeBuilder(Blocks.BIRCH_LOG)
+                .requires(Blocks.STRIPPED_BIRCH_LOG)
+                .save(exporter, JCraft.id("crazy_diamond/birch_log"));
+        new CrazyDiamondRecipeBuilder(Blocks.BIRCH_WOOD)
+                .requires(Blocks.STRIPPED_BIRCH_WOOD)
+                .save(exporter, JCraft.id("crazy_diamond/birch_wood"));
+        new CrazyDiamondRecipeBuilder(Blocks.ACACIA_LOG)
+                .requires(Blocks.STRIPPED_ACACIA_LOG)
+                .save(exporter, JCraft.id("crazy_diamond/acacia_log"));
+        new CrazyDiamondRecipeBuilder(Blocks.ACACIA_WOOD)
+                .requires(Blocks.STRIPPED_ACACIA_WOOD)
+                .save(exporter, JCraft.id("crazy_diamond/acacia_wood"));
+        new CrazyDiamondRecipeBuilder(Blocks.SPRUCE_LOG)
+                .requires(Blocks.STRIPPED_SPRUCE_LOG)
+                .save(exporter, JCraft.id("crazy_diamond/spruce_log"));
+        new CrazyDiamondRecipeBuilder(Blocks.SPRUCE_WOOD)
+                .requires(Blocks.STRIPPED_SPRUCE_WOOD)
+                .save(exporter, JCraft.id("crazy_diamond/spruce_wood"));
+        new CrazyDiamondRecipeBuilder(Blocks.DARK_OAK_LOG)
+                .requires(Blocks.STRIPPED_DARK_OAK_LOG)
+                .save(exporter, JCraft.id("crazy_diamond/dark_oak_log"));
+        new CrazyDiamondRecipeBuilder(Blocks.DARK_OAK_WOOD)
+                .requires(Blocks.STRIPPED_DARK_OAK_WOOD)
+                .save(exporter, JCraft.id("crazy_diamond/dark_oak_wood"));
+        new CrazyDiamondRecipeBuilder(Blocks.JUNGLE_LOG)
+                .requires(Blocks.STRIPPED_JUNGLE_LOG)
+                .save(exporter, JCraft.id("crazy_diamond/jungle_log"));
+        new CrazyDiamondRecipeBuilder(Blocks.JUNGLE_WOOD)
+                .requires(Blocks.STRIPPED_JUNGLE_WOOD)
+                .save(exporter, JCraft.id("crazy_diamond/jungle_wood"));
+        new CrazyDiamondRecipeBuilder(Blocks.MANGROVE_LOG)
+                .requires(Blocks.STRIPPED_MANGROVE_LOG)
+                .save(exporter, JCraft.id("crazy_diamond/mangrove_log"));
+        new CrazyDiamondRecipeBuilder(Blocks.MANGROVE_WOOD)
+                .requires(Blocks.STRIPPED_MANGROVE_WOOD)
+                .save(exporter, JCraft.id("crazy_diamond/mangrove_wood"));
+        new CrazyDiamondRecipeBuilder(Blocks.BAMBOO_BLOCK)
+                .requires(Blocks.STRIPPED_BAMBOO_BLOCK)
+                .save(exporter, JCraft.id("crazy_diamond/bamboo_block"));
+        new CrazyDiamondRecipeBuilder(Blocks.CRIMSON_STEM)
+                .requires(Blocks.STRIPPED_CRIMSON_STEM)
+                .save(exporter, JCraft.id("crazy_diamond/crimson_stem"));
+        new CrazyDiamondRecipeBuilder(Blocks.CRIMSON_HYPHAE)
+                .requires(Blocks.STRIPPED_CRIMSON_HYPHAE)
+                .save(exporter, JCraft.id("crazy_diamond/crimson_hyphae"));
+        new CrazyDiamondRecipeBuilder(Blocks.WARPED_STEM)
+                .requires(Blocks.STRIPPED_WARPED_STEM)
+                .save(exporter, JCraft.id("crazy_diamond/warped_stem"));
+        new CrazyDiamondRecipeBuilder(Blocks.WARPED_HYPHAE)
+                .requires(Blocks.STRIPPED_WARPED_HYPHAE)
+                .save(exporter, JCraft.id("crazy_diamond/warped_hyphae"));
     }
 
     public static ItemPredicate ofTag(TagKey<Item> tag) {

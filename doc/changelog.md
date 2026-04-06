@@ -1,21 +1,24 @@
 # Changelog
 ## General
-* …
+* ### Added Hamon
+* Improved combat AI
 ### Blocks & Items
-* added Jotaro Cosplay from Part 6
-* Diego outfit has been updated
-### NPCs & Stands
 * …
+### NPCs & Stands
+* Whitesnake
+  * Poison Spew cooldowns increased by 4s
+  * Poison Spew Projectile no longer interrupts moves
 ### Configs
-* made Roadroller paving/destruction configurable via server config
-* C-Moon's Ult range is now configurable via its moveset
-### Commands
 * …
 ### Bug Fixes
-* Mandom rewinds fall distance again
-* some cosplay nitpicks
+* Fix idle and blocking animations not playing sometimes
+* Fix Gold Experience's Snake not animating movement
+* Brawler spec user no longer attacks villagers
 ### Known Bugs
 * …
+
+
+
 
 ## TODO (SOME UPDATE) :D
 * Spin
@@ -23,5 +26,4 @@
 * MR barrage fire :)
 * Timestop should stop stand anims
 * CRAZY DIAMOND, Hermit Purple, Yellow Temperance
-* Stand NBT serialization
 * Actually use effect keyframes in animations

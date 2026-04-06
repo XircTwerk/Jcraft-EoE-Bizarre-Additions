@@ -1,26 +1,22 @@
 package net.arna.jcraft.common.entity.projectile;
 
 import lombok.NonNull;
-import mod.azure.azurelib.animatable.GeoEntity;
-import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
-import mod.azure.azurelib.core.animation.AnimatableManager;
-import mod.azure.azurelib.util.AzureLibUtil;
 import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.registry.JTagRegistry;
 import net.arna.jcraft.api.stand.StandTypeUtil;
 import net.arna.jcraft.api.component.living.CommonStandComponent;
+import net.arna.jcraft.common.util.JUtils;
 import net.arna.jcraft.platform.JComponentPlatformUtils;
 import net.arna.jcraft.api.registry.JEntityTypeRegistry;
 import net.arna.jcraft.api.registry.JItemRegistry;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 
-public class StandArrowEntity extends AbstractArrow implements GeoEntity {
-
-    private final AnimatableInstanceCache geoCache = AzureLibUtil.createInstanceCache(this);
+public class StandArrowEntity extends AbstractArrow {
 
     public StandArrowEntity(Level level) {
         super(JEntityTypeRegistry.STAND_ARROW_PROJECTILE.get(), level);
@@ -36,16 +32,6 @@ public class StandArrowEntity extends AbstractArrow implements GeoEntity {
     }
 
     @Override
-    public void registerControllers(final AnimatableManager.ControllerRegistrar controllers) {
-        // intentionally left empty
-    }
-
-    @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return geoCache;
-    }
-
-    @Override
     protected void onHitEntity(final @NonNull EntityHitResult result) {
         super.onHitEntity(result);
         if (result.getEntity() instanceof final LivingEntity mob) {
@@ -56,6 +42,9 @@ public class StandArrowEntity extends AbstractArrow implements GeoEntity {
             final CommonStandComponent standData = JComponentPlatformUtils.getStandComponent(mob);
             if (standData.getType() == null && !mob.getType().is(JTagRegistry.CAN_NEVER_HAVE_STAND)) {
                 standData.setType(StandTypeUtil.getRandomRegular(random));
+                if (mob instanceof ServerPlayer player) {
+                    JUtils.maySendStandAboutInfo(player);
+                }
                 mob.unRide();
                 JCraft.summon(mob.level(), mob);
             } else {

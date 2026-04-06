@@ -37,6 +37,11 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
     }
 
     @Override
+    public void playSummonAnimation() {
+        // intentionally left empty // TODO remove this override
+    }
+
+    @Override
     public @NonNull AerosmithEntity getThis() {
         return this;
     }

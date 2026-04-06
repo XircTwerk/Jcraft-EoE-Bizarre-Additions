@@ -3,7 +3,9 @@ package net.arna.jcraft.common.events;
 import dev.architectury.event.Event;
 import dev.architectury.event.EventFactory;
 import dev.architectury.event.EventResult;
+import lombok.NonNull;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 public interface JBlockEvents<T> {
@@ -15,6 +17,6 @@ public interface JBlockEvents<T> {
     void add(T instance);
 
     interface BeforeSet {
-        EventResult setBlock(BlockPos blockPos, BlockState oldBlockState, BlockState newBlockState);
+        EventResult setBlock(final @NonNull BlockPos blockPos, final @NonNull BlockState oldBlockState, final @NonNull BlockState newBlockState, final @NonNull Level level);
     }
 }

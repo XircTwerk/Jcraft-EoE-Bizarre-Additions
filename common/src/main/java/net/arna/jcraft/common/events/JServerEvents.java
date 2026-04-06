@@ -4,6 +4,7 @@ import dev.architectury.event.CompoundEventResult;
 import dev.architectury.event.EventResult;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import lombok.NonNull;
 import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.attack.moves.BlockMarkerMove;
 import net.arna.jcraft.api.component.living.CommonStandComponent;
@@ -346,7 +347,7 @@ public class JServerEvents {
                     }
                 }
                 else {
-                    final Optional<BlockMarkerMove> move = BlockMarkerMoves.findFirst(m -> m.isRecording() && m.isInRange(item.blockPosition()));
+                    final Optional<BlockMarkerMove> move = BlockMarkerMoves.findFirst(m -> m.isRecording() && m.isInRange(item.blockPosition(), item.level()));
                     if (move.isPresent()) {
                         if (item.getOwner() != null || RewindMockItem.isMockItem(stack)) {
                             return EventResult.pass();
@@ -653,13 +654,13 @@ public class JServerEvents {
         }
     }
 
-    public static EventResult beforeBlockSet(BlockPos blockPos, BlockState oldBlockState, BlockState newBlockState) {
+    public static EventResult beforeBlockSet(final @NonNull BlockPos blockPos, final @NonNull BlockState oldBlockState, final @NonNull BlockState newBlockState, final @NonNull Level level) {
         if (oldBlockState.is(BlockTags.LEAVES) && newBlockState.is(BlockTags.LEAVES)) {
             return EventResult.pass();
         }
 
         BlockMarkerMoves.mergeQueues();
-        BlockMarkerMoves.forEach(move -> move.addBlock(blockPos, oldBlockState));
+        BlockMarkerMoves.forEach(move -> move.addBlock(blockPos, oldBlockState, level));
 
         return EventResult.pass();
     }

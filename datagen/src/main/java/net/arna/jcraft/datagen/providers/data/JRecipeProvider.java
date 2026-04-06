@@ -947,8 +947,7 @@ public class JRecipeProvider extends FabricRecipeProvider {
         },
                 new SymbolItem('L', Items.LEATHER),
                 new SymbolItem('K', Items.GOLD_NUGGET),
-                new SymbolItem('N', Items.IRON_NUGGET);
-
+                new SymbolItem('N', Items.IRON_NUGGET));
         generateCosplayRecipes(JItemRegistry.VALENTINE_WIG, exporter, new String[] {
                 " X ",
                 "W W",

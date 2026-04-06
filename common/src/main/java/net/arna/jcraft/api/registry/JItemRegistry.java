@@ -190,6 +190,10 @@ public interface JItemRegistry {
     CosplayItem<RingoOutfitItem> RINGO_OUTFIT = registerLeggings("ringo_outfit", RingoOutfitItem::new);
     CosplayItem<RingoOutfitItem> RINGO_BOOTS = registerBoots("ringo_boots", RingoOutfitItem::new);
 
+    CosplayItem<ArmorItem> COWBOY_HAT = registerVampireHat("cowboy_hat", ArmorItem::new);
+    CosplayItem<ArmorItem> COWBOY_PONCHO = registerChestplate("cowboy_poncho", ArmorItem::new);
+    CosplayItem<ArmorItem> COWBOY_GUNBELT_SPURS = registerLeggings("cowboy_gunbelt_spurs", ArmorItem::new);
+
     CosplayItem<ValentineTopItem> VALENTINE_WIG = registerHelmet("valentine_wig", ValentineTopItem::new);
     CosplayItem<ValentineTopItem> VALENTINE_JACKET = registerChestplate("valentine_jacket", ValentineTopItem::new);
     CosplayItem<ValentineBottomItem> VALENTINE_PANTS = registerLeggings("valentine_pants", ValentineBottomItem::new);

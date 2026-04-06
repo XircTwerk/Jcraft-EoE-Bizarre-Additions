@@ -127,6 +127,9 @@ public class JCraftClient {
     }
 
     private static void initCosplay() {
+        initCosplay(JItemRegistry.COWBOY_HAT, ArmorRenderer.simple("cowboy_outfit"));
+        initCosplay(JItemRegistry.COWBOY_PONCHO, ArmorRenderer.simple("cowboy_poncho"));
+        initCosplay(JItemRegistry.COWBOY_GUNBELT_SPURS, CowboyGunbeltRenderer::new);
         initCosplay(JItemRegistry.DIAVOLO_WIG, ArmorRenderer.simple("diavoloclothes"));
         initCosplay(JItemRegistry.DIAVOLO_SHIRT, ArmorRenderer.flutter("diavoloshirt"));
         initCosplay(JItemRegistry.DIAVOLO_PANTS, ArmorRenderer.simple("diavoloclothes"));

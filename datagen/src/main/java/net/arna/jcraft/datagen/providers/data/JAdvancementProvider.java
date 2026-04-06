@@ -224,6 +224,7 @@ public class JAdvancementProvider extends FabricAdvancementProvider {
                 JItemRegistry.PUCCIS_HAT,
                 JItemRegistry.RISOTTO_CAP,
                 JItemRegistry.DIEGO_HAT,
+                JItemRegistry.COWBOY_HAT,
                 JItemRegistry.MOUNTAIN_TIM_HAT);
         consumer.accept(obtainSunProtection);
         // obtain blood bottle
@@ -432,7 +433,7 @@ public class JAdvancementProvider extends FabricAdvancementProvider {
         consumer.accept(obtainDiavoloOutfit);
         // obtain Johnny outfit
         final Advancement obtainJohnnyOutfit = generateCosplayAdvancement(
-                "diavolo_outfit",
+                "johnny_outfit",
                 JItemRegistry.JOHNNY_CAP.get(ArmorMaterials.NETHERITE).get(),
                 FrameType.CHALLENGE,
                 obtainCosplay,
@@ -441,6 +442,7 @@ public class JAdvancementProvider extends FabricAdvancementProvider {
                 JItemRegistry.JOHNNY_PANTS,
                 JItemRegistry.JOHNNY_BOOTS
         );
+        consumer.accept(obtainJohnnyOutfit);
         // obtain Gyro outfit
         final Advancement obtainGyroOutfit = generateCosplayAdvancement(
                 "gyro_outfit",
@@ -452,6 +454,18 @@ public class JAdvancementProvider extends FabricAdvancementProvider {
                 JItemRegistry.GYRO_PANTS,
                 JItemRegistry.GYRO_BOOTS
         );
+        consumer.accept(obtainGyroOutfit);
+        // obtain Cowboy outfit
+        final Advancement obtainCowboyOutfit = generateCosplayAdvancement(
+                "cowboy_outfit",
+                JItemRegistry.COWBOY_HAT.get(ArmorMaterials.IRON).get(),
+                FrameType.GOAL,
+                obtainCosplay,
+                JItemRegistry.COWBOY_HAT,
+                JItemRegistry.COWBOY_PONCHO,
+                JItemRegistry.COWBOY_GUNBELT_SPURS
+        );
+        consumer.accept(obtainCowboyOutfit);
         // obtain Diego outfit
         final Advancement obtainDiegoOutfit = generateCosplayAdvancement(
                 "diego_outfit",

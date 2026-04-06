@@ -927,6 +927,28 @@ public class JRecipeProvider extends FabricRecipeProvider {
         },
                 new SymbolItem('B', Items.BROWN_WOOL),
                 new SymbolItem('W', Items.WHITE_WOOL));
+        generateCosplayRecipes(JItemRegistry.COWBOY_HAT, exporter, new String[] {
+                "LNL",
+                "LXL"
+        },
+                new SymbolItem('L', Items.LEATHER),
+                new SymbolItem('N', Items.FEATHER));
+        generateCosplayRecipes(JItemRegistry.COWBOY_PONCHO, exporter, new String[] {
+                "LXL",
+                "NLN",
+                " N "
+        },
+                new SymbolItem('L', Items.GREEN_CARPET),
+                new SymbolItem('N', Items.WHITE_CARPET));
+        generateCosplayRecipes(JItemRegistry.COWBOY_GUNBELT_SPURS, exporter, new String[] {
+                "LXK",
+                "L  ",
+                "NLN"
+        },
+                new SymbolItem('L', Items.LEATHER),
+                new SymbolItem('K', Items.GOLD_NUGGET),
+                new SymbolItem('N', Items.IRON_NUGGET);
+
         generateCosplayRecipes(JItemRegistry.VALENTINE_WIG, exporter, new String[] {
                 " X ",
                 "W W",

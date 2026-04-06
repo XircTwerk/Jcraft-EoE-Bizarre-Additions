@@ -10,13 +10,18 @@ import lombok.NonNull;
 import net.arna.jcraft.api.attack.IAttacker;
 import net.arna.jcraft.common.attack.core.data.AttackMoveExtras;
 import net.arna.jcraft.common.attack.core.data.BaseMoveExtras;
+import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
+import net.arna.jcraft.common.util.JUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Set;
 
@@ -63,17 +68,25 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
         if (user == null) {
             return Set.of();
         }
-        final HitResult goal = user.pick(getRange(), 0f, false);
+        final Vec3 eyePos = user.position().add(GravityChangerAPI.getEyeOffset(user));
+        final Vec3 rotVec = user.getLookAngle();
+        final HitResult goal = JUtils.raycastAll(user, eyePos, eyePos.add(rotVec.scale(getRange())), ClipContext.Fluid.NONE, EntitySelector.LIVING_ENTITY_STILL_ALIVE);
         if (goal.getType() == HitResult.Type.ENTITY) {
             final Entity hitEntity = ((EntityHitResult)goal).getEntity();
-            if (hitEntity instanceof LivingEntity living) {
+            if (hitEntity instanceof LivingEntity living) { // should always happen
+                final Vec3 kbVec = rotVec.scale(getKnockback()).add(new Vec3(0.0, Math.abs(getKnockback()) / 4, 0.0));
+                processTarget(attacker, living, kbVec, attacker.getDamageSource());
                 return Set.of(living);
             }
         }
         else if (goal.getType() == HitResult.Type.BLOCK && getBreakChance() > 0f) {
             final BlockPos pos = ((BlockHitResult)goal).getBlockPos();
             final BlockState state = user.level().getBlockState(pos);
-            if (getHardness() >= state.getBlock().defaultDestroyTime() && user.getRandom().nextDouble() >= getBreakChance()) {
+            double hardness = state.getBlock().defaultDestroyTime();
+            if (hardness < 0) {
+                hardness = Double.POSITIVE_INFINITY;
+            }
+            if (getHardness() >= hardness && user.getRandom().nextDouble() >= getBreakChance()) {
                 user.level().destroyBlock(pos, true, user);
             }
         }

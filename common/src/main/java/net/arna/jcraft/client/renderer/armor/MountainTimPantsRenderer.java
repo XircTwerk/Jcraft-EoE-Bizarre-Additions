@@ -17,6 +17,7 @@ public class MountainTimPantsRenderer extends ArmorRenderer {
             setAllVisible(false);
 
             if (currentSlot == EquipmentSlot.LEGS) {
+                setBoneVisible(this.body, true);
                 setBoneVisible(this.leftLeg, true);
                 setBoneVisible(this.rightLeg, true);
                 setBoneVisible(this.leftArm, true);

@@ -119,7 +119,7 @@ public final class CountdownMove extends AbstractMove<CountdownMove, MandomEntit
             return false;
         }
 
-        if (pos.distSqr(attackerBlockPos) > radius * radius) {
+        if (!isInRange(pos)) {
             return false;
         }
 
@@ -201,6 +201,16 @@ public final class CountdownMove extends AbstractMove<CountdownMove, MandomEntit
 
             NetworkManager.sendToPlayer(serverPlayer, JPacketRegistry.S2C_MANDOM_DATA, buf);
         }
+    }
+
+    @Override
+    public boolean isInRange(final @NonNull BlockPos pos) {
+        return pos.distSqr(attackerBlockPos) <= radius * radius;
+    }
+
+    @Override
+    public boolean isRecording() {
+        return countdownActive;
     }
 
     @Override

@@ -5,7 +5,6 @@ import dev.architectury.event.EventResult;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.arna.jcraft.JCraft;
-import net.arna.jcraft.api.attack.moves.AbstractSimpleAttack;
 import net.arna.jcraft.api.component.living.CommonStandComponent;
 import net.arna.jcraft.api.component.living.CommonVampireComponent;
 import net.arna.jcraft.api.registry.*;
@@ -17,7 +16,8 @@ import net.arna.jcraft.common.config.JServerConfig;
 import net.arna.jcraft.common.data.AttackerDataLoader;
 import net.arna.jcraft.common.entity.StandMeteorEntity;
 import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
-import net.arna.jcraft.common.item.MockItem;
+import net.arna.jcraft.common.item.AuMockItem;
+import net.arna.jcraft.common.item.RewindMockItem;
 import net.arna.jcraft.common.marker.BlockMarkerMoves;
 import net.arna.jcraft.common.network.s2c.AttackerDataPacket;
 import net.arna.jcraft.common.saveddata.ExclusiveStandsData;
@@ -315,18 +315,18 @@ public class JServerEvents {
 
             // ... in the AU
             if (world.dimension().equals(JDimensionRegistry.AU_DIMENSION_KEY)) {
-                if (item.getOwner() != null || MockItem.isMockItem(stack)) {
+                if (item.getOwner() != null || AuMockItem.isMockItem(stack)) {
                     return EventResult.pass();
                 }
 
-                ItemStack mockStack = MockItem.createMockStack(stack); // Convert it to a mock item (incompatible and useless)
+                ItemStack mockStack = AuMockItem.createMockStack(stack); // Convert it to a mock item (incompatible and useless)
                 if (stack.getItem() instanceof BlockItem) // ... and mark down all relevant data
                 {
                     mockStack.getOrCreateTag().putIntArray("AttractPos", new int[]{item.getBlockX(), item.getBlockY(), item.getBlockZ()});
                 }
                 item.setItem(mockStack);
             } else { // ... outside the AU
-                if (MockItem.isMockItem(stack)) {
+                if (AuMockItem.isMockItem(stack)) {
                     // Mark it as an item of interest, and save relevant data
                     CompoundTag stackData = stack.getOrCreateTag();
                     if (stackData.contains("AttractPos")) { // if attracted to a specific position
@@ -342,6 +342,19 @@ public class JServerEvents {
                         }
                     } else { // if not attracted to a specific position, it's a general item to attract
                         JCraft.markItemOfInterest(item, itemAttractionInterest(stack.getItem()));
+                    }
+                }
+                else {
+                    final boolean[] shouldMock = new boolean[] {false};
+                    BlockMarkerMoves.forEach(move -> {
+                        shouldMock[0] |= move.isRecording() && move.isInRange(item.blockPosition());
+                    });
+                    if (shouldMock[0]) {
+                        if (item.getOwner() != null || RewindMockItem.isMockItem(stack)) {
+                            return EventResult.pass();
+                        }
+                        ItemStack mockStack = RewindMockItem.createMockStack(stack);
+                        item.setItem(mockStack);
                     }
                 }
             }

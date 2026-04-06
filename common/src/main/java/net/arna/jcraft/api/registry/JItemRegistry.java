@@ -214,7 +214,8 @@ public interface JItemRegistry {
     RegistrySupplier<Item> DARBY_YOUNGER_SPAWN_EGG = register("darby_younger_spawn_egg",
             () -> new ArchitecturySpawnEggItem(JEntityTypeRegistry.DARBY_YOUNGER, BASE_COLOR, PART_3_COLOR, settings()));
 
-    RegistrySupplier<Item> MOCK_ITEM = register("mock_item", MockItem::new);
+    RegistrySupplier<Item> AU_MOCK_ITEM = register("mock_item", AuMockItem::new);
+    RegistrySupplier<Item> REWIND_MOCK_ITEM = register("rewind_mock_item", RewindMockItem::new);
 
     //Block
     RegistrySupplier<Item> FOOLISH_SAND_BLOCK = register("foolish_sand_block",

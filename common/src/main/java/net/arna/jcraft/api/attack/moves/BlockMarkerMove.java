@@ -18,4 +18,8 @@ public interface BlockMarkerMove {
      */
     boolean addBlock(final @NonNull BlockPos pos, final @NonNull BlockState state);
 
+    boolean isInRange(final @NonNull BlockPos pos);
+
+    boolean isRecording();
+
 }

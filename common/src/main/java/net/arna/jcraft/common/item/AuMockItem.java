@@ -9,17 +9,17 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-public class MockItem extends Item {
+public class AuMockItem extends Item {
     private static final ItemStack FALLBACK = new ItemStack(Items.DIRT);
 
-    public MockItem() {
+    public AuMockItem() {
         super(new Properties());
     }
 
     public static boolean isMockItem(ItemStack stack) {
         // Crashes on startup due to FireBlock.bootStrap(), requiring this
-        if (!JItemRegistry.MOCK_ITEM.isPresent()) return false;
-        return stack.getItem() == JItemRegistry.MOCK_ITEM.get();
+        if (!JItemRegistry.AU_MOCK_ITEM.isPresent()) return false;
+        return stack.getItem() == JItemRegistry.AU_MOCK_ITEM.get();
     }
 
     public static ItemStack getMockedStack(ItemStack mockItemStack) {
@@ -45,7 +45,7 @@ public class MockItem extends Item {
             return stack;
         }
 
-        ItemStack mockStack = new ItemStack(JItemRegistry.MOCK_ITEM.get(), stack.getCount());
+        ItemStack mockStack = new ItemStack(JItemRegistry.AU_MOCK_ITEM.get(), stack.getCount());
         CompoundTag nbt = mockStack.getOrCreateTag();
         // Register which item it's mocking and copy all relevant NBT data
         nbt.putString("MockItem", BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());

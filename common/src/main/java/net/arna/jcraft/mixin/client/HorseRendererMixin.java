@@ -10,6 +10,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+/**
+ * @see HorseMarkingLayerMixin
+ */
 @Mixin(HorseRenderer.class)
 public class HorseRendererMixin {
 
@@ -24,24 +27,18 @@ public class HorseRendererMixin {
     @Unique
     private static final ResourceLocation VALKYRIE = JCraft.id("textures/entity/horse/valkyrie.png");
 
+    // when adding more skins, also change HorseMarkingLayerMixin accordingly
+
     @Inject(method = "getTextureLocation(Lnet/minecraft/world/entity/animal/horse/Horse;)Lnet/minecraft/resources/ResourceLocation;", at = @At("TAIL"), cancellable = true)
     public void jcraft$getTextureLocation(final Horse entity, final CallbackInfoReturnable<ResourceLocation> cir) {
         if (entity.hasCustomName()) {
             final String name = entity.getCustomName().getString();
-            if (name.equals("El Condor Pasa")) {
-                cir.setReturnValue(EL_CONDOR_PASA);
-            }
-            else if (name.equals("Pinkie Pie")) {
-                cir.setReturnValue(PINKIE_PIE);
-            }
-            else if (name.equals("Silver Bullet")) {
-                cir.setReturnValue(SILVER_BULLET);
-            }
-            else if (name.equals("Slow Dancer")) {
-                cir.setReturnValue(SLOW_DANCER);
-            }
-            else if (name.equals("Valkyrie")) {
-                cir.setReturnValue(VALKYRIE);
+            switch (name) {
+                case "El Condor Pasa" -> cir.setReturnValue(EL_CONDOR_PASA);
+                case "Pinkie Pie" -> cir.setReturnValue(PINKIE_PIE);
+                case "Silver Bullet" -> cir.setReturnValue(SILVER_BULLET);
+                case "Slow Dancer" -> cir.setReturnValue(SLOW_DANCER);
+                case "Valkyrie" -> cir.setReturnValue(VALKYRIE);
             }
         }
     }

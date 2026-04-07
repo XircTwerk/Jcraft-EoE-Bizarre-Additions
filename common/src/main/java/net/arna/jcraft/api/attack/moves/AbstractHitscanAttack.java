@@ -77,6 +77,7 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
         final HitResult goal = JUtils.raycastAll(user, userEyePos, userEyePos.add(rotVec.scale(getRange())), ClipContext.Fluid.NONE, EntitySelector.LIVING_ENTITY_STILL_ALIVE.and(EntitySelector.NO_SPECTATORS));
         final Vec3 attackerEyePos = attacker.getBaseEntity().position().add(GravityChangerAPI.getEyeOffset(attacker.getBaseEntity()));
         final HitResult hitResult = JUtils.raycastAll(attacker.getBaseEntity(), attackerEyePos, goal.getLocation().add(rotVec), ClipContext.Fluid.NONE, EntitySelector.LIVING_ENTITY_STILL_ALIVE.and(EntitySelector.NO_SPECTATORS));
+        // entity hit
         if (hitResult.getType() == HitResult.Type.ENTITY) {
             final Entity hitEntity = ((EntityHitResult)hitResult).getEntity();
             if (hitEntity instanceof LivingEntity living) { // should always happen
@@ -85,6 +86,7 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
                 return Set.of(living);
             }
         }
+        // block mining
         else if (hitResult.getType() == HitResult.Type.BLOCK && user.level().getGameRules().getBoolean(JCraft.STAND_GRIEFING) && getBreakChance() > 0f) {
             final BlockPos pos = ((BlockHitResult)hitResult).getBlockPos();
             final BlockState state = user.level().getBlockState(pos);
@@ -96,6 +98,14 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
             if (getHardness() >= hardness && chunkAccess && user.getRandom().nextDouble() >= getBreakChance()) {
                 user.level().destroyBlock(pos, true, user);
             }
+        }
+        // create particles
+        if (hitResult.getType() != HitResult.Type.MISS) {
+            JCraft.createParticle((ServerLevel)user.level(),
+                    hitResult.getLocation().x() + user.getRandom().nextGaussian() * 0.25,
+                    hitResult.getLocation().y() + user.getRandom().nextGaussian() * 0.25,
+                    hitResult.getLocation().z() + user.getRandom().nextGaussian() * 0.25,
+                    hitSpark);
         }
         return Set.of();
     }

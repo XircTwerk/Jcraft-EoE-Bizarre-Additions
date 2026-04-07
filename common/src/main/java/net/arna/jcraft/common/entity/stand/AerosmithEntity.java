@@ -8,11 +8,13 @@ import net.arna.jcraft.api.attack.MoveMap;
 import net.arna.jcraft.api.attack.MoveSet;
 import net.arna.jcraft.api.attack.MoveSetManager;
 import net.arna.jcraft.api.attack.enums.MoveClass;
+import net.arna.jcraft.api.registry.JSoundRegistry;
 import net.arna.jcraft.api.registry.JStandTypeRegistry;
 import net.arna.jcraft.api.stand.StandData;
 import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.api.stand.StandInfo;
 import net.arna.jcraft.common.attack.moves.shared.SimpleHitscanAttack;
+import net.arna.jcraft.common.util.JParticleType;
 import net.arna.jcraft.common.util.StandAnimationState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
@@ -23,7 +25,10 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
 
     // TODO Arna balance this
     public static final SimpleHitscanAttack<AerosmithEntity> BULLET = new SimpleHitscanAttack<AerosmithEntity>(
-            1, 1, 2, 0f, 1f, 0, 0f, 30f, 10f, 1/6f);
+            1, 1, 2, 0f, 1f, 0, 0f, 30f, 10f, 1/6f)
+            .withSound(JSoundRegistry.BULLET_PENETRATE) // TODO record improve
+            .withHitSpark(JParticleType.FLASH); // TODO record improve
+    // TODO Arna description
 
     public static final StandData DATA = StandData.builder()
             .info(StandInfo.builder()

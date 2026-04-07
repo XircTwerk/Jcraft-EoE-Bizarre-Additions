@@ -74,9 +74,9 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
         }
         final Vec3 userEyePos = user.position().add(GravityChangerAPI.getEyeOffset(user));
         final Vec3 rotVec = user.getLookAngle();
-        final HitResult goal = JUtils.raycastAll(user, userEyePos, userEyePos.add(rotVec.scale(getRange())), ClipContext.Fluid.NONE, EntitySelector.LIVING_ENTITY_STILL_ALIVE);
+        final HitResult goal = JUtils.raycastAll(user, userEyePos, userEyePos.add(rotVec.scale(getRange())), ClipContext.Fluid.NONE, EntitySelector.LIVING_ENTITY_STILL_ALIVE.and(EntitySelector.NO_SPECTATORS));
         final Vec3 attackerEyePos = attacker.getBaseEntity().position().add(GravityChangerAPI.getEyeOffset(attacker.getBaseEntity()));
-        final HitResult hitResult = JUtils.raycastAll(attacker.getBaseEntity(), attackerEyePos, goal.getLocation().add(rotVec), ClipContext.Fluid.NONE, EntitySelector.LIVING_ENTITY_STILL_ALIVE);
+        final HitResult hitResult = JUtils.raycastAll(attacker.getBaseEntity(), attackerEyePos, goal.getLocation().add(rotVec), ClipContext.Fluid.NONE, EntitySelector.LIVING_ENTITY_STILL_ALIVE.and(EntitySelector.NO_SPECTATORS));
         if (hitResult.getType() == HitResult.Type.ENTITY) {
             final Entity hitEntity = ((EntityHitResult)hitResult).getEntity();
             if (hitEntity instanceof LivingEntity living) { // should always happen

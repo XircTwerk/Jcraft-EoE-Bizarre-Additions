@@ -13,6 +13,7 @@ import net.arna.jcraft.api.registry.JStandTypeRegistry;
 import net.arna.jcraft.api.stand.StandData;
 import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.api.stand.StandInfo;
+import net.arna.jcraft.common.attack.moves.aerosmith.BombDropAttack;
 import net.arna.jcraft.common.attack.moves.aerosmith.MuzzleHitscanAttack;
 import net.arna.jcraft.common.util.JParticleType;
 import net.arna.jcraft.common.util.StandAnimationState;
@@ -31,6 +32,11 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
             .withShootSpark(JParticleType.HIT_SPARK_1); // TODO record improve // TODO Planet why isn't this working?
     // TODO Arna description
 
+    // TODO Arna balance this
+    public static final BombDropAttack<AerosmithEntity> BOMB_DROP = new BombDropAttack<>(
+            200, 1, 100, 0, 30);
+    // TODO Arna description
+
     public static final StandData DATA = StandData.builder()
             .info(StandInfo.builder()
                     .name(Component.translatable("entity.jcraft.aerosmith"))
@@ -45,6 +51,11 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
     }
 
     @Override
+    public boolean remoteControllable() {
+        return false;
+    }
+
+    @Override
     public void playSummonAnimation() {
         // intentionally left empty // TODO remove this override
     }
@@ -55,7 +66,8 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
     }
 
     private static void registerDefaultMoves(final @NonNull MoveMap<AerosmithEntity, AerosmithEntity.State> moves) {
-        moves.registerImmediate(MoveClass.LIGHT, BULLET, AerosmithEntity.State.LIGHT);
+        moves.registerImmediate(MoveClass.LIGHT, BULLET, State.LIGHT);
+        moves.registerImmediate(MoveClass.HEAVY, BOMB_DROP, State.IDLE);
     }
 
     public enum State implements StandAnimationState<AerosmithEntity> {

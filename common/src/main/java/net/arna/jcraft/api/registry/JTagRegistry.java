@@ -33,6 +33,7 @@ public interface JTagRegistry {
     TagKey<Item> OBTUSE = TagKey.create(Registries.ITEM, JCraft.id("obtuse"));
     TagKey<Item> DISCS = TagKey.create(Registries.ITEM, JCraft.id("discs"));
     TagKey<Item> SOUL_LOG_ITEMS = TagKey.create(Registries.ITEM, JCraft.id("soul_logs"));
+    TagKey<Item> BOOTS_WITH_THE_SPURS = TagKey.create(Registries.ITEM, JCraft.id("has_spurs"));
 
     TagKey<Block> SOUL_LOG_BLOCKS = TagKey.create(Registries.BLOCK, JCraft.id("soul_logs"));
     TagKey<Block> IRON_BLOCKS = TagKey.create(Registries.BLOCK, JCraft.id("iron_blocks"));

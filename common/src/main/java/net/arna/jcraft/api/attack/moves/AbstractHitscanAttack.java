@@ -72,19 +72,21 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
         if (user == null) {
             return Set.of();
         }
-        final Vec3 eyePos = user.position().add(GravityChangerAPI.getEyeOffset(user));
+        final Vec3 userEyePos = user.position().add(GravityChangerAPI.getEyeOffset(user));
         final Vec3 rotVec = user.getLookAngle();
-        final HitResult goal = JUtils.raycastAll(user, eyePos, eyePos.add(rotVec.scale(getRange())), ClipContext.Fluid.NONE, EntitySelector.LIVING_ENTITY_STILL_ALIVE);
-        if (goal.getType() == HitResult.Type.ENTITY) {
-            final Entity hitEntity = ((EntityHitResult)goal).getEntity();
+        final HitResult goal = JUtils.raycastAll(user, userEyePos, userEyePos.add(rotVec.scale(getRange())), ClipContext.Fluid.NONE, EntitySelector.LIVING_ENTITY_STILL_ALIVE);
+        final Vec3 attackerEyePos = attacker.getBaseEntity().position().add(GravityChangerAPI.getEyeOffset(attacker.getBaseEntity()));
+        final HitResult hitResult = JUtils.raycastAll(attacker.getBaseEntity(), attackerEyePos, goal.getLocation().add(rotVec), ClipContext.Fluid.NONE, EntitySelector.LIVING_ENTITY_STILL_ALIVE);
+        if (hitResult.getType() == HitResult.Type.ENTITY) {
+            final Entity hitEntity = ((EntityHitResult)hitResult).getEntity();
             if (hitEntity instanceof LivingEntity living) { // should always happen
                 final Vec3 kbVec = rotVec.scale(getKnockback()).add(new Vec3(0.0, Math.abs(getKnockback()) / 4, 0.0));
                 processTarget(attacker, living, kbVec, attacker.getDamageSource());
                 return Set.of(living);
             }
         }
-        else if (goal.getType() == HitResult.Type.BLOCK && user.level().getGameRules().getBoolean(JCraft.STAND_GRIEFING) && getBreakChance() > 0f) {
-            final BlockPos pos = ((BlockHitResult)goal).getBlockPos();
+        else if (hitResult.getType() == HitResult.Type.BLOCK && user.level().getGameRules().getBoolean(JCraft.STAND_GRIEFING) && getBreakChance() > 0f) {
+            final BlockPos pos = ((BlockHitResult)hitResult).getBlockPos();
             final BlockState state = user.level().getBlockState(pos);
             double hardness = state.getBlock().defaultDestroyTime();
             if (hardness < 0) {

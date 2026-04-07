@@ -13,6 +13,7 @@ import net.arna.jcraft.common.attack.core.data.AttackMoveExtras;
 import net.arna.jcraft.common.attack.core.data.BaseMoveExtras;
 import net.arna.jcraft.common.compat.FtbChunksCompat;
 import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
+import net.arna.jcraft.common.util.JParticleType;
 import net.arna.jcraft.common.util.JUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -41,6 +42,7 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
     private float range;
     private float hardness;
     private float breakChance;
+    private @NonNull JParticleType shootSpark = JParticleType.FLASH; // TODO record improve (default for hitscan)
 
     protected AbstractHitscanAttack(final int cooldown, final int windup, final int duration, final float moveDistance, final float damage,
                                     final int stun, final float knockback,
@@ -64,6 +66,11 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
 
     public T withBreakChance(final float breakChance) {
         this.breakChance = breakChance;
+        return getThis();
+    }
+
+    public T withShootSpark(final JParticleType shootSpark) {
+        this.shootSpark = shootSpark;
         return getThis();
     }
 
@@ -100,6 +107,9 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
             }
         }
         // create particles
+        Vec3 shootParticleLoc = attackerEyePos.add(attackerEyePos.scale(-1d).add(goal.getLocation()).scale(0.5 + user.getRandom().nextDouble() * 0.3));
+        JCraft.createParticle((ServerLevel)user.level(), shootParticleLoc.x(), shootParticleLoc.y(), shootParticleLoc.z(), shootSpark);
+        // TODO Arna add hit/block particles?
         if (hitResult.getType() != HitResult.Type.MISS) {
             JCraft.createParticle((ServerLevel)user.level(),
                     hitResult.getLocation().x() + user.getRandom().nextGaussian() * 0.25,
@@ -108,6 +118,13 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
                     hitSpark);
         }
         return Set.of();
+    }
+
+    @Override
+    protected @NonNull T copyExtras(@NonNull final T base) {
+        T copy = super.copyExtras(base);
+        copy.withShootSpark(shootSpark);
+        return copy;
     }
 
     protected abstract static class Type<M extends AbstractHitscanAttack<? extends M, ?>> extends AbstractSimpleAttack.Type<M> {

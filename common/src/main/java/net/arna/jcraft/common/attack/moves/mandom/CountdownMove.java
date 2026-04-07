@@ -146,6 +146,24 @@ public final class CountdownMove extends AbstractMove<CountdownMove, MandomEntit
     }
 
     @Override
+    public boolean removeBlock(@NonNull final BlockPos pos, @NonNull final Level level) {
+        if (!countdownActive || !isInRange(pos, level) || resolving) {
+            return false;
+        }
+        BlockMarker match = null;
+        for (final BlockMarker timeBlockMarker : timeBlockMarkers) {
+            if (timeBlockMarker.pos().equals(pos)) {
+                match = timeBlockMarker;
+                break;
+            }
+        }
+        if (match != null) {
+            timeBlockMarkers.remove(match);
+        }
+        return match != null;
+    }
+
+    @Override
     public @NonNull Set<LivingEntity> perform(final MandomEntity attacker, final LivingEntity user) {
         lastLevel = attacker.level();
         if (isRecording()) {

@@ -529,6 +529,7 @@
   "gamerule.showHitboxes": "Show JCraft hitboxes",
   "gamerule.standArrowBaseDamage": "Stand Arrow Base Damage",
   "gamerule.standGriefing": "Allow Stands to destroy the environment",
+  "info.jcraft.first_spec": "Please use the command /spec about",
   "info.jcraft.first_stand": "Please use the command /stand about",
   "item.jcraft.anubis": "Anubis",
   "item.jcraft.anubis_sheathed": "Sheathed Anubis",

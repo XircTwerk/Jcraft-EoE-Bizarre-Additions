@@ -25,7 +25,7 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
 
     // TODO Arna balance this
     public static final SimpleHitscanAttack<AerosmithEntity> BULLET = new SimpleHitscanAttack<AerosmithEntity>(
-            1, 1, 2, 0f, 1f, 0, 0f, 30f, 10f, 1/6f)
+            1, 1, 2, 0f, 1f, 0, 0f, 30f, 10f, 1/6f, 0.05f)
             .withSound(JSoundRegistry.BULLET_PENETRATE) // TODO record improve
             .withHitSpark(JParticleType.HIT_SPARK_2) // TODO record improve
             .withShootSpark(JParticleType.HIT_SPARK_1); // TODO record improve // TODO Planet why isn't this working?
@@ -39,8 +39,8 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
 
     public AerosmithEntity(final Level world) {
         super(JStandTypeRegistry.AEROSMITH.get(), world);
-        setYDistanceOffset(10f); // TODO for patrol mode
-//        setYDistanceOffset(1.2f);
+//        setYDistanceOffset(10f); // TODO for patrol mode
+        setYDistanceOffset(1.2f);
         setNoGravity(true);
     }
 

@@ -2,7 +2,7 @@ package net.arna.jcraft.api.attack.moves;
 
 import com.mojang.datafixers.Products;
 import com.mojang.datafixers.kinds.App;
-import com.mojang.datafixers.util.Function10;
+import com.mojang.datafixers.util.Function11;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
@@ -18,6 +18,7 @@ import net.arna.jcraft.common.util.JUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
@@ -42,16 +43,18 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
     private float range;
     private float hardness;
     private float breakChance;
+    private float spread;
     private @NonNull JParticleType shootSpark = JParticleType.FLASH; // TODO record improve (default for hitscan)
 
     protected AbstractHitscanAttack(final int cooldown, final int windup, final int duration, final float moveDistance, final float damage,
                                     final int stun, final float knockback,
-                                    final float range, final float hardness, final float breakChance) {
+                                    final float range, final float hardness, final float breakChance, final float spread) {
         super(cooldown, windup, duration, moveDistance, damage, stun, 0f, knockback, 0f);
 
         withRange(range);
         withHardness(hardness);
         withBreakChance(breakChance);
+        withSpread(spread);
     }
 
     public T withRange(final float range) {
@@ -69,6 +72,11 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
         return getThis();
     }
 
+    public T withSpread(final float spread) {
+        this.spread = spread;
+        return getThis();
+    }
+
     public T withShootSpark(final JParticleType shootSpark) {
         this.shootSpark = shootSpark;
         return getThis();
@@ -79,11 +87,18 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
         if (user == null) {
             return Set.of();
         }
+        final RandomSource random = user.getRandom();
+        // finding target
         final Vec3 userEyePos = user.position().add(GravityChangerAPI.getEyeOffset(user));
         final Vec3 rotVec = user.getLookAngle();
         final HitResult goal = JUtils.raycastAll(user, userEyePos, userEyePos.add(rotVec.scale(getRange())), ClipContext.Fluid.NONE, EntitySelector.LIVING_ENTITY_STILL_ALIVE.and(EntitySelector.NO_SPECTATORS));
+        final Vec3 goalLocation = goal.getLocation().add(rotVec);
         final Vec3 attackerEyePos = attacker.getBaseEntity().position().add(GravityChangerAPI.getEyeOffset(attacker.getBaseEntity()));
-        final HitResult hitResult = JUtils.raycastAll(attacker.getBaseEntity(), attackerEyePos, goal.getLocation().add(rotVec), ClipContext.Fluid.NONE, EntitySelector.LIVING_ENTITY_STILL_ALIVE.and(EntitySelector.NO_SPECTATORS));
+        final Vec3 attackVector = attackerEyePos.scale(-1d).add(goalLocation)
+                .xRot((float)random.nextGaussian() * spread)
+                .yRot((float)random.nextGaussian() * spread)
+                .zRot((float)random.nextGaussian() * spread);
+        final HitResult hitResult = JUtils.raycastAll(attacker.getBaseEntity(), attackerEyePos, attackerEyePos.add(attackVector), ClipContext.Fluid.NONE, EntitySelector.LIVING_ENTITY_STILL_ALIVE.and(EntitySelector.NO_SPECTATORS));
         // entity hit
         if (hitResult.getType() == HitResult.Type.ENTITY) {
             final Entity hitEntity = ((EntityHitResult)hitResult).getEntity();
@@ -102,19 +117,19 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
                 hardness = Double.POSITIVE_INFINITY;
             }
             boolean chunkAccess = !(user instanceof ServerPlayer player) || FtbChunksCompat.get().mayEdit(player, (ServerLevel)player.level(), pos);
-            if (getHardness() >= hardness && chunkAccess && user.getRandom().nextDouble() >= getBreakChance()) {
+            if (getHardness() >= hardness && chunkAccess && random.nextDouble() >= getBreakChance()) {
                 user.level().destroyBlock(pos, true, user);
             }
         }
         // create particles
-        Vec3 shootParticleLoc = attackerEyePos.add(attackerEyePos.scale(-1d).add(goal.getLocation()).scale(0.5 + user.getRandom().nextDouble() * 0.3));
+        Vec3 shootParticleLoc = attackerEyePos.add(attackVector.scale(0.5 + random.nextDouble() * 0.3));
         JCraft.createParticle((ServerLevel)user.level(), shootParticleLoc.x(), shootParticleLoc.y(), shootParticleLoc.z(), shootSpark);
         // TODO Arna add hit/block particles?
         if (hitResult.getType() != HitResult.Type.MISS) {
             JCraft.createParticle((ServerLevel)user.level(),
-                    hitResult.getLocation().x() + user.getRandom().nextGaussian() * 0.25,
-                    hitResult.getLocation().y() + user.getRandom().nextGaussian() * 0.25,
-                    hitResult.getLocation().z() + user.getRandom().nextGaussian() * 0.25,
+                    hitResult.getLocation().x() + random.nextGaussian() * 0.25,
+                    hitResult.getLocation().y() + random.nextGaussian() * 0.25,
+                    hitResult.getLocation().z() + random.nextGaussian() * 0.25,
                     hitSpark);
         }
         return Set.of();
@@ -137,16 +152,19 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
         protected RecordCodecBuilder<M, Float> breakChance() {
             return Codec.FLOAT.fieldOf("breakChance").forGetter(AbstractHitscanAttack::getBreakChance);
         }
-
-        protected Products.P12<RecordCodecBuilder.Mu<M>, BaseMoveExtras, AttackMoveExtras, Integer, Integer, Integer, Float,
-                Float, Integer, Float, Float, Float, Float>
-        hitscanDefault(RecordCodecBuilder.Instance<M> instance) {
-            return instance.group(extras(), attackExtras(), cooldown(), windup(), duration(), moveDistance(), damage(), stun(),
-                    knockback(), range(), hardness(), breakChance());
+        protected RecordCodecBuilder<M, Float> spread() {
+            return Codec.FLOAT.fieldOf("spread").forGetter(AbstractHitscanAttack::getSpread);
         }
 
-        protected App<RecordCodecBuilder.Mu<M>, M> hitscanDefault(RecordCodecBuilder.Instance<M> instance, Function10<Integer, Integer, Integer, Float,
-                                        Float, Integer, Float, Float, Float, Float, M> function) {
+        protected Products.P13<RecordCodecBuilder.Mu<M>, BaseMoveExtras, AttackMoveExtras, Integer, Integer, Integer, Float,
+                Float, Integer, Float, Float, Float, Float, Float>
+        hitscanDefault(RecordCodecBuilder.Instance<M> instance) {
+            return instance.group(extras(), attackExtras(), cooldown(), windup(), duration(), moveDistance(), damage(), stun(),
+                    knockback(), range(), hardness(), breakChance(), spread());
+        }
+
+        protected App<RecordCodecBuilder.Mu<M>, M> hitscanDefault(RecordCodecBuilder.Instance<M> instance, Function11<Integer, Integer, Integer, Float,
+                                                Float, Integer, Float, Float, Float, Float, Float, M> function) {
             return hitscanDefault(instance).apply(instance, applyAttackExtras(function));
         }
     }

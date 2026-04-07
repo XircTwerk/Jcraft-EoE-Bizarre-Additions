@@ -11,11 +11,12 @@ import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.attack.IAttacker;
 import net.arna.jcraft.common.attack.core.data.AttackMoveExtras;
 import net.arna.jcraft.common.attack.core.data.BaseMoveExtras;
-import net.arna.jcraft.common.config.JServerConfig;
-import net.arna.jcraft.common.events.JServerEvents;
+import net.arna.jcraft.common.compat.FtbChunksCompat;
 import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
 import net.arna.jcraft.common.util.JUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
@@ -89,7 +90,8 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
             if (hardness < 0) {
                 hardness = Double.POSITIVE_INFINITY;
             }
-            if (getHardness() >= hardness && user.getRandom().nextDouble() >= getBreakChance()) {
+            boolean chunkAccess = !(user instanceof ServerPlayer player) || FtbChunksCompat.get().mayEdit(player, (ServerLevel)player.level(), pos);
+            if (getHardness() >= hardness && chunkAccess && user.getRandom().nextDouble() >= getBreakChance()) {
                 user.level().destroyBlock(pos, true, user);
             }
         }

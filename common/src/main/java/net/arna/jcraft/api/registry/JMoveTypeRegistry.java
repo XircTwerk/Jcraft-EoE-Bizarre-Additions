@@ -5,6 +5,7 @@ import dev.architectury.registry.registries.RegistrySupplier;
 import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.JRegistries;
 import net.arna.jcraft.api.attack.MoveType;
+import net.arna.jcraft.common.attack.moves.aerosmith.MuzzleHitscanAttack;
 import net.arna.jcraft.common.attack.moves.anubis.*;
 import net.arna.jcraft.common.attack.moves.cmoon.*;
 import net.arna.jcraft.common.attack.moves.cream.*;
@@ -267,6 +268,8 @@ public interface JMoveTypeRegistry {
 
     RegistrySupplier<MoveType<?>> MANDOM_COUNTDOWN_MOVE = register("mandom_countdown_move", CountdownMove.Type.INSTANCE);
     RegistrySupplier<MoveType<?>> MANDOM_REWIND_MOVE = register("mandom_rewind_move", RewindMove.Type.INSTANCE);
+
+    RegistrySupplier<MoveType<?>> AEROSMITH_BULLET_MOVE = register("aerosmith_bullet_move", MuzzleHitscanAttack.Type.INSTANCE);
 
 
 

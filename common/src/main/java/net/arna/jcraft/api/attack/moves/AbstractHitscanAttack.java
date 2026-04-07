@@ -7,9 +7,12 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
 import lombok.NonNull;
+import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.attack.IAttacker;
 import net.arna.jcraft.common.attack.core.data.AttackMoveExtras;
 import net.arna.jcraft.common.attack.core.data.BaseMoveExtras;
+import net.arna.jcraft.common.config.JServerConfig;
+import net.arna.jcraft.common.events.JServerEvents;
 import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
 import net.arna.jcraft.common.util.JUtils;
 import net.minecraft.core.BlockPos;
@@ -79,7 +82,7 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
                 return Set.of(living);
             }
         }
-        else if (goal.getType() == HitResult.Type.BLOCK && getBreakChance() > 0f) {
+        else if (goal.getType() == HitResult.Type.BLOCK && user.level().getGameRules().getBoolean(JCraft.STAND_GRIEFING) && getBreakChance() > 0f) {
             final BlockPos pos = ((BlockHitResult)goal).getBlockPos();
             final BlockState state = user.level().getBlockState(pos);
             double hardness = state.getBlock().defaultDestroyTime();

@@ -318,7 +318,7 @@ public class JClientEvents {
                 if (!armorSlot.is(JTagRegistry.BOOTS_WITH_THE_SPURS)) continue;
 
                 double speedMin    = 0.02,  speedMax    = 0.10;
-                double intervalMin = 12,    intervalMax = 30;
+                double intervalMin = 4,    intervalMax = 12;
 
                 double dx = entity.xOld - entity.getX();
                 double dy = entity.yOld - entity.getY();
@@ -336,7 +336,7 @@ public class JClientEvents {
                 // We found an armor piece that has spurs for an entity that is moving,
                 // and we haven't played this sound in 5 ticks, play jangle sound.
                 RandomSource random = player.getRandom();
-                float volume = 0.5f - random.nextFloat() * 0.3f;
+                float volume = 1f - random.nextFloat() * 0.3f;
                 float pitch = 1f - random.nextFloat() * 0.3f;
 
                 SoundSource soundSource = entity.getSoundSource();

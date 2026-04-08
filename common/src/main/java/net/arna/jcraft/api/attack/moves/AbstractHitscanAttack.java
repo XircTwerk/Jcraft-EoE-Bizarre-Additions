@@ -98,7 +98,7 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
                 .xRot((float)random.nextGaussian() * spread)
                 .yRot((float)random.nextGaussian() * spread)
                 .zRot((float)random.nextGaussian() * spread);
-        final HitResult hitResult = JUtils.raycastAll(attacker.getBaseEntity(), attackerEyePos, attackerEyePos.add(attackVector), ClipContext.Fluid.NONE, EntitySelector.LIVING_ENTITY_STILL_ALIVE.and(EntitySelector.NO_SPECTATORS));
+        final HitResult hitResult = JUtils.raycastAll(attacker.getBaseEntity(), attackerEyePos, attackerEyePos.add(attackVector), ClipContext.Fluid.ANY, EntitySelector.LIVING_ENTITY_STILL_ALIVE.and(EntitySelector.NO_SPECTATORS));
         // entity hit
         if (hitResult.getType() == HitResult.Type.ENTITY) {
             final Entity hitEntity = ((EntityHitResult)hitResult).getEntity();
@@ -112,13 +112,15 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
         else if (hitResult.getType() == HitResult.Type.BLOCK && user.level().getGameRules().getBoolean(JCraft.STAND_GRIEFING) && getBreakChance() > 0f) {
             final BlockPos pos = ((BlockHitResult)hitResult).getBlockPos();
             final BlockState state = user.level().getBlockState(pos);
-            double hardness = state.getBlock().defaultDestroyTime();
-            if (hardness < 0) {
-                hardness = Double.POSITIVE_INFINITY;
-            }
-            boolean chunkAccess = !(user instanceof ServerPlayer player) || FtbChunksCompat.get().mayEdit(player, (ServerLevel)player.level(), pos);
-            if (getHardness() >= hardness && chunkAccess && random.nextDouble() >= getBreakChance()) {
-                user.level().destroyBlock(pos, true, user);
+            if (state.getFluidState().isEmpty()) {
+                double hardness = state.getBlock().defaultDestroyTime();
+                if (hardness < 0) {
+                    hardness = Double.POSITIVE_INFINITY;
+                }
+                boolean chunkAccess = !(user instanceof ServerPlayer player) || FtbChunksCompat.get().mayEdit(player, (ServerLevel) player.level(), pos);
+                if (getHardness() >= hardness && chunkAccess && random.nextDouble() >= getBreakChance()) {
+                    user.level().destroyBlock(pos, true, user);
+                }
             }
         }
         // create particles

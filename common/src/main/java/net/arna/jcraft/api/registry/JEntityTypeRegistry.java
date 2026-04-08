@@ -559,6 +559,14 @@ public interface JEntityTypeRegistry {
                     .build("purple_haze_cloud")
     );
 
+    RegistrySupplier<EntityType<AerobombProjectile>> AEROBOMB = ENTITY_TYPE_REGISTRY.register(JCraft.id("aerobomb"),
+            () -> EntityType.Builder.of(
+                            WorldOnlyEntityFactory.from(AerobombProjectile::new),
+                            MobCategory.MISC
+                    ).sized(4f/16, 2f/16)
+                    .build("aerobomb")
+    );
+
     RegistrySupplier<EntityType<HamonWaveEntity>> HAMON_WAVE = ENTITY_TYPE_REGISTRY.register(JCraft.id("hamon_wave"),
             () -> EntityType.Builder.of(
                     WorldOnlyEntityFactory.from(HamonWaveEntity::new),

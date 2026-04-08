@@ -3,6 +3,7 @@ package net.arna.jcraft.common.entity.projectile;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import lombok.NonNull;
 import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
+import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.registry.JEntityTypeRegistry;
 import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.common.entity.stand.MetallicaEntity;
@@ -40,6 +41,9 @@ public class RazorProjectile extends AbstractArrow {
         super.tick();
         if (level().isClientSide() || !inGround) return;
         if (inGroundTime >= 300) discard();
+        if (tickCount % 10 == 0) {
+            JCraft.getClientEntityHandler().spawnGroundedMoshParticles(this);
+        }
 
         final float width = getBbWidth();
         final Set<LivingEntity> hurt = JUtils.generateHitbox(

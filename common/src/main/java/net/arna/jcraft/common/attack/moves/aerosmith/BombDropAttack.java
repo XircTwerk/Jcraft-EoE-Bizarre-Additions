@@ -92,6 +92,7 @@ public class BombDropAttack<A extends StandEntity<? extends A, ?>> extends Abstr
 
     private void dropBomb(A attacker) {
         AerobombProjectile bomb = new AerobombProjectile(attacker.level());
+        bomb.setOwner(attacker.hasUser() ? attacker.getUserOrThrow() : attacker);
         bomb.setPos(attacker.position().subtract(0d, 1d, 0d));
         attacker.level().addFreshEntity(bomb);
     }

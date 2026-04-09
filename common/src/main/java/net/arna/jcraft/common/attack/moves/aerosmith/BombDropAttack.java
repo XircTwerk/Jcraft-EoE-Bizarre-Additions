@@ -11,6 +11,7 @@ import net.arna.jcraft.api.attack.MoveType;
 import net.arna.jcraft.api.attack.moves.AbstractMove;
 import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.common.attack.core.data.BaseMoveExtras;
+import net.arna.jcraft.common.entity.projectile.AerobombProjectile;
 import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
 import net.arna.jcraft.common.util.JUtils;
 import net.minecraft.world.entity.EntitySelector;
@@ -50,9 +51,7 @@ public class BombDropAttack<A extends StandEntity<? extends A, ?>> extends Abstr
         final Vec3 rotVec = user.getLookAngle();
         final HitResult goal = JUtils.raycastAll(user, userEyePos, userEyePos.add(rotVec.scale(getRange())), ClipContext.Fluid.NONE, EntitySelector.LIVING_ENTITY_STILL_ALIVE.and(EntitySelector.NO_SPECTATORS));
         setDropLocation(goal.getLocation().add(0d, 10d, 0d));
-        double speed = dropLocation.distanceTo(attacker.position()) / (2 * getDuration());
         attacker.setRemote(true);
-//        attacker.getNavigation().moveTo(dropLocation.x(), dropLocation.y(), dropLocation.z(), speed);
         attacker.setDeltaMovement(dropLocation.subtract(attacker.position()).scale(2d / getDuration()));
         return Set.of();
     }
@@ -62,7 +61,7 @@ public class BombDropAttack<A extends StandEntity<? extends A, ?>> extends Abstr
         if (dropLocation != null) {
             if (attacker.position().distanceTo(dropLocation) <= 0.5) {
                 // TODO play the animation
-                // TODO drop the bomb
+                dropBomb(attacker);
                 returning = true;
                 underway = 0;
                 dropLocation = null;
@@ -89,6 +88,13 @@ public class BombDropAttack<A extends StandEntity<? extends A, ?>> extends Abstr
                 }
             }
         }
+    }
+
+    private void dropBomb(A attacker) {
+        AerobombProjectile bomb = new AerobombProjectile(attacker.level());
+        bomb.setOwner(attacker.hasUser() ? attacker.getUserOrThrow() : attacker);
+        bomb.setPos(attacker.position().subtract(0d, 1d, 0d));
+        attacker.level().addFreshEntity(bomb);
     }
 
     @Override

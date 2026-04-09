@@ -21,6 +21,7 @@ import net.arna.jcraft.client.renderer.effects.AttackHitboxEffectRenderer;
 import net.arna.jcraft.client.renderer.effects.TimeErasePredictionEffectRenderer;
 import net.arna.jcraft.client.rendering.DamageIndicatorManager;
 import net.arna.jcraft.client.rendering.handler.CrimsonShaderHandler;
+import net.arna.jcraft.client.rendering.handler.MandomRewindShaderHandler;
 import net.arna.jcraft.client.rendering.handler.ZaWarudoShaderHandler;
 import net.arna.jcraft.client.util.JClientUtils;
 import net.arna.jcraft.common.config.ConfigOption;
@@ -531,6 +532,11 @@ public class ClientPacketHandler {
                 crimsonShaderHandler.shouldRender = true;
 
 
+            });
+            case MANDOM_REWIND -> client.execute(() -> {
+                MandomRewindShaderHandler mandomHandler = MandomRewindShaderHandler.INSTANCE;
+                mandomHandler.duration = duration;
+                mandomHandler.shouldRender = true;
             });
         }
     }

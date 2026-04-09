@@ -23,6 +23,7 @@ public class MandomRewindShaderHandler extends StandShaderHandler {
             float progress = (float) ticks / (float) duration;
             float intensity = 1.0f - progress;
             EFFECT.getUniform("Intensity").set(intensity);
+            EFFECT.getUniform("Time").set((float) ticks * 0.05f + tickDelta * 0.05f);
         }
     }
 

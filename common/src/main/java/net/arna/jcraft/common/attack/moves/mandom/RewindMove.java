@@ -48,20 +48,11 @@ public final class RewindMove extends AbstractMove<RewindMove, MandomEntity> {
 
         final ServerLevel level = (ServerLevel) attacker.level();
 
-        // Send shader to all entities that were tagged in countdown
-        final List<EntityMarker> entityMarkers = countdownMove.getTimeEntityMarkers();
-        for (final EntityMarker marker : entityMarkers) {
-            Entity entity = level.getEntity(marker.id());
-            if (entity instanceof ServerPlayer taggedPlayer) {
-                ShaderActivationPacket.send(
-                        taggedPlayer,
-                        taggedPlayer,
-                        0,
-                        10,
-                        ShaderActivationPacket.Type.MANDOM_REWIND
-                );
-            }
+        if (user instanceof ServerPlayer serverPlayer) {
+            ShaderActivationPacket.send(serverPlayer, serverPlayer, 0, 10, ShaderActivationPacket.Type.MANDOM_REWIND);
         }
+
+        final List<EntityMarker> entityMarkers = countdownMove.getTimeEntityMarkers();
 
         final List<BlockMarker> blockMarkers = countdownMove.getTimeBlockMarkers();
         countdownMove.setResolving(true);

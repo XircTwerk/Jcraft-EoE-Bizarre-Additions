@@ -262,7 +262,7 @@ public class ClientEntityHandlerImpl implements IClientEntityHandler {
         final int typeIndex = random.nextInt(JParticleTypeRegistry.MOSH_TYPES.size());
         clientWorld.addParticle(JParticleTypeRegistry.MOSH_TYPES.get(typeIndex).get(), false,
                 pos.x + random.triangle(0, 0.2),
-                pos.y + 0.75 + random.triangle(0, 0.2),
+                pos.y + 0.5 + random.triangle(0, 0.2),
                 pos.z + random.triangle(0, 0.2),
                 0, 0, 0);
     }

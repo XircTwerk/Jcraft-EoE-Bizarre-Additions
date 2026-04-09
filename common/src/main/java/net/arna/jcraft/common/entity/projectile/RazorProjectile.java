@@ -39,11 +39,14 @@ public class RazorProjectile extends AbstractArrow {
     @Override
     public void tick() {
         super.tick();
-        if (level().isClientSide() || !inGround) return;
-        if (inGroundTime >= 300) discard();
-        if (tickCount % 10 == 0) {
-            JCraft.getClientEntityHandler().spawnGroundedMoshParticles(this);
+        if (level().isClientSide()) {
+            if (inGround && tickCount % 10 == 0) {
+                JCraft.getClientEntityHandler().spawnGroundedMoshParticles(this);
+            }
+            return;
         }
+        if (!inGround) return;
+        if (inGroundTime >= 300) discard();
 
         final float width = getBbWidth();
         final Set<LivingEntity> hurt = JUtils.generateHitbox(

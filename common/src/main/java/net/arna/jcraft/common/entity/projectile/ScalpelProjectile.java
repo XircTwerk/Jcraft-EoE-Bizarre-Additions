@@ -49,7 +49,12 @@ public class ScalpelProjectile extends AbstractArrow {
     @Override
     public void tick() {
         super.tick();
-        if (level().isClientSide()) return;
+        if (level().isClientSide()) {
+            if (inGround && tickCount % 10 == 0) {
+                JCraft.getClientEntityHandler().spawnGroundedMoshParticles(this);
+            }
+            return;
+        }
         if (tempNoGrav) {
             if (tickCount > 3) {
                 if (tickCount == 4) {
@@ -68,9 +73,6 @@ public class ScalpelProjectile extends AbstractArrow {
             }
         }
         if (inGroundTime >= 300) discard();
-        if (inGround && tickCount % 10 == 0) {
-            JCraft.getClientEntityHandler().spawnGroundedMoshParticles(this);
-        }
     }
 
     @Override

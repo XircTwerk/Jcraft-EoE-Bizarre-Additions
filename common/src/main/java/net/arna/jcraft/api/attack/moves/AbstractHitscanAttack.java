@@ -148,26 +148,40 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
         protected RecordCodecBuilder<M, Float> range() {
             return Codec.FLOAT.fieldOf("range").forGetter(AbstractHitscanAttack::getRange);
         }
+
         protected RecordCodecBuilder<M, Float> hardness() {
             return Codec.FLOAT.fieldOf("hardness").forGetter(AbstractHitscanAttack::getHardness);
         }
+
         protected RecordCodecBuilder<M, Float> breakChance() {
             return Codec.FLOAT.fieldOf("breakChance").forGetter(AbstractHitscanAttack::getBreakChance);
         }
+
         protected RecordCodecBuilder<M, Float> spread() {
             return Codec.FLOAT.fieldOf("spread").forGetter(AbstractHitscanAttack::getSpread);
         }
 
-        protected Products.P13<RecordCodecBuilder.Mu<M>, BaseMoveExtras, AttackMoveExtras, Integer, Integer, Integer, Float,
-                Float, Integer, Float, Float, Float, Float, Float>
+        protected RecordCodecBuilder<M, JParticleType> shootSpark() {
+            return JParticleType.CODEC.optionalFieldOf("shootSpark", JParticleType.FLASH)
+                    .forGetter(AbstractHitscanAttack::getShootSpark);
+        }
+
+        protected Products.P14<RecordCodecBuilder.Mu<M>, BaseMoveExtras, AttackMoveExtras, Integer, Integer, Integer, Float,
+                Float, Integer, Float, Float, Float, Float, Float, JParticleType>
         hitscanDefault(RecordCodecBuilder.Instance<M> instance) {
             return instance.group(extras(), attackExtras(), cooldown(), windup(), duration(), moveDistance(), damage(), stun(),
-                    knockback(), range(), hardness(), breakChance(), spread());
+                    knockback(), range(), hardness(), breakChance(), spread(), shootSpark());
         }
 
         protected App<RecordCodecBuilder.Mu<M>, M> hitscanDefault(RecordCodecBuilder.Instance<M> instance, Function11<Integer, Integer, Integer, Float,
-                                                Float, Integer, Float, Float, Float, Float, Float, M> function) {
-            return hitscanDefault(instance).apply(instance, applyAttackExtras(function));
+                                                                Float, Integer, Float, Float, Float, Float, Float, M> function) {
+            return hitscanDefault(instance).apply(instance, applyAttackExtras((cooldown, windup, duration,
+                                                             moveDistance, damage, stun, knockback, range, hardness,
+                                                             breakChance, spread, shootSpark) -> {
+                M move = function.apply(cooldown, windup, duration, moveDistance, damage, stun, knockback, range, hardness, breakChance, spread);
+                move.withShootSpark(shootSpark);
+                return move;
+            }));
         }
     }
 }

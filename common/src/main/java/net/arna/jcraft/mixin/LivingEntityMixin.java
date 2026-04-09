@@ -223,4 +223,12 @@ public abstract class LivingEntityMixin implements IJCraftComboTracker {
             cir.setReturnValue(false);
         }
     }
+
+    @Inject(cancellable = true, method = "dropFromLootTable(Lnet/minecraft/world/damagesource/DamageSource;Z)V", at = @At("HEAD"))
+    protected void jcraft$dropFromLootTable(final DamageSource damageSource, final boolean hitByPlayer, final CallbackInfo ci) {
+        LivingEntity living = (LivingEntity) (Object) this;
+        if (JComponentPlatformUtils.getMiscData(living).getMaster() != null) {
+            ci.cancel();
+        }
+    }
 }

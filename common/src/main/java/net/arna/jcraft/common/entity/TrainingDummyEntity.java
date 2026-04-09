@@ -2,14 +2,6 @@ package net.arna.jcraft.common.entity;
 
 import dev.architectury.networking.NetworkManager;
 import io.netty.buffer.Unpooled;
-import mod.azure.azurelib.animatable.GeoEntity;
-import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
-import mod.azure.azurelib.core.animation.AnimatableManager;
-import mod.azure.azurelib.core.animation.AnimationController;
-import mod.azure.azurelib.core.animation.AnimationState;
-import mod.azure.azurelib.core.animation.RawAnimation;
-import mod.azure.azurelib.core.object.PlayState;
-import mod.azure.azurelib.util.AzureLibUtil;
 import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.MoveUsage;
 import net.arna.jcraft.api.component.living.CommonHitPropertyComponent.HitAnimation;
@@ -50,7 +42,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class TrainingDummyEntity extends Mob implements GeoEntity, ICustomDamageHandler {
+public class TrainingDummyEntity extends Mob implements ICustomDamageHandler {
     public static final int HIT_ANIMATION_LENGTH = 20; // Length of hit animation in ticks
 
     // Data watchers
@@ -141,6 +133,9 @@ public class TrainingDummyEntity extends Mob implements GeoEntity, ICustomDamage
             if (!player.level().isClientSide()) {
                 ItemStack dummyItem = new ItemStack(JItemRegistry.TRAINING_DUMMY.get());
                 player.getInventory().add(dummyItem);
+                if (isLeashed()) {
+                    dropLeash(false, true);
+                }
                 this.discard();
             }
             return InteractionResult.SUCCESS;
@@ -507,6 +502,7 @@ public class TrainingDummyEntity extends Mob implements GeoEntity, ICustomDamage
     }
 
     // Animation System
+    /*
     private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
     private int lastHitCounter = -1;
 
@@ -566,5 +562,5 @@ public class TrainingDummyEntity extends Mob implements GeoEntity, ICustomDamage
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return cache;
-    }
+    }*/
 }

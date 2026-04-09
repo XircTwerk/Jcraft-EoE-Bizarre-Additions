@@ -78,6 +78,7 @@ public final class RewindMove extends AbstractMove<RewindMove, MandomEntity> {
         }
 
         // Clean up
+        countdownMove.getIteration().add(true);
         entityMarkers.clear();
         blockMarkers.clear();
         countdownMove.getRewindInfo().clear();

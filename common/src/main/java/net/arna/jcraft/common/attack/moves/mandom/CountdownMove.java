@@ -33,6 +33,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -227,6 +228,10 @@ public final class CountdownMove extends AbstractMove<CountdownMove, MandomEntit
             buf.writeDouble(position.x());
             buf.writeDouble(position.y());
             buf.writeDouble(position.z());
+            final Vector3f color = attacker.getAuraColor();
+            buf.writeFloat(color.x());
+            buf.writeFloat(color.y());
+            buf.writeFloat(color.z());
 
             NetworkManager.sendToPlayer(serverPlayer, JPacketRegistry.S2C_MANDOM_DATA, buf);
         }

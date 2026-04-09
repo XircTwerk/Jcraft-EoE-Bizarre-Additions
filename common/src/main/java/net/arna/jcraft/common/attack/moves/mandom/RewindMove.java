@@ -49,7 +49,7 @@ public final class RewindMove extends AbstractMove<RewindMove, MandomEntity> {
         final ServerLevel level = (ServerLevel) attacker.level();
 
         if (user instanceof ServerPlayer serverPlayer) {
-            ShaderActivationPacket.send(serverPlayer, serverPlayer, 0, 10, ShaderActivationPacket.Type.MANDOM_REWIND);
+            ShaderActivationPacket.sendMandomRewind(serverPlayer, 23, attacker.getAuraColor());
         }
 
         final List<EntityMarker> entityMarkers = countdownMove.getTimeEntityMarkers();

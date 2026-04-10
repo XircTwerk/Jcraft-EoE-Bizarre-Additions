@@ -96,7 +96,7 @@ public class ExclusiveStandsData extends SavedData {
             CompoundTag fileData = NbtIo.read(file);
             if (fileData != null)
                 compoundTag = (CompoundTag) fileData.get("data");
-        } catch (final NullPointerException | ClassCastException | IOException ignored) {}
+        } catch (final NullPointerException | ClassCastException | IOException | net.minecraft.ReportedException ignored) {}
 
         return new ExclusiveStandsData(MoreObjects.firstNonNull(compoundTag, NO_STANDS));
     }

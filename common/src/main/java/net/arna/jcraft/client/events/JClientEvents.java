@@ -10,12 +10,14 @@ import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.attack.enums.MoveInputType;
 import net.arna.jcraft.api.component.living.CommonCooldownsComponent;
 import net.arna.jcraft.api.registry.JPacketRegistry;
+import net.arna.jcraft.api.registry.JParticleTypeRegistry;
 import net.arna.jcraft.api.registry.JSoundRegistry;
 import net.arna.jcraft.api.registry.JTagRegistry;
 import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.client.JClientConfig;
 import net.arna.jcraft.client.JCraftClient;
 import net.arna.jcraft.client.rendering.RenderHandler;
+import net.arna.jcraft.client.util.JClientUtils;
 import net.arna.jcraft.client.util.TrackedKeyBinding;
 import net.arna.jcraft.common.network.c2s.PlayerInputPacket;
 import net.arna.jcraft.common.network.c2s.StandBlockPacket;
@@ -45,8 +47,10 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import static net.arna.jcraft.client.JCraftClient.*;
 import static net.arna.jcraft.client.gui.hud.JCraftAbilityHud.cooldownTypeToKeybind;
@@ -55,6 +59,10 @@ import static net.arna.jcraft.client.util.JClientUtils.activeTimestops;
 
 @Environment(EnvType.CLIENT)
 public class JClientEvents {
+
+    // Tracks the game-time tick at which each stand user (by entity ID) first entered
+    // the 100-block menacing radius. Cleared when they leave range.
+    private static final Map<Integer, Long> menacingEntryTimes = new HashMap<>();
 
     public static void onLast(final PoseStack matrixStack, final Vec3 cameraPos) {
         matrixStack.pushPose();
@@ -295,8 +303,92 @@ public class JClientEvents {
         }
         TrackedKeyBinding.resetValues(client.screen != null);
 
+        // Menacing (ゴ/ド) particles — 10-second burst when a stand user enters 100-block radius.
+        // Works regardless of whether the local player or target has their stand summoned.
+        tickMenacing(client, player);
+
         // Play jangle sound (from spurs) for all entities
         playJangle();
+    }
+
+    private static void tickMenacing(final Minecraft client, final LocalPlayer player) {
+        final ClientLevel level = client.level;
+        if (level == null) return;
+
+        // Local player must be a stand user themselves
+        if (JComponentPlatformUtils.getStandComponent(player).getType() == null) {
+            menacingEntryTimes.clear();
+            return;
+        }
+
+        if (!JClientUtils.shouldRenderStands()) {
+            menacingEntryTimes.clear();
+            return;
+        }
+
+        final long now = level.getGameTime();
+        final double radius = 100.0;
+        final double radiusSq = radius * radius;
+        final AABB searchBox = AABB.ofSize(player.position(), radius * 2, radius * 2, radius * 2);
+        final java.util.Set<Integer> inRangeIds = new java.util.HashSet<>();
+
+        // --- Pass 1: Players — component IS synced for players, so check directly.
+        //     This covers players whether or not their stand is summoned. ---
+        for (final net.minecraft.world.entity.player.Player p : level.getEntitiesOfClass(
+                net.minecraft.world.entity.player.Player.class, searchBox,
+                p -> p != player
+                        && p.distanceToSqr(player) <= radiusSq
+                        && !p.isInvisible()
+                        && JComponentPlatformUtils.getStandComponent(p).getType() != null)) {
+
+            final int id = p.getId();
+            inRangeIds.add(id);
+            menacingEntryTimes.putIfAbsent(id, now);
+            if (now - menacingEntryTimes.get(id) >= 200) continue;
+
+            final RandomSource rng = level.getRandom();
+            if (rng.nextInt(8) != 0) continue;
+
+            spawnMenacingParticle(level, rng, p, JParticleTypeRegistry.DO.get());
+        }
+
+        // --- Pass 2: Mob stand users — detected via their stand ENTITY (always synced to client).
+        //     Skip any whose user is a player (already handled above). ---
+        for (final StandEntity<?, ?> stand : level.getEntitiesOfClass(
+                (Class<StandEntity<?, ?>>) (Class<?>) StandEntity.class, searchBox,
+                stand -> stand.hasUser() && stand.distanceToSqr(player) <= radiusSq && !stand.isInvisible())) {
+
+            final LivingEntity user = stand.getUserOrThrow();
+            if (user instanceof net.minecraft.world.entity.player.Player) continue; // handled in pass 1
+            if (JClientUtils.shouldNotRender(user)) continue;
+
+            final int id = user.getId();
+            inRangeIds.add(id);
+            menacingEntryTimes.putIfAbsent(id, now);
+            if (now - menacingEntryTimes.get(id) >= 200) continue;
+
+            final RandomSource rng = level.getRandom();
+            if (rng.nextInt(8) != 0) continue;
+
+            spawnMenacingParticle(level, rng, user, JParticleTypeRegistry.GO.get());
+        }
+
+        // Remove entries for stand users who left range
+        menacingEntryTimes.keySet().removeIf(id -> !inRangeIds.contains(id));
+    }
+
+    private static void spawnMenacingParticle(final ClientLevel level, final RandomSource rng,
+                                              final LivingEntity entity,
+                                              final net.minecraft.core.particles.SimpleParticleType type) {
+        final Vec3 pos = entity.position();
+        final float spread = entity.getBbWidth() * 2.0f;
+        final double minY = pos.y + entity.getBbHeight() * 0.7;
+        final double maxY = pos.y + entity.getBbHeight() * 1.4;
+        level.addParticle(type, false,
+                pos.x + rng.triangle(0, spread),
+                minY + rng.nextDouble() * (maxY - minY),
+                pos.z + rng.triangle(0, spread),
+                0, 0, 0);
     }
 
     private static void playJangle() {

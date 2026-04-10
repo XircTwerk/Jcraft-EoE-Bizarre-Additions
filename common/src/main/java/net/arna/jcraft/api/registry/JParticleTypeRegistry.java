@@ -27,6 +27,7 @@ public interface JParticleTypeRegistry {
     RegistrySupplier<SimpleParticleType> PIXEL = PARTICLES.register("pixel", () -> new SimpleParticleType(false));
     RegistrySupplier<SimpleParticleType> BLOCKSPARK = PARTICLES.register("blockspark", () -> new SimpleParticleType(false));
     RegistrySupplier<SimpleParticleType> GO = PARTICLES.register("go", () -> new SimpleParticleType(false));
+    RegistrySupplier<SimpleParticleType> DO = PARTICLES.register("do", () -> new SimpleParticleType(false));
     RegistrySupplier<SimpleParticleType> INVERSION = PARTICLES.register("inversion", () -> new SimpleParticleType(false));
     RegistrySupplier<SimpleParticleType> OVERLAP = PARTICLES.register("overlap", () -> new SimpleParticleType(false));
     RegistrySupplier<SimpleParticleType> SUN_LOCK_ON = PARTICLES.register("sun_lock_on", () -> new SimpleParticleType(false));

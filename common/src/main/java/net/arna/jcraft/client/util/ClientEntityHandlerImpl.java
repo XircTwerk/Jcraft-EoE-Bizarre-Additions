@@ -15,6 +15,7 @@ import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
 import net.arna.jcraft.common.gravity.util.RotationUtil;
 import net.arna.jcraft.common.util.IClientEntityHandler;
 import net.arna.jcraft.common.util.JUtils;
+import net.arna.jcraft.platform.JComponentPlatformUtils;
 import net.arna.jcraft.api.registry.JParticleTypeRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
@@ -251,6 +252,7 @@ public class ClientEntityHandlerImpl implements IClientEntityHandler {
 
         final Entity owner = projectile.getOwner();
         if (!(owner instanceof LivingEntity living)) return;
+        if (owner != Minecraft.getInstance().player) return;
         final var stand = JUtils.getStand(living);
         if (!(stand instanceof MetallicaEntity metallica)) return;
 

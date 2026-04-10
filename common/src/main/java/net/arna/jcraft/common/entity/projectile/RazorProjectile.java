@@ -40,7 +40,7 @@ public class RazorProjectile extends AbstractArrow {
     public void tick() {
         super.tick();
         if (level().isClientSide()) {
-            if (inGround && tickCount % 10 == 0) {
+            if (inGround && tickCount % 20 == 0) {
                 JCraft.getClientEntityHandler().spawnGroundedMoshParticles(this);
             }
             return;

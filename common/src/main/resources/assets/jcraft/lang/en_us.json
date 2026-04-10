@@ -1264,7 +1264,7 @@
   "jcraft.serverconfig.option.universalAbilities": "Universal Abilities",
   "jcraft.serverconfig.option.useFoolishSand": "Use Foolish Sand",
   "jcraft.serverconfig.option.vsStandlessDamageMultiplier": "VS Standless Damage Multiplier",
-  "jcraft.serverconfig.option.wsStealStands": "Whitesnake Steals Stands",
+  "jcraft.serverconfig.option.wsStealStandsFromPlayers": "Whitesnake Steals Stands From Players",
   "jcraft.sheathedanubis.blockdesc": "§9Can used to §eblock §9with §eCrouch + RMB.",
   "jcraft.sheathedanubis.desc": "§9Can be §eunsheathed",
   "jcraft.sptw.crm1": "Ground Slam",

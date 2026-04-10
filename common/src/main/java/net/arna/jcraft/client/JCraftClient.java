@@ -366,6 +366,7 @@ public class JCraftClient {
         ParticleProviderRegistry.register(JParticleTypeRegistry.PIXEL, PixelParticle.Factory::new);
         ParticleProviderRegistry.register(JParticleTypeRegistry.BLOCKSPARK, provider -> new BlocksparkParticle.Factory(provider, 0.15f));
         ParticleProviderRegistry.register(JParticleTypeRegistry.GO, GoParticle.Factory::new);
+        ParticleProviderRegistry.register(JParticleTypeRegistry.DO, GoParticle.Factory::new);
         ParticleProviderRegistry.register(JParticleTypeRegistry.AURA_ARC, AuraArcParticle.Factory::new);
         ParticleProviderRegistry.register(JParticleTypeRegistry.AURA_BLOB, AuraBlobParticle.Factory::new);
         ParticleProviderRegistry.register(JParticleTypeRegistry.INVERSION, InversionParticle.Factory::new);

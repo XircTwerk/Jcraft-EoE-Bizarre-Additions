@@ -48,7 +48,7 @@ public class MoshParticle extends TextureSheetParticle {
 
     @Override
     protected int getLightColor(final float tint) {
-        return 255;
+        return super.getLightColor(tint);
     }
 
     public static class Factory implements ParticleProvider<SimpleParticleType> {

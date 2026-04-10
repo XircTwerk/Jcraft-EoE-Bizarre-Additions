@@ -71,6 +71,8 @@ public class JClientEvents {
     // Tracks the game-time tick for each stand user (by UUID)
     // the 100-block menacing radius. Cleared when they leave range.
     private static final Map<UUID, Integer> menacingEntryTimes = new HashMap<>();
+    // tracks which entities were last seen, cleared after a certain time only
+    private static final Map<UUID, Integer> menacingCheckTimes = new HashMap<>();
 
     public static void onLast(final PoseStack matrixStack, final Vec3 cameraPos) {
         matrixStack.pushPose();
@@ -311,7 +313,7 @@ public class JClientEvents {
         }
         TrackedKeyBinding.resetValues(client.screen != null);
 
-        // Menacing (ゴ/ド) particles — 10-second burst when a stand user enters 100-block radius.
+        // Menacing (ゴ/ド) particles — 4-second burst when a stand user enters 100-block radius.
         // Works regardless of whether the local player or target has their stand summoned.
         tickMenacing(client, player);
 
@@ -329,11 +331,13 @@ public class JClientEvents {
         final StandType type = JComponentPlatformUtils.getStandComponent(player).getType();
         if (StandTypeUtil.isNone(type)) {
             menacingEntryTimes.clear();
+            menacingCheckTimes.clear();
             return;
         }
 
         if (!JClientUtils.shouldRenderStands()) {
             menacingEntryTimes.clear();
+            menacingCheckTimes.clear();
             return;
         }
 
@@ -372,6 +376,8 @@ public class JClientEvents {
 
         // Remove entries for stand users who left range
         menacingEntryTimes.keySet().removeIf(id -> !inRangeIds.contains(id));
+        // remove entries for stand users who have been checked for a long time
+        menacingCheckTimes.entrySet().removeIf(entry -> entry.getValue() > 600);
     }
 
     private static void tickMenacing(final LivingEntity living, final Set<UUID> inRangeIds, final ClientLevel level, final RegistrySupplier<SimpleParticleType> particle) {
@@ -379,9 +385,11 @@ public class JClientEvents {
         inRangeIds.add(uuid);
         menacingEntryTimes.putIfAbsent(uuid, -1);
         menacingEntryTimes.put(uuid, menacingEntryTimes.get(uuid) + 1);
-        if (menacingEntryTimes.get(uuid) >= 80) {
+        if (menacingEntryTimes.get(uuid) >= 80 || menacingCheckTimes.get(uuid) >= 80) {
             return;
         }
+        menacingCheckTimes.putIfAbsent(uuid, -1);
+        menacingCheckTimes.put(uuid, menacingEntryTimes.get(uuid) + 1);
         final RandomSource rng = level.getRandom();
         if (rng.nextDouble() > 1d/8) {
             return;

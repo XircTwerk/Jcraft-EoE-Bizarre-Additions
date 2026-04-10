@@ -386,7 +386,7 @@ public class JClientEvents {
         menacingEntryTimes.putIfAbsent(uuid, -1);
         menacingEntryTimes.put(uuid, menacingEntryTimes.get(uuid) + 1);
         menacingCheckTimes.putIfAbsent(uuid, -1);
-        menacingCheckTimes.put(uuid, menacingEntryTimes.get(uuid) + 1);
+        menacingCheckTimes.put(uuid, menacingCheckTimes.get(uuid) + 1);
         if (menacingEntryTimes.get(uuid) >= 80 || menacingCheckTimes.get(uuid) >= 80) {
             return;
         }

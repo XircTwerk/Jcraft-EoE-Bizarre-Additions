@@ -87,6 +87,11 @@ public class BombDropAttack<A extends StandEntity<? extends A, ?>> extends Abstr
         AerobombProjectile bomb = new AerobombProjectile(attacker.level());
         bomb.setOwner(attacker.hasUser() ? attacker.getUserOrThrow() : attacker);
         bomb.setPos(attacker.position().subtract(0d, 1d, 0d));
+        bomb.setXRot(attacker.getXRot());
+        bomb.xRotO = attacker.xRotO;
+        bomb.setYRot(attacker.getYRot());
+        bomb.yRotO = attacker.yRotO;
+        bomb.setDeltaMovement(attacker.getDeltaMovement().normalize().scale(1d/16));
         attacker.level().addFreshEntity(bomb);
     }
 

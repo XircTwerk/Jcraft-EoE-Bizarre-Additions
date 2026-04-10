@@ -323,7 +323,9 @@ public class JClientEvents {
 
     private static void tickMenacing(final Minecraft client, final LocalPlayer player) {
         final ClientLevel level = client.level;
-        if (level == null) {
+        final boolean playerWarning = JClientConfig.getInstance().isShowStandUserWarningPlayer();
+        final boolean mobWarning = JClientConfig.getInstance().isShowStandUserWarningMob();
+        if (level == null || (!playerWarning && !mobWarning)) {
             return;
         }
 
@@ -347,31 +349,35 @@ public class JClientEvents {
         final Set<UUID> inRangeIds = new HashSet<>();
 
         // find all stand users nearby, for each do
-        for (final Player p : level.getEntitiesOfClass(Player.class, searchBox,
-                p -> {
-                    var pType = JComponentPlatformUtils.getStandComponent(p).getType();
-                    return p != player && !p.isSpectator() && !p.isCreative()
-                        && p.distanceToSqr(player) <= radiusSq
-                        && !p.isInvisible() && !JClientUtils.shouldNotRender(p)
-                        && !StandTypeUtil.isNone(pType);
-                }
-        )) {
-            tickMenacing(p, inRangeIds, level, JParticleTypeRegistry.DO);
+        if (playerWarning) {
+            for (final Player p : level.getEntitiesOfClass(Player.class, searchBox,
+                    p -> {
+                        var pType = JComponentPlatformUtils.getStandComponent(p).getType();
+                        return p != player && !p.isSpectator() && !p.isCreative()
+                                && p.distanceToSqr(player) <= radiusSq
+                                && !p.isInvisible() && !JClientUtils.shouldNotRender(p)
+                                && !StandTypeUtil.isNone(pType);
+                    }
+            )) {
+                tickMenacing(p, inRangeIds, level, JParticleTypeRegistry.DO);
+            }
         }
 
         // get all other stand users via their stands
-        for (final StandEntity<?, ?> stand : level.getEntitiesOfClass(
-                StandEntity.class, searchBox,
-                stand -> stand.hasUser() && stand.distanceToSqr(player) <= radiusSq && !stand.isInvisible())
-        ) {
-            final LivingEntity user = stand.getUserOrThrow();
-            if (user instanceof Player) { // handled before
-                continue;
+        if (mobWarning) {
+            for (final StandEntity<?, ?> stand : level.getEntitiesOfClass(
+                    StandEntity.class, searchBox,
+                    stand -> stand.hasUser() && stand.distanceToSqr(player) <= radiusSq && !stand.isInvisible())
+            ) {
+                final LivingEntity user = stand.getUserOrThrow();
+                if (user instanceof Player) { // handled before
+                    continue;
+                }
+                if (JClientUtils.shouldNotRender(user)) {
+                    continue;
+                }
+                tickMenacing(user, inRangeIds, level, JParticleTypeRegistry.GO);
             }
-            if (JClientUtils.shouldNotRender(user)) {
-                continue;
-            }
-            tickMenacing(user, inRangeIds, level, JParticleTypeRegistry.GO);
         }
 
         // Remove entries for stand users who left range

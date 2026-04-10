@@ -371,7 +371,9 @@ public class MetallicaEntity extends StandEntity<MetallicaEntity, MetallicaEntit
     }
 
     public Vector3f getMoshColor() {
-        if (getSkin() == 0) return new Vector3f(1.0f, 1.0f, 1.0f);
+        if (getSkin() == 0) {
+            return new Vector3f(1.0f, 1.0f, 1.0f);
+        }
         return getAuraColor();
     }
 

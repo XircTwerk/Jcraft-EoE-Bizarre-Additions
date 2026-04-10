@@ -6,7 +6,6 @@ import net.arna.jcraft.client.JClientConfig;
 import net.arna.jcraft.client.particle.AuraArcParticle;
 import net.arna.jcraft.client.particle.AuraBlobParticle;
 import net.arna.jcraft.client.particle.MoshParticle;
-import net.arna.jcraft.common.config.JServerConfig;
 import net.arna.jcraft.api.component.living.CommonBombTrackerComponent;
 import net.arna.jcraft.common.entity.SheerHeartAttackEntity;
 import net.arna.jcraft.common.entity.stand.*;
@@ -15,7 +14,6 @@ import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
 import net.arna.jcraft.common.gravity.util.RotationUtil;
 import net.arna.jcraft.common.util.IClientEntityHandler;
 import net.arna.jcraft.common.util.JUtils;
-import net.arna.jcraft.platform.JComponentPlatformUtils;
 import net.arna.jcraft.api.registry.JParticleTypeRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
@@ -247,14 +245,24 @@ public class ClientEntityHandlerImpl implements IClientEntityHandler {
 
     @Override
     public void spawnGroundedMoshParticles(AbstractArrow projectile) {
-        if (!JClientConfig.getInstance().isStandAuras()) return;
-        if (!JUtils.shouldRenderStandsFor(Minecraft.getInstance().player)) return;
+        if (!JClientConfig.getInstance().isStandAuras()) {
+            return;
+        }
+        if (!JUtils.shouldRenderStandsFor(Minecraft.getInstance().player)) {
+            return;
+        }
 
         final Entity owner = projectile.getOwner();
-        if (!(owner instanceof LivingEntity living)) return;
-        if (owner != Minecraft.getInstance().player) return;
+        if (!(owner instanceof LivingEntity living)) {
+            return;
+        }
+        if (owner != Minecraft.getInstance().player) {
+            return;
+        }
         final var stand = JUtils.getStand(living);
-        if (!(stand instanceof MetallicaEntity metallica)) return;
+        if (!(stand instanceof MetallicaEntity metallica)) {
+            return;
+        }
 
         final Vec3 pos = projectile.position();
         final Vector3f color = metallica.getMoshColor();

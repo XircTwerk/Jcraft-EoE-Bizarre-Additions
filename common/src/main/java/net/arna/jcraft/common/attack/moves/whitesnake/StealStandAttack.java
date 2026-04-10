@@ -9,6 +9,7 @@ import net.arna.jcraft.api.component.living.CommonStandComponent;
 import net.arna.jcraft.api.registry.JTagRegistry;
 import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.api.stand.StandType;
+import net.arna.jcraft.api.stand.StandTypeUtil;
 import net.arna.jcraft.common.config.JServerConfig;
 import net.arna.jcraft.common.entity.stand.WhiteSnakeEntity;
 import net.arna.jcraft.common.item.StandDiscItem;
@@ -21,6 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.Set;
 
 public final class StealStandAttack extends AbstractSimpleAttack<StealStandAttack, WhiteSnakeEntity> {
+
     public StealStandAttack(final int cooldown, final int windup, final int duration, final float moveDistance,
                             final float damage, final int stun, final float hitboxSize,
                             final float knockback, final float offset) {
@@ -28,27 +30,30 @@ public final class StealStandAttack extends AbstractSimpleAttack<StealStandAttac
     }
 
     @Override
-    public @NonNull MoveType<StealStandAttack> getMoveType() {
-        return Type.INSTANCE;
-    }
-
-    @Override
     public @NonNull Set<LivingEntity> perform(final WhiteSnakeEntity attacker, final LivingEntity user) {
         final Set<LivingEntity> targets = super.perform(attacker, user);
 
         // Exclusive stands mode — stand stealing is completely disregarded
-        if (JServerConfig.EXCLUSIVE_STANDS.getValue()) return targets;
+        if (JServerConfig.EXCLUSIVE_STANDS.getValue()) {
+            return targets;
+        }
 
         for (final LivingEntity target : targets) {
-            // Skip players if the config doesn't allow stealing from them
-            if (target instanceof Player && !JServerConfig.WS_STEAL_STANDS_FROM_PLAYERS.getValue()) continue;
+            // skip players if the config doesn't allow stealing from them
+            if (target instanceof Player && !JServerConfig.WS_STEAL_STANDS_FROM_PLAYERS.getValue()) {
+                continue;
+            }
 
-            // Skip entities flagged as cannot-take-stand-from
-            if (target.getType().is(JTagRegistry.CANNOT_TAKE_STAND_FROM)) continue;
+            // skip entities flagged as cannot-take-stand-from
+            if (target.getType().is(JTagRegistry.CANNOT_TAKE_STAND_FROM)) {
+                continue;
+            }
 
             final CommonStandComponent standComp = JComponentPlatformUtils.getStandComponent(target);
             final StandType standType = standComp.getType();
-            if (standType == null) continue; // Nothing to steal
+            if (StandTypeUtil.isNone(standType)) { // nothing to steal
+                continue;
+            }
 
             final int skin = Mth.clamp(standComp.getSkin(), 0, standType.getData().getInfo().getSkinCount() - 1);
 
@@ -59,12 +64,11 @@ public final class StealStandAttack extends AbstractSimpleAttack<StealStandAttac
             final StandEntity<?, ?> stand = standComp.getStand();
             if (stand != null) {
                 stand.desummon();
-                if (!stand.isRemoved()) stand.discard();
                 standComp.setStand(null);
             }
 
             // Strip the stand type from the target
-            standComp.setTypeAndSkin(null, 0);
+            standComp.setType(null);
 
             // Hand the disc to the White Snake user
             if (user instanceof Player player) {
@@ -90,6 +94,11 @@ public final class StealStandAttack extends AbstractSimpleAttack<StealStandAttac
                 getCooldown(), getWindup(), getDuration(), getMoveDistance(),
                 getDamage(), getStun(), getHitboxSize(), getKnockback(), getOffset()
         ));
+    }
+
+    @Override
+    public @NonNull MoveType<StealStandAttack> getMoveType() {
+        return Type.INSTANCE;
     }
 
     public static class Type extends AbstractSimpleAttack.Type<StealStandAttack> {

@@ -29,10 +29,14 @@ public class ClearSpecCommand {
     public static int run(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         try {
             final Collection<? extends Entity> targets = EntityArgument.getEntities(context, "entities");
-            if (targets.isEmpty()) return 0;
+            if (targets.isEmpty()) {
+                return 0;
+            }
 
             for (final Entity entity : targets) {
-                if (!(entity instanceof LivingEntity living)) continue;
+                if (!(entity instanceof LivingEntity living)) {
+                    continue;
+                }
                 // Reset spec-specific state that lives outside the spec component (e.g. hamon charge
                 // drives the bar visibility independently of spec type).
                 final var specType = JComponentPlatformUtils.getSpecData(living).getType();

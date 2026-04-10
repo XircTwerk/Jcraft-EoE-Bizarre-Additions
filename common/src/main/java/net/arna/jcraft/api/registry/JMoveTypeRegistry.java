@@ -7,6 +7,7 @@ import net.arna.jcraft.api.JRegistries;
 import net.arna.jcraft.api.attack.MoveType;
 import net.arna.jcraft.common.attack.moves.aerosmith.BombDropAttack;
 import net.arna.jcraft.common.attack.moves.aerosmith.MuzzleHitscanAttack;
+import net.arna.jcraft.common.attack.moves.aerosmith.PatrolMove;
 import net.arna.jcraft.common.attack.moves.anubis.*;
 import net.arna.jcraft.common.attack.moves.cmoon.*;
 import net.arna.jcraft.common.attack.moves.cream.*;
@@ -270,8 +271,9 @@ public interface JMoveTypeRegistry {
     RegistrySupplier<MoveType<?>> MANDOM_COUNTDOWN_MOVE = register("mandom_countdown_move", CountdownMove.Type.INSTANCE);
     RegistrySupplier<MoveType<?>> MANDOM_REWIND_MOVE = register("mandom_rewind_move", RewindMove.Type.INSTANCE);
 
-    RegistrySupplier<MoveType<?>> AEROSMITH_BULLET_MOVE = register("aerosmith_bullet_move", MuzzleHitscanAttack.Type.INSTANCE);
-    RegistrySupplier<MoveType<?>> AEROSMITH_BOMB_DROP_MOVE = register("aerosmith_bomb_drop_move", BombDropAttack.Type.INSTANCE);
+    RegistrySupplier<MoveType<?>> AEROSMITH_BULLET_ATTACK = register("aerosmith_bullet_attack", MuzzleHitscanAttack.Type.INSTANCE);
+    RegistrySupplier<MoveType<?>> AEROSMITH_BOMB_DROP_ATTACK = register("aerosmith_bomb_drop_attack", BombDropAttack.Type.INSTANCE);
+    RegistrySupplier<MoveType<?>> AEROSMITH_PATROL_MOVE = register("aerosmith_patrol_move", PatrolMove.Type.INSTANCE);
 
 
 

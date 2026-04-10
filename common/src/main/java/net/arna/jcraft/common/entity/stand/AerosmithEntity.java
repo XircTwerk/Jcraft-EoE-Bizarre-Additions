@@ -15,6 +15,7 @@ import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.api.stand.StandInfo;
 import net.arna.jcraft.common.attack.moves.aerosmith.BombDropAttack;
 import net.arna.jcraft.common.attack.moves.aerosmith.MuzzleHitscanAttack;
+import net.arna.jcraft.common.attack.moves.aerosmith.PatrolMove;
 import net.arna.jcraft.common.util.JParticleType;
 import net.arna.jcraft.common.util.StandAnimationState;
 import net.minecraft.network.chat.Component;
@@ -34,7 +35,12 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
 
     // TODO Arna balance this
     public static final BombDropAttack<AerosmithEntity> BOMB_DROP = new BombDropAttack<>(
-            200, 1, 100, 0, 30);
+            200, 1, 100, 0f, 30f);
+    // TODO Arna description
+
+    // TODO Arna balance this
+    public static final PatrolMove<AerosmithEntity> PATROL = new PatrolMove<>(
+            200, 1, 100, 0f, 30f, 10f, 0.5f);
     // TODO Arna description
 
     public static final StandData DATA = StandData.builder()
@@ -68,6 +74,7 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
     private static void registerDefaultMoves(final @NonNull MoveMap<AerosmithEntity, AerosmithEntity.State> moves) {
         moves.registerImmediate(MoveClass.LIGHT, BULLET, State.LIGHT);
         moves.registerImmediate(MoveClass.HEAVY, BOMB_DROP, State.IDLE);
+        moves.registerImmediate(MoveClass.UTILITY, PATROL, State.IDLE);
     }
 
     public enum State implements StandAnimationState<AerosmithEntity> {

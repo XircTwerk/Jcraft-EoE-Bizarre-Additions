@@ -665,6 +665,9 @@ public class JTagProviders {
             final var noAIStandUsers = getOrCreateTagBuilder(JTagRegistry.NO_STAND_USER_AI);
             noAIStandUsers.add(JEntityTypeRegistry.TRAINING_DUMMY.getId());
 
+            final var cannotTakeStandFrom = getOrCreateTagBuilder(JTagRegistry.CANNOT_TAKE_STAND_FROM);
+            cannotTakeStandFrom.add(JEntityTypeRegistry.PLAYER_CLONE.getId());
+
             final var gravityForbiddenEntities = getOrCreateTagBuilder(EntityTags.FORBIDDEN_ENTITIES);
             gravityForbiddenEntities.add(EntityType.ITEM_FRAME);
             gravityForbiddenEntities.add(EntityType.GLOW_ITEM_FRAME);

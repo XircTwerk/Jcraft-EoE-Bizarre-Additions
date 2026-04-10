@@ -17,6 +17,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 import java.util.Set;
 
@@ -119,7 +120,10 @@ public class PatrolMove<A extends StandEntity<? extends A, ?>> extends AbstractM
             if (attacker.position().distanceTo(positions[currentGoalIndex]) <= 1) {
                 currentGoalIndex = (currentGoalIndex + 1) % positions.length;
             }
-            attacker.setDeltaMovement(positions[currentGoalIndex].subtract(attacker.position()).normalize().scale(actualSpeed));
+            final Vec3 diff = positions[currentGoalIndex].subtract(attacker.position());
+            attacker.setDeltaMovement(diff.normalize().scale(actualSpeed));
+            // TODO Arna work your magic
+            attacker.setYRot((float)(diff.toVector3f().angle(new Vector3f(0f, 0f, 1f)) * 57.2957763671875));
         }
     }
 

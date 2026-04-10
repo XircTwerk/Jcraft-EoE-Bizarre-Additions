@@ -379,7 +379,7 @@ public class JClientEvents {
         inRangeIds.add(uuid);
         menacingEntryTimes.putIfAbsent(uuid, -1);
         menacingEntryTimes.put(uuid, menacingEntryTimes.get(uuid) + 1);
-        if (menacingEntryTimes.get(uuid) >= 200) {
+        if (menacingEntryTimes.get(uuid) >= 80) {
             return;
         }
         final RandomSource rng = level.getRandom();

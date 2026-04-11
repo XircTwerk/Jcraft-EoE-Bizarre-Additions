@@ -1252,6 +1252,7 @@
   "jcraft.serverconfig.option.rollerFlattening": "Road Roller Flattens Blocks",
   "jcraft.serverconfig.option.scalingPenaltyPerHit": "Scaling Penalty per Hit",
   "jcraft.serverconfig.option.shaSearchRadius": "Sheer Heart Attack search radius",
+  "jcraft.serverconfig.option.showAllCosplay": "Show all Cosplay in Creative Tab",
   "jcraft.serverconfig.option.spawnerStands": "Spawner Stands",
   "jcraft.serverconfig.option.sptwIgniteCampfires": "Star Platinum The World ignites Campfires",
   "jcraft.serverconfig.option.sptwTimeStopDuration": "Star Platinum The World Timestop Duration",

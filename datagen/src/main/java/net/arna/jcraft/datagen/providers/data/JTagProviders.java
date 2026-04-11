@@ -628,6 +628,7 @@ public class JTagProviders {
             // spec users
             getOrCreateRawBuilder(JTagRegistry.SPEC_USER).addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.BRAWLER_SPEC_USER.get()));
             getOrCreateRawBuilder(JTagRegistry.SPEC_USER).addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.HAMON_SPEC_USER.get()));
+            getOrCreateRawBuilder(JTagRegistry.SPEC_USER).addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.TONPETTY.get()));
             getOrCreateRawBuilder(JTagRegistry.SPEC_USER).addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.VAMPIRE_SPEC_USER.get()));
             getOrCreateRawBuilder(JTagRegistry.SPEC_USER).addElement(BuiltInRegistries.ENTITY_TYPE.getKey(JEntityTypeRegistry.ANUBIS_SPEC_USER.get()));
 

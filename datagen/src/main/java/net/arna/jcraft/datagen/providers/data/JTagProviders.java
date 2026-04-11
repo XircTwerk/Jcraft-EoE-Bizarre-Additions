@@ -100,14 +100,6 @@ public class JTagProviders {
 
             addCosplayTags();
 
-            getOrCreateRawBuilder(JTagRegistry.PROTECTS_FROM_SUN).addTag(JItemRegistry.KARS_HEADWRAP.getTag().location());
-            getOrCreateRawBuilder(JTagRegistry.PROTECTS_FROM_SUN).addTag(JItemRegistry.RED_HAT.getTag().location());
-            getOrCreateRawBuilder(JTagRegistry.PROTECTS_FROM_SUN).addTag(JItemRegistry.PUCCIS_HAT.getTag().location());
-            getOrCreateRawBuilder(JTagRegistry.PROTECTS_FROM_SUN).addTag(JItemRegistry.RISOTTO_CAP.getTag().location());
-            getOrCreateRawBuilder(JTagRegistry.PROTECTS_FROM_SUN).addTag(JItemRegistry.DIEGO_HAT.getTag().location());
-            getOrCreateRawBuilder(JTagRegistry.PROTECTS_FROM_SUN).addTag(JItemRegistry.MOUNTAIN_TIM_HAT.getTag().location());
-            getOrCreateRawBuilder(JTagRegistry.PROTECTS_FROM_SUN).addTag(JItemRegistry.COWBOY_HAT.getTag().location());
-
             final var cosplay = getOrCreateTagBuilder(JTagRegistry.COSPLAY);
             for (final CosplayItem<?> cosplayItem : CosplayItem.all()) {
                 cosplay.addTag(cosplayItem.getTag());

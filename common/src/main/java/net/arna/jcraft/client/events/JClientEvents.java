@@ -350,6 +350,7 @@ public class JClientEvents {
 
         // find all stand users nearby, for each do
         if (playerWarning) {
+            int count = 0;
             for (final Player p : level.getEntitiesOfClass(Player.class, searchBox,
                     p -> {
                         var pType = JComponentPlatformUtils.getStandComponent(p).getType();
@@ -359,12 +360,13 @@ public class JClientEvents {
                                 && !StandTypeUtil.isNone(pType);
                     }
             )) {
-                tickMenacing(p, inRangeIds, level, JParticleTypeRegistry.DO);
+                tickMenacing(p, inRangeIds, level, JParticleTypeRegistry.DO, count++ < 15);
             }
         }
 
         // get all other stand users via their stands
         if (mobWarning) {
+            int count = 0;
             for (final StandEntity<?, ?> stand : level.getEntitiesOfClass(
                     StandEntity.class, searchBox,
                     stand -> stand.hasUser() && stand.distanceToSqr(player) <= radiusSq && !stand.isInvisible())
@@ -376,7 +378,7 @@ public class JClientEvents {
                 if (JClientUtils.shouldNotRender(user)) {
                     continue;
                 }
-                tickMenacing(user, inRangeIds, level, JParticleTypeRegistry.GO);
+                tickMenacing(user, inRangeIds, level, JParticleTypeRegistry.GO, count++ < 15);
             }
         }
 
@@ -386,7 +388,7 @@ public class JClientEvents {
         menacingCheckTimes.entrySet().removeIf(entry -> entry.getValue() > 600);
     }
 
-    private static void tickMenacing(final LivingEntity living, final Set<UUID> inRangeIds, final ClientLevel level, final RegistrySupplier<SimpleParticleType> particle) {
+    private static void tickMenacing(final LivingEntity living, final Set<UUID> inRangeIds, final ClientLevel level, final RegistrySupplier<SimpleParticleType> particle, boolean limited) {
         final UUID uuid = living.getUUID();
         inRangeIds.add(uuid);
         menacingEntryTimes.putIfAbsent(uuid, -1);
@@ -397,7 +399,7 @@ public class JClientEvents {
             return;
         }
         final RandomSource rng = level.getRandom();
-        if (rng.nextDouble() > 1d/8) {
+        if (limited || rng.nextDouble() > 1d/8) {
             return;
         }
         spawnMenacingParticle(level, rng, particle.get());

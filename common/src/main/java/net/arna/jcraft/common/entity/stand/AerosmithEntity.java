@@ -8,6 +8,8 @@ import net.arna.jcraft.api.attack.MoveMap;
 import net.arna.jcraft.api.attack.MoveSet;
 import net.arna.jcraft.api.attack.MoveSetManager;
 import net.arna.jcraft.api.attack.enums.MoveClass;
+import net.arna.jcraft.api.attack.enums.StunType;
+import net.arna.jcraft.api.component.living.CommonMiscComponent;
 import net.arna.jcraft.api.registry.JSoundRegistry;
 import net.arna.jcraft.api.registry.JStandTypeRegistry;
 import net.arna.jcraft.api.stand.StandData;
@@ -18,19 +20,30 @@ import net.arna.jcraft.common.attack.moves.aerosmith.MuzzleHitscanAttack;
 import net.arna.jcraft.common.attack.moves.aerosmith.PatrolMove;
 import net.arna.jcraft.common.util.JParticleType;
 import net.arna.jcraft.common.util.StandAnimationState;
+import net.arna.jcraft.platform.JComponentPlatformUtils;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
 public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntity.State> {
     public static final MoveSet<AerosmithEntity, AerosmithEntity.State> MOVE_SET = MoveSetManager.create(JStandTypeRegistry.AEROSMITH,
             AerosmithEntity::registerDefaultMoves, AerosmithEntity.State.class);
 
+    public static final EntityDataAccessor<Float> OVERHEAT = SynchedEntityData.defineId(AerosmithEntity.class, EntityDataSerializers.FLOAT);
+    public static final float OVERHEAT_MAX = 15f;
+
     // TODO Arna balance this
-    public static final MuzzleHitscanAttack<AerosmithEntity> BULLET = new MuzzleHitscanAttack<AerosmithEntity>(
+    public static final MuzzleHitscanAttack BULLET = new MuzzleHitscanAttack(
             1, 1, 2, 0f, 1f, 0, 0f, 30f, 10f, 1/6f, 0.05f)
             .withSound(JSoundRegistry.BULLET_PENETRATE) // TODO record improve
             .withHitSpark(JParticleType.HIT_SPARK_2) // TODO record improve
-            .withShootSpark(JParticleType.HIT_SPARK_1); // TODO record improve // TODO Planet why isn't this working?
+            .withShootSpark(JParticleType.HIT_SPARK_1) // TODO record improve
+            .withStunType(StunType.WINDED);
     // TODO Arna description
 
     // TODO Arna balance this
@@ -51,6 +64,9 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
                     .skinName(Component.literal("Fire"))
                     .build())
             .build();
+
+    private CommonMiscComponent miscComponent;
+    private int overheatTick;
 
     public AerosmithEntity(final Level world) {
         super(JStandTypeRegistry.AEROSMITH.get(), world);
@@ -73,6 +89,50 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
         moves.registerImmediate(MoveClass.LIGHT, BULLET, State.LIGHT);
         moves.registerImmediate(MoveClass.HEAVY, BOMB_DROP, State.IDLE);
         moves.registerImmediate(MoveClass.UTILITY, PATROL, State.IDLE);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (++overheatTick % 5 == 0) {
+            addOverheat(-1f);
+        }
+    }
+
+    @Override
+    public void setUser(@Nullable final LivingEntity user) {
+        super.setUser(user);
+        if (user == null) {
+            return;
+        }
+        miscComponent = JComponentPlatformUtils.getMiscData(getUser());
+        if (miscComponent == null) {
+            return;
+        }
+        setOverheat(miscComponent.getAerosmithOverheat());
+    }
+
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        float startValue = miscComponent == null ? 0f : miscComponent.getAerosmithOverheat();
+        entityData.define(OVERHEAT, startValue);
+    }
+
+    public float getOverheat() {
+        return entityData.get(OVERHEAT);
+    }
+
+    public void setOverheat(final float overheat) {
+        entityData.set(OVERHEAT, overheat);
+        if (miscComponent == null) {
+            return;
+        }
+        miscComponent.setAerosmithOverheat(overheat);
+    }
+
+    public void addOverheat(float amount) {
+        setOverheat(Mth.clamp(entityData.get(OVERHEAT) + amount, 0f, OVERHEAT_MAX));
     }
 
     public enum State implements StandAnimationState<AerosmithEntity> {

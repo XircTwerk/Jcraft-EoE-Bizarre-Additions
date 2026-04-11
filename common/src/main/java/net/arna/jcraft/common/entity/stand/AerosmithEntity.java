@@ -46,6 +46,9 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
     public static final StandData DATA = StandData.builder()
             .info(StandInfo.builder()
                     .name(Component.translatable("entity.jcraft.aerosmith"))
+                    .skinName(Component.literal("Manga"))
+                    .skinName(Component.literal("Vento Auero"))
+                    .skinName(Component.literal("Fire"))
                     .build())
             .build();
 
@@ -59,11 +62,6 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
     @Override
     public boolean remoteControllable() {
         return false;
-    }
-
-    @Override
-    public void playSummonAnimation() {
-        // intentionally left empty // TODO remove this override
     }
 
     @Override

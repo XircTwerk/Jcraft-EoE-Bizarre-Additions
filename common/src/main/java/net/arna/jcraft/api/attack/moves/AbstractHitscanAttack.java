@@ -2,7 +2,7 @@ package net.arna.jcraft.api.attack.moves;
 
 import com.mojang.datafixers.Products;
 import com.mojang.datafixers.kinds.App;
-import com.mojang.datafixers.util.Function11;
+import com.mojang.datafixers.util.Function12;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
@@ -44,17 +44,23 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
     private float hardness;
     private float breakChance;
     private float spread;
+    private int overheat;
     private @NonNull JParticleType shootSpark = JParticleType.FLASH; // TODO record improve (default for hitscan)
+    private int overheatLoad;
+    private boolean overheated;
+    private int originalCooldown;
 
     protected AbstractHitscanAttack(final int cooldown, final int windup, final int duration, final float moveDistance, final float damage,
                                     final int stun, final float knockback,
-                                    final float range, final float hardness, final float breakChance, final float spread) {
+                                    final float range, final float hardness, final float breakChance, final float spread, final int overheat) {
         super(cooldown, windup, duration, moveDistance, damage, stun, 0f, knockback, 0f);
 
         withRange(range);
         withHardness(hardness);
         withBreakChance(breakChance);
         withSpread(spread);
+        withOverheat(overheat);
+        originalCooldown = cooldown;
     }
 
     public T withRange(final float range) {
@@ -77,6 +83,11 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
         return getThis();
     }
 
+    private T withOverheat(final int overheat) {
+        this.overheat = overheat;
+        return getThis();
+    }
+
     public T withShootSpark(final JParticleType shootSpark) {
         this.shootSpark = shootSpark;
         return getThis();
@@ -87,6 +98,7 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
         if (user == null) {
             return Set.of();
         }
+        overheatLoad++;
         final RandomSource random = user.getRandom();
         // finding target
         final Vec3 userEyePos = user.position().add(GravityChangerAPI.getEyeOffset(user));
@@ -138,6 +150,25 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
     }
 
     @Override
+    public void tick(final A attacker) {
+        if (overheated) {
+            if (overheatLoad > 0) {
+                overheatLoad--;
+            }
+            if (overheatLoad <= 0) {
+                overheated = false;
+                withCooldown(originalCooldown);
+            }
+        }
+        else {
+            if (overheatLoad >= overheat) {
+                overheated = true;
+                withCooldown(overheat+1);
+            }
+        }
+    }
+
+    @Override
     protected @NonNull T copyExtras(@NonNull final T base) {
         T copy = super.copyExtras(base);
         copy.withShootSpark(shootSpark);
@@ -161,24 +192,28 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
             return Codec.FLOAT.fieldOf("spread").forGetter(AbstractHitscanAttack::getSpread);
         }
 
+        protected RecordCodecBuilder<M, Integer> overheat() {
+            return Codec.INT.fieldOf("overheat").forGetter(AbstractHitscanAttack::getOverheat);
+        }
+
         protected RecordCodecBuilder<M, JParticleType> shootSpark() {
             return JParticleType.CODEC.optionalFieldOf("shootSpark", JParticleType.FLASH)
                     .forGetter(AbstractHitscanAttack::getShootSpark);
         }
 
-        protected Products.P14<RecordCodecBuilder.Mu<M>, BaseMoveExtras, AttackMoveExtras, Integer, Integer, Integer, Float,
-                Float, Integer, Float, Float, Float, Float, Float, JParticleType>
+        protected Products.P15<RecordCodecBuilder.Mu<M>, BaseMoveExtras, AttackMoveExtras, Integer, Integer, Integer, Float,
+                Float, Integer, Float, Float, Float, Float, Float, Integer, JParticleType>
         hitscanDefault(RecordCodecBuilder.Instance<M> instance) {
             return instance.group(extras(), attackExtras(), cooldown(), windup(), duration(), moveDistance(), damage(), stun(),
-                    knockback(), range(), hardness(), breakChance(), spread(), shootSpark());
+                    knockback(), range(), hardness(), breakChance(), spread(), overheat(), shootSpark());
         }
 
-        protected App<RecordCodecBuilder.Mu<M>, M> hitscanDefault(RecordCodecBuilder.Instance<M> instance, Function11<Integer, Integer, Integer, Float,
-                                                                Float, Integer, Float, Float, Float, Float, Float, M> function) {
+        protected App<RecordCodecBuilder.Mu<M>, M> hitscanDefault(RecordCodecBuilder.Instance<M> instance, Function12<Integer, Integer, Integer, Float,
+                                                                        Float, Integer, Float, Float, Float, Float, Float, Integer, M> function) {
             return hitscanDefault(instance).apply(instance, applyAttackExtras((cooldown, windup, duration,
                                                              moveDistance, damage, stun, knockback, range, hardness,
-                                                             breakChance, spread, shootSpark) -> {
-                M move = function.apply(cooldown, windup, duration, moveDistance, damage, stun, knockback, range, hardness, breakChance, spread);
+                                                             breakChance, spread, overheat, shootSpark) -> {
+                M move = function.apply(cooldown, windup, duration, moveDistance, damage, stun, knockback, range, hardness, breakChance, spread, overheat);
                 move.withShootSpark(shootSpark);
                 return move;
             }));

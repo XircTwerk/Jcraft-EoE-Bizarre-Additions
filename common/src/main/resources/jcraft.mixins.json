@@ -32,7 +32,6 @@
     "client.ModelBakeryMixin",
     "client.ParticleAccessor",
     "client.ParticleManagerMixin",
-    "client.PlayerModelAccessor",
     "client.RenderTargetMixin",
     "client.TextureManagerMixin",
     "client.gravity.BiomeEffectSoundPlayerMixin",

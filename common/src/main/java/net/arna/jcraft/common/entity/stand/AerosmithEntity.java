@@ -97,7 +97,7 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
     public void tick() {
         super.tick();
         if (!(getCurrentMove() instanceof MuzzleHitscanAttack) && ++overheatTick % 5 == 0) {
-            addOverheat(-0.2f);
+            addOverheat(-0.4f);
         }
     }
 

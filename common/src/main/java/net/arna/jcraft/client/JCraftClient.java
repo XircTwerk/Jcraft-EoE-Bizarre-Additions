@@ -377,6 +377,7 @@ public class JCraftClient {
         ParticleProviderRegistry.register(JParticleTypeRegistry.DAMAGE_NUMBER, DamageNumberParticle.Factory::new);
         DamageIndicatorManager.setDamageNumberParticle(JParticleTypeRegistry.DAMAGE_NUMBER.get());
         ParticleProviderRegistry.register(JParticleTypeRegistry.HAMON_SPARK, provider -> new HitsparkParticle.Factory(provider, 0.2f, 6));
+        ParticleProviderRegistry.register(JParticleTypeRegistry.LEMON, LemonParticle.Factory::new);
         ParticleProviderRegistry.register(JParticleTypeRegistry.METALLICA_MOSH_1, MoshParticle.Factory::new);
         ParticleProviderRegistry.register(JParticleTypeRegistry.METALLICA_MOSH_2, MoshParticle.Factory::new);
         ParticleProviderRegistry.register(JParticleTypeRegistry.METALLICA_MOSH_3, MoshParticle.Factory::new);

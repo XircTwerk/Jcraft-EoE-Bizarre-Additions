@@ -30,7 +30,7 @@ public class MuzzleHitscanAttack extends AbstractHitscanAttack<MuzzleHitscanAtta
 
     @Override
     public @NonNull Set<LivingEntity> perform(final AerosmithEntity attacker, final LivingEntity user) {
-        attacker.addOverheat(2f);
+        attacker.addOverheat(0.225f);
         withBreakChance(Mth.clamp(originalBreakChance - attacker.getOverheat() / 100, 0f, 1f));
         withSpread(Mth.clamp(originalSpread + attacker.getOverheat() / 100, 0f, HALF_PI));
         final Set<LivingEntity> targets = super.perform(attacker, user);

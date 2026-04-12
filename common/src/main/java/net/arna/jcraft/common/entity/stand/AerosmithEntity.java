@@ -39,10 +39,10 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
 
     // TODO Arna balance this
     public static final MuzzleHitscanAttack BULLET = new MuzzleHitscanAttack(
-            1, 1, 2, 0f, 1f, 0, 0f, 30f, 10f, 1/6f, 0.05f)
+            1, 1, 2, 0f, 1f, 0, 0f, 30f, 10f, 1/6f, 0.01f)
             .withSound(JSoundRegistry.BULLET_PENETRATE) // TODO record improve
             .withHitSpark(JParticleType.HIT_SPARK_2) // TODO record improve
-            .withShootSpark(JParticleType.HIT_SPARK_1) // TODO record improve
+            .withShootSpark(JParticleType.LEMON) // TODO record improve
             .withStunType(StunType.WINDED);
     // TODO Arna description
 
@@ -60,8 +60,8 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
             .info(StandInfo.builder()
                     .name(Component.translatable("entity.jcraft.aerosmith"))
                     .skinName(Component.literal("Manga"))
-                    .skinName(Component.literal("Vento Auero"))
-                    .skinName(Component.literal("Fire"))
+                    .skinName(Component.literal("Vento Aureo"))
+                    .skinName(Component.literal("Interceptor"))
                     .build())
             .build();
 
@@ -94,8 +94,8 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
     @Override
     public void tick() {
         super.tick();
-        if (++overheatTick % 5 == 0) {
-            addOverheat(-1f);
+        if (!(getCurrentMove() instanceof MuzzleHitscanAttack) && ++overheatTick % 5 == 0) {
+            addOverheat(-0.2f);
         }
     }
 

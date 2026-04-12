@@ -35,6 +35,7 @@ public interface JParticleTypeRegistry {
     RegistrySupplier<SimpleParticleType> PURPLE_HAZE_PARTICLE = PARTICLES.register("purple_haze_particle", () -> new SimpleParticleType(false));
     RegistrySupplier<SimpleParticleType> DAMAGE_NUMBER = PARTICLES.register("damage_number", () -> new SimpleParticleType(false));
     RegistrySupplier<SimpleParticleType> HAMON_SPARK = PARTICLES.register("hamon_spark", () -> new SimpleParticleType(false));
+    RegistrySupplier<SimpleParticleType> LEMON = PARTICLES.register("lemon", () -> new SimpleParticleType(false));
 
     // Metallica mosh
     RegistrySupplier<SimpleParticleType> METALLICA_MOSH_1 = PARTICLES.register("metallica_mosh_1", () -> new SimpleParticleType(false));

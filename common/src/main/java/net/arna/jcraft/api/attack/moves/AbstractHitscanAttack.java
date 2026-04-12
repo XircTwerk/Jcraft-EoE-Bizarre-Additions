@@ -94,7 +94,7 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
         final HitResult goal = JUtils.raycastAll(user, userEyePos, userEyePos.add(rotVec.scale(getRange())), ClipContext.Fluid.NONE, EntitySelector.LIVING_ENTITY_STILL_ALIVE.and(EntitySelector.NO_SPECTATORS));
         final Vec3 goalLocation = goal.getLocation().add(rotVec);
         final Vec3 attackerEyePos = attacker.getBaseEntity().position().add(GravityChangerAPI.getEyeOffset(attacker.getBaseEntity()));
-        final Vec3 attackVector = attackerEyePos.scale(-1d).add(goalLocation)
+        final Vec3 attackVector = goalLocation.subtract(attackerEyePos)
                 .xRot((float)random.nextGaussian() * spread)
                 .yRot((float)random.nextGaussian() * spread)
                 .zRot((float)random.nextGaussian() * spread);
@@ -124,8 +124,7 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
             }
         }
         // create particles
-        final Vec3 velocity = attackVector.scale(0.16);
-        JCraft.createHitscanTraceParticle((ServerLevel)user.level(), attackerEyePos, velocity, shootSpark);
+        JCraft.createHitscanTraceParticle((ServerLevel)user.level(), hitscanTraceParticleOrigin(attacker), hitscanTraceParticleVelocity(attacker, hitResult.getLocation()), shootSpark);
         // TODO Arna add hit/block particles?
         if (hitResult.getType() != HitResult.Type.MISS) {
             JCraft.createParticle((ServerLevel)user.level(),
@@ -135,6 +134,14 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
                     hitSpark);
         }
         return Set.of();
+    }
+
+    protected Vec3 hitscanTraceParticleOrigin(final A attacker) {
+        return attacker.getBaseEntity().getEyePosition();
+    }
+
+    protected Vec3 hitscanTraceParticleVelocity(final A attacker, final Vec3 goal) {
+        return goal.subtract(attacker.getBaseEntity().getEyePosition());
     }
 
     @Override

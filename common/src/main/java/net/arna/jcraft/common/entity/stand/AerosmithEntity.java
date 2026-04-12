@@ -42,7 +42,7 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
     public static final MuzzleHitscanAttack BULLET = new MuzzleHitscanAttack(
             1, 1, 2, 0f, 1f, 0, 0f, 30f, 10f, 1/6f, 0.01f)
             .withSound(JSoundRegistry.AS_SHOOT)
-            .withHitSpark(JParticleType.HIT_SPARK_2)
+            .withHitSpark(JParticleType.HIT_SPARK_1)
             .withShootSpark(JParticleType.LEMON)
             .withStunType(StunType.WINDED);
     // TODO Arna description

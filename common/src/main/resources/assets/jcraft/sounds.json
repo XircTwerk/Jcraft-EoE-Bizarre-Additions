@@ -1235,11 +1235,11 @@
   },
   "asshoot": {
     "sounds": [
-      "jcraft:generic/asshoot1",
-      "jcraft:generic/asshoot2",
-      "jcraft:generic/asshoot3",
-      "jcraft:generic/asshoot4",
-      "jcraft:generic/asshoot5"
+      "jcraft:stands/aerosmith/burst1",
+      "jcraft:stands/aerosmith/burst2",
+      "jcraft:stands/aerosmith/burst3",
+      "jcraft:stands/aerosmith/burst4",
+      "jcraft:stands/aerosmith/burst5"
     ]
   },
   "assummon": {

@@ -1232,5 +1232,20 @@
       "jcraft:generic/jangle3",
       "jcraft:generic/jangle4"
     ]
+  },
+  "asshoot": {
+    "sounds": [
+      "jcraft:generic/asshoot1",
+      "jcraft:generic/asshoot2",
+      "jcraft:generic/asshoot3",
+      "jcraft:generic/asshoot4",
+      "jcraft:generic/asshoot5",
+      "jcraft:generic/asshoot6",
+      "jcraft:generic/asshoot7",
+      "jcraft:generic/asshoot8",
+      "jcraft:generic/asshoot9",
+      "jcraft:generic/asshoot10",
+      "jcraft:generic/asshoot11"
+    ]
   }
 }

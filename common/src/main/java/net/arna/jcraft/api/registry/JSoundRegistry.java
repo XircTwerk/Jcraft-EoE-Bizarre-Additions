@@ -40,6 +40,7 @@ public interface JSoundRegistry {
     RegistrySupplier<SoundEvent> COIN_TOSS = register("cointoss");
     RegistrySupplier<SoundEvent> TOSS = register("throw");
     RegistrySupplier<SoundEvent> JANGLE = register("jangle");
+    RegistrySupplier<SoundEvent> AS_SHOOT = register("asshoot");
 
     // Star Platinum
     RegistrySupplier<SoundEvent> STAR_PLATINUM_SUMMON = register("spsummon");

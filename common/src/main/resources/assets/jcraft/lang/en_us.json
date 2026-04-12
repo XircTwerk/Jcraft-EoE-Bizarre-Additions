@@ -1259,7 +1259,7 @@
   "jcraft.serverconfig.option.standArrowSpawnRate": "Stand Arrow Spawn Rate",
   "jcraft.serverconfig.option.standDamageMultiplier": "Stand Damage Multiplier",
   "jcraft.serverconfig.option.standGriefing": "Stand Griefing",
-  "jcraft.serverconfig.option.standUserSight": "Stand User Sight",
+  "jcraft.serverconfig.option.standUserSight": "Only Stand Users See Stands",
   "jcraft.serverconfig.option.stwTimeStopDuration": "Shadow The World Timestop Duration",
   "jcraft.serverconfig.option.survivalCDC": "Enable Cooldown Cancel in Survival",
   "jcraft.serverconfig.option.timeSkipUseUtil": "Time Skip uses Util",

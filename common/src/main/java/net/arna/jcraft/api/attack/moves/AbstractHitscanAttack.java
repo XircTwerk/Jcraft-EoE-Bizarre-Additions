@@ -124,7 +124,7 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
             }
         }
         // create particles
-        final Vec3 velocity = attackVector.scale(0.5);
+        final Vec3 velocity = attackVector.scale(0.2);
         JCraft.createHitscanTraceParticle((ServerLevel)user.level(), attackerEyePos, velocity, shootSpark);
         // TODO Arna add hit/block particles?
         if (hitResult.getType() != HitResult.Type.MISS) {

@@ -15,6 +15,7 @@ import net.arna.jcraft.api.registry.JStandTypeRegistry;
 import net.arna.jcraft.api.stand.StandData;
 import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.api.stand.StandInfo;
+import net.arna.jcraft.api.stand.SummonData;
 import net.arna.jcraft.common.attack.moves.aerosmith.BombDropAttack;
 import net.arna.jcraft.common.attack.moves.aerosmith.MuzzleHitscanAttack;
 import net.arna.jcraft.common.attack.moves.aerosmith.PatrolMove;
@@ -63,6 +64,7 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
                     .skinName(Component.literal("Vento Aureo"))
                     .skinName(Component.literal("Interceptor"))
                     .build())
+            .summonData(SummonData.of(JSoundRegistry.AS_SUMMON).withAnimDuration(48))
             .build();
 
     private CommonMiscComponent miscComponent;

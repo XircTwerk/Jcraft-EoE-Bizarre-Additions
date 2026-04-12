@@ -1247,5 +1247,10 @@
       "jcraft:generic/asshoot10",
       "jcraft:generic/asshoot11"
     ]
+  },
+  "assummon": {
+    "sounds": [
+      "jcraft:stands/aerosmith/summon"
+    ]
   }
 }

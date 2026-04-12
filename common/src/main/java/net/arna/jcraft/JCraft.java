@@ -483,6 +483,24 @@ public final class JCraft {
         ServerChannelFeedbackPacket.send(JUtils.around(world, new Vec3(x, y, z), 128), buf);
     }
 
+    public static void createHitscanTraceParticle(ServerLevel world, Vec3 start, Vec3 velocity, JParticleType type) {
+        if (world == null || type == null) {
+            return;
+        }
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+
+        buf.writeShort(14);
+        buf.writeDouble(start.x());
+        buf.writeDouble(start.y());
+        buf.writeDouble(start.z());
+        buf.writeDouble(velocity.x());
+        buf.writeDouble(velocity.y());
+        buf.writeDouble(velocity.z());
+        buf.writeEnum(type);
+
+        ServerChannelFeedbackPacket.send(JUtils.around(world, start, 128), buf);
+    }
+
     public static void tryPushBlock(final ServerLevel world, final LivingEntity user, final @NonNull StandEntity<?, ?> stand) {
         if (pushblockCooldowns.getOrDefault(user, -1) > 0) {
             return;

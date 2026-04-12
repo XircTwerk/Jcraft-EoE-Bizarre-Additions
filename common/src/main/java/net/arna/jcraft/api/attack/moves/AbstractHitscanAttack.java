@@ -44,7 +44,7 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
     private float hardness;
     private float breakChance;
     private float spread;
-    private @NonNull JParticleType shootSpark = JParticleType.FLASH; // TODO record improve (default for hitscan)
+    private @NonNull JParticleType shootSpark = JParticleType.LEMON;
 
     protected AbstractHitscanAttack(final int cooldown, final int windup, final int duration, final float moveDistance, final float damage,
                                     final int stun, final float knockback,
@@ -124,8 +124,8 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
             }
         }
         // create particles
-        Vec3 shootParticleLoc = attackerEyePos.add(attackVector.scale(0.5 + random.nextDouble() * 0.3));
-        JCraft.createParticle((ServerLevel)user.level(), shootParticleLoc.x(), shootParticleLoc.y(), shootParticleLoc.z(), shootSpark);
+        final Vec3 velocity = attackVector.scale(0.5);
+        JCraft.createHitscanTraceParticle((ServerLevel)user.level(), attackerEyePos, velocity, shootSpark);
         // TODO Arna add hit/block particles?
         if (hitResult.getType() != HitResult.Type.MISS) {
             JCraft.createParticle((ServerLevel)user.level(),

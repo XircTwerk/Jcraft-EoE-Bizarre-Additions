@@ -135,6 +135,12 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
         setOverheat(Mth.clamp(entityData.get(OVERHEAT) + amount, 0f, OVERHEAT_MAX));
     }
 
+    @Override
+    public void setRemote(final boolean r) {
+        super.setRemote(r);
+        setAlphaOverride(r ? 1f : -1f);
+    }
+
     public enum State implements StandAnimationState<AerosmithEntity> {
         IDLE(AzCommand.create(JCraft.BASE_CONTROLLER, "idle", AzPlayBehaviors.LOOP)),
         LIGHT(AzCommand.create(JCraft.BASE_CONTROLLER, "light", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),

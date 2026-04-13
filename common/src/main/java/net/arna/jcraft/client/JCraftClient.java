@@ -11,8 +11,11 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import lombok.Getter;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
+import mod.azure.azurelib.render.armor.AzArmorRendererRegistry;
 import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.pose.PoseModifiers;
+import net.arna.jcraft.api.registry.JItemRegistry;
+import net.arna.jcraft.client.renderer.armor.ArmorRenderer;
 import net.arna.jcraft.client.rendering.DamageIndicatorManager;
 import net.arna.jcraft.client.particle.DamageNumberParticle;
 import net.arna.jcraft.client.rendering.StandUserPoseLoader;
@@ -103,8 +106,8 @@ public class JCraftClient {
         JCraftAbilityHud.init();
         PoseModifiers.register();
 
-//        AzArmorRendererRegistry.register(() -> new ArmorRenderer(() -> new ArmorAnimator("stone_mask"), "stone_mask"), JCItemRegistry.STONE_MASK.get());
-//        initCosplay(JItemRegistry.RED_HAT, ArmorRenderer.simple("red_hat"));
+        AzArmorRendererRegistry.register(ArmorRenderer.simple("stone_mask"), JItemRegistry.STONE_MASK.get());
+        AzArmorRendererRegistry.register(ArmorRenderer.simple("red_hat"), JItemRegistry.RED_HAT.get());
 
         SpecialParticleShaderHandler.INSTANCE.init();
         ZaWarudoShaderHandler.INSTANCE.init();
@@ -113,7 +116,6 @@ public class JCraftClient {
         MandomRewindShaderHandler.INSTANCE.init();
 
         // Renderer registration
-        // JArmorRendererRegistry.registerArmorRenderers();
 
         ClientPacketHandler.init();
 

@@ -70,6 +70,7 @@ public class TonpettyEntity extends HamonSpecUser {
                 final CommonHamonComponent hamon = JComponentPlatformUtils.getHamon(player);
                 if (JUtils.hasAdvancement(sp, Hamon6Trigger.ID)) {
                     player.sendSystemMessage(Component.translatable("dialogue.tonpetty.master"));
+                    hamon.setActiveLesson(0);
                 }
                 else if (JUtils.hasAdvancement(sp, Hamon5Trigger.ID)) {
                     player.sendSystemMessage(Component.translatable("dialogue.tonpetty.hamon6"));

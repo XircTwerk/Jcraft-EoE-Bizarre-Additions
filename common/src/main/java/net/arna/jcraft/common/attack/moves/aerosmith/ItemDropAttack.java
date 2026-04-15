@@ -19,6 +19,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
@@ -57,7 +58,9 @@ public class ItemDropAttack extends AbstractMove<ItemDropAttack, AerosmithEntity
             return Set.of();
         }
         attacker.setHoldItem(itemStack.copyWithCount(1));
-        itemStack.setCount(itemStack.getCount()-1);
+        if (!(user instanceof Player player) || !player.isCreative()) {
+            itemStack.setCount(itemStack.getCount() - 1);
+        }
         final Vec3 userEyePos = user.position().add(GravityChangerAPI.getEyeOffset(user));
         final Vec3 rotVec = user.getLookAngle();
         final HitResult goal = JUtils.raycastAll(user, userEyePos, userEyePos.add(rotVec.scale(getRange())), ClipContext.Fluid.NONE, EntitySelector.LIVING_ENTITY_STILL_ALIVE.and(EntitySelector.NO_SPECTATORS));

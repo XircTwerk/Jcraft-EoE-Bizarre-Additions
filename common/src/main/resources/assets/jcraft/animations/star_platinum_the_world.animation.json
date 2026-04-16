@@ -10249,8 +10249,8 @@
 	},
     "includes": [
       {
-        "file_id": "jcraft:star_platinum.animation.json",
-        "animations": ["animation.star_platinum.itemthrow_charge", "animation.star_platinum.itemthrow"]
+        "file_id": "jcraft:base_stand.animation.json",
+        "animations": ["itemthrow_charge", "itemthrow"]
       }
     ],
 	"azurelib_format_version": 2

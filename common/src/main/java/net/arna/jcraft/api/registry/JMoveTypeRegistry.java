@@ -195,8 +195,6 @@ public interface JMoveTypeRegistry {
     RegistrySupplier<MoveType<?>> SHARED_TIME_SKIP_MOVE = register("shared_time_skip_move", TimeSkipMove.Type.INSTANCE);
     RegistrySupplier<MoveType<?>> SHARED_TIME_STOP_MOVE = register("shared_time_stop_move", TimeStopMove.Type.INSTANCE);
     RegistrySupplier<MoveType<?>> SHARED_RESTORATION_ATTACK = register("shared_restoration_attack", RestorationAttack.Type.INSTANCE);
-    RegistrySupplier<MoveType<?>> SHARED_STANDBY_ON_MOVE = register("shared_standby_on_move", StandbyActivationMove.Type.INSTANCE);
-    RegistrySupplier<MoveType<?>> SHARED_STANDBY_OFF_MOVE = register("shared_standby_off_move", StandbyDeactivationMove.Type.INSTANCE);
     RegistrySupplier<MoveType<?>> SHARED_TOSS_CHARGE_MOVE = register("shared_toss_charge_move", TossChargeMove.Type.INSTANCE);
     RegistrySupplier<MoveType<?>> SHARED_TOSS_MOVE = register("shared_toss_move", TossMove.Type.INSTANCE);
     RegistrySupplier<MoveType<?>> SHARED_SIMPLE_HITSCAN_ATTACK = register("shared_simple_hitscan_attack", SimpleHitscanAttack.Type.INSTANCE);

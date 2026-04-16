@@ -192,15 +192,8 @@ public final class StarPlatinumEntity extends AbstractStarPlatinumEntity<StarPla
                     Component.translatable("jcraft.starplatinum.sp3"),
                     Component.literal("Fast combo starter/extender, medium stun, extremely punishable on whiff.")
             );
-    // TODO add move info x2
-    // TODO balance x2
-    public static final StandbyActivationMove<StarPlatinumEntity> STANDBY_ON = new StandbyActivationMove<>(0, 1, 1, 0.75f)
-            ;
-    public static final StandbyDeactivationMove<StarPlatinumEntity> STANDBY_OFF = new StandbyDeactivationMove<>(0, 1, 1, -0.75f)
-            ;
     public static final JumpMove<StarPlatinumEntity> JUMP = new JumpMove<StarPlatinumEntity>(300, 5,
             14, 1f, 1.5f)
-            .withCrouchingVariant(STANDBY_ON)
             .withInfo(
                     Component.translatable("jcraft.starplatinum.util"),
                     Component.literal("Jumps in looked direction with slight upward bias, you must stay on the ground until Star Platinum jumps.")
@@ -241,7 +234,6 @@ public final class StarPlatinumEntity extends AbstractStarPlatinumEntity<StarPla
 
         moves.register(MoveClass.UTILITY, JUMP, State.JUMP).withCrouchingVariant(State.IDLE);
 
-        moves.register(MoveClass.STANDBY_OFF, STANDBY_OFF, State.IDLE);
         moves.register(MoveClass.TOSS, TOSS_CHARGE, State.ITEM_TOSS_CHARGE).withFollowup(State.ITEM_TOSS);
     }
 

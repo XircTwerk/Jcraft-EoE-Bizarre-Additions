@@ -227,7 +227,7 @@ public class ItemTossProjectile extends AbstractArrow {
             if (itemStand != null && !JCraft.getExclusiveStandsData().isStandUsed(itemStand)) {
                 final CommonStandComponent standData = JComponentPlatformUtils.getStandComponent(livingEntity);
                 if (standData.getType() == null) { // don't override current stand
-                    standData.setTypeAndSkin(itemStand, itemSkin);
+                    standData.setTypeAndSkin(itemStand, itemSkin, false);
                     JCraft.summon(level(), livingEntity);
                 }
                 effectActivated = true;

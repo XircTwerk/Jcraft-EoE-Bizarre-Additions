@@ -34,7 +34,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin extends EntityMixin implements IJCraftComboTracker {
+public abstract class LivingEntityMixin implements IJCraftComboTracker {
     @Shadow protected int lastHurtByPlayerTime;
     @Shadow @Nullable protected Player lastHurtByPlayer;
     // Damage scaling
@@ -233,7 +233,7 @@ public abstract class LivingEntityMixin extends EntityMixin implements IJCraftCo
         }
     }
 
-    @Override
+    @Inject(method = "canStandOnFluid(Lnet/minecraft/world/level/material/FluidState;)Z", at = @At("RETURN"), cancellable = true)
     protected void jcraft$walkOnLiquid(final CallbackInfoReturnable<Boolean> cir) {
         if (!cir.getReturnValueZ()) {
             final LivingEntity living = (LivingEntity)(Object)this;

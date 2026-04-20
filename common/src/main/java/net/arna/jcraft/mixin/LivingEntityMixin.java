@@ -13,6 +13,7 @@ import net.arna.jcraft.common.entity.stand.KingCrimsonEntity;
 import net.arna.jcraft.common.network.s2c.IPSTriggeredPacket;
 import net.arna.jcraft.common.util.IJCraftComboTracker;
 import net.arna.jcraft.common.util.JUtils;
+import net.arna.jcraft.mixin_logic.LivingEntityMixinLogic;
 import net.arna.jcraft.platform.JComponentPlatformUtils;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -33,7 +34,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin implements IJCraftComboTracker {
+public abstract class LivingEntityMixin extends EntityMixin implements IJCraftComboTracker {
     @Shadow protected int lastHurtByPlayerTime;
     @Shadow @Nullable protected Player lastHurtByPlayer;
     // Damage scaling
@@ -229,6 +230,14 @@ public abstract class LivingEntityMixin implements IJCraftComboTracker {
         LivingEntity living = (LivingEntity) (Object) this;
         if (JComponentPlatformUtils.getMiscData(living).getMaster() != null) {
             ci.cancel();
+        }
+    }
+
+    @Override
+    protected void jcraft$walkOnLiquid(final CallbackInfoReturnable<Boolean> cir) {
+        if (!cir.getReturnValueZ()) {
+            final LivingEntity living = (LivingEntity)(Object)this;
+            cir.setReturnValue(LivingEntityMixinLogic.canWalkOnLiquid(living.level(), living));
         }
     }
 }

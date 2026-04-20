@@ -1,11 +1,16 @@
 package net.arna.jcraft.mixin_logic;
 
+import lombok.NonNull;
+import net.arna.jcraft.api.registry.JStatusRegistry;
+import net.arna.jcraft.common.effects.AbstractFluidWalkingEffect;
 import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
 import net.arna.jcraft.common.gravity.util.RotationUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 
 public class LivingEntityMixinLogic {
@@ -45,4 +50,18 @@ public class LivingEntityMixinLogic {
 
         return eyePos;
     }
+
+    public static boolean canWalkOnLiquid(final @NonNull Level level, final @NonNull LivingEntity living) {
+        final FluidState state = level.getFluidState(living.blockPosition().below());
+        AbstractFluidWalkingEffect[] walkingEffects = new AbstractFluidWalkingEffect[] {
+                JStatusRegistry.WATER_WALKING.get()
+        };
+        for (AbstractFluidWalkingEffect walkingEffect : walkingEffects) {
+            if (living.hasEffect(walkingEffect) && !state.isEmpty() && walkingEffect.supports(state.getType())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

@@ -10,6 +10,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 
@@ -52,13 +53,22 @@ public class LivingEntityMixinLogic {
     }
 
     public static boolean canWalkOnLiquid(final @NonNull Level level, final @NonNull LivingEntity living) {
-        final FluidState state = level.getFluidState(living.blockPosition().below());
-        AbstractFluidWalkingEffect[] walkingEffects = new AbstractFluidWalkingEffect[] {
-                JStatusRegistry.WATER_WALKING.get()
+        final BlockPos below = living.blockPosition().below();
+        final BlockPos[] toCheck = new BlockPos[] {
+                below//, below.east(), below.east().south(), below.south(), below.west().south(), below.west(), below.west().north(), below.north(), below.east().north()
         };
-        for (AbstractFluidWalkingEffect walkingEffect : walkingEffects) {
-            if (living.hasEffect(walkingEffect) && !state.isEmpty() && walkingEffect.supports(state.getType())) {
-                return true;
+        if (!level.getFluidState(living.blockPosition().above()).isEmpty()) {
+            return false;
+        }
+        for (BlockPos pos : toCheck) {
+            final FluidState state = level.getFluidState(living.blockPosition().below());
+            AbstractFluidWalkingEffect[] walkingEffects = new AbstractFluidWalkingEffect[]{
+                    JStatusRegistry.WATER_WALKING.get()
+            };
+            for (AbstractFluidWalkingEffect walkingEffect : walkingEffects) {
+                if (living.hasEffect(walkingEffect) && !state.isEmpty() && walkingEffect.supports(state.getType())) {
+                    return true;
+                }
             }
         }
         return false;

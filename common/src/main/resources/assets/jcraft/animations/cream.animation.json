@@ -502,7 +502,7 @@
 				}
 			}
 		},
-		"animation.cream.summon": {
+		"summon": {
 			"loop": "once",
 			"animation_length": 1,
 			"bones": {

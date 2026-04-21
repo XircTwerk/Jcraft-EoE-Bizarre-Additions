@@ -782,7 +782,7 @@
 				}
 			}
 		},
-		"animation.kqbtd.summon": {
+		"summon": {
 			"loop": "once",
 			"animation_length": 1.12,
 			"bones": {

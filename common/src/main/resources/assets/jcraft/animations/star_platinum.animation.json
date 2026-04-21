@@ -318,7 +318,7 @@
 						}
 					}
 				},
-				"star_finger": {
+				"prop": {
 					"scale": {
 						"0.0": {
 							"vector": [0.6, 0, 0],
@@ -904,7 +904,7 @@
 						}
 					}
 				},
-				"star_finger": {
+				"prop": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -1564,7 +1564,7 @@
 						}
 					}
 				},
-				"star_finger": {
+				"prop": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -2114,7 +2114,7 @@
 						}
 					}
 				},
-				"star_finger": {
+				"prop": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -2618,7 +2618,7 @@
 						}
 					}
 				},
-				"star_finger": {
+				"prop": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -3124,7 +3124,7 @@
 						}
 					}
 				},
-				"star_finger": {
+				"prop": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -4396,7 +4396,7 @@
 						}
 					}
 				},
-				"star_finger": {
+				"prop": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -6182,7 +6182,7 @@
 						}
 					}
 				},
-				"star_finger": {
+				"prop": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -6893,7 +6893,7 @@
 						}
 					}
 				},
-				"star_finger": {
+				"prop": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -7492,7 +7492,7 @@
 						}
 					}
 				},
-				"star_finger": {
+				"prop": {
 					"position": {
 						"0.0": {
 							"vector": [7, 0, -0.5],
@@ -8182,7 +8182,7 @@
 						}
 					}
 				},
-				"star_finger": {
+				"prop": {
 					"scale": {
 						"0.0": {
 							"vector": [0.6, 0, 0],
@@ -8918,7 +8918,7 @@
 						}
 					}
 				},
-				"star_finger": {
+				"prop": {
 					"scale": {
 						"0.0": {
 							"vector": [0.6, 0, 0],
@@ -9551,7 +9551,7 @@
 						}
 					}
 				},
-				"star_finger": {
+				"prop": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -10147,7 +10147,7 @@
 						}
 					}
 				},
-				"star_finger": {
+				"prop": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -10703,7 +10703,7 @@
 						}
 					}
 				},
-				"star_finger": {
+				"prop": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -11248,7 +11248,7 @@
 						}
 					}
 				},
-				"star_finger": {
+				"prop": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -11777,7 +11777,7 @@
 						}
 					}
 				},
-				"star_finger": {
+				"prop": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -12217,7 +12217,7 @@
 						}
 					}
 				},
-				"star_finger": {
+				"prop": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -12549,7 +12549,7 @@
 						"easing": "linear"
 					}
 				},
-				"star_finger": {
+				"prop": {
 					"scale": {
 						"0.0": {
 							"vector": [0, 0, 0],

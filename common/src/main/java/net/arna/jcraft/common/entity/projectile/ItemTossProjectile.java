@@ -244,8 +244,6 @@ public class ItemTossProjectile extends AbstractArrow {
 
         // TODO spec obtainment items
 
-        // TODO stand upgrade items
-
         // force feed
         if (entity instanceof LivingEntity livingEntity && getItem().isEdible()) {
             // FIXME Vampires can't be force-fed blood bottles

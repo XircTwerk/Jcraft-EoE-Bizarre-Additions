@@ -2,10 +2,7 @@ package net.arna.jcraft.client.renderer.entity.layer;
 
 import lombok.NonNull;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
-import net.arna.jcraft.api.attack.moves.AbstractMove;
 import net.arna.jcraft.client.renderer.entity.projectiles.RapierRenderer;
-import net.arna.jcraft.common.attack.moves.shared.TossChargeMove;
-import net.arna.jcraft.common.attack.moves.shared.TossMove;
 import net.arna.jcraft.common.entity.stand.SilverChariotEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -20,8 +17,7 @@ public class SCRapierLayer extends AbstractRenderLayer<SilverChariotEntity> {
     public void render(final @NonNull AzRendererPipelineContext<UUID, SilverChariotEntity> pc) {
         final SilverChariotEntity sc = pc.animatable();
 
-        final AbstractMove<?,?> currentMove = sc.getCurrentMove();
-        if (!sc.hasRapier() || currentMove instanceof TossMove || currentMove instanceof TossChargeMove) {
+        if (!sc.hasRapier()) {
             return;
         }
 

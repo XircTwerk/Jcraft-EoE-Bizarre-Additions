@@ -3,13 +3,13 @@ package net.arna.jcraft.common.entity.projectile;
 import com.mojang.datafixers.util.Pair;
 import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.component.living.CommonVampireComponent;
-import net.arna.jcraft.api.spec.SpecTypeUtil;
 import net.arna.jcraft.api.stand.StandType;
 import net.arna.jcraft.api.stand.StandTypeUtil;
 import net.arna.jcraft.api.component.living.CommonStandComponent;
 import net.arna.jcraft.common.entity.stand.AbstractKillerQueenEntity;
 import net.arna.jcraft.common.item.BloodBottleItem;
 import net.arna.jcraft.common.spec.VampireSpec;
+import net.arna.jcraft.common.util.JUtils;
 import net.arna.jcraft.platform.JComponentPlatformUtils;
 import net.arna.jcraft.api.registry.JEntityTypeRegistry;
 import net.arna.jcraft.api.registry.JItemRegistry;
@@ -164,7 +164,7 @@ public class ItemTossProjectile extends AbstractArrow {
     protected void onHitEntity(final EntityHitResult result) {
         // this part has been heavily inspired by AbstractArrow
         Entity entity = result.getEntity();
-        Entity entity2 = this.getOwner();
+        Entity entity2 = JUtils.getUserIfStand(this.getOwner());
         DamageSource damageSource;
         if (entity2 == null) {
             damageSource = this.damageSources().arrow(this, this);

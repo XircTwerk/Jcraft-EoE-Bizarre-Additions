@@ -3,6 +3,7 @@ package net.arna.jcraft.common.entity.projectile;
 import com.mojang.datafixers.util.Pair;
 import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.component.living.CommonVampireComponent;
+import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.api.stand.StandType;
 import net.arna.jcraft.api.stand.StandTypeUtil;
 import net.arna.jcraft.api.component.living.CommonStandComponent;
@@ -142,7 +143,8 @@ public class ItemTossProjectile extends AbstractArrow {
         if (!level().isClientSide && (getItem().is(JTagRegistry.EXPLODES_ON_IMPACT) ||
                 (getOwner() instanceof AbstractKillerQueenEntity<?,?>))) {
             final boolean grief = level().getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING);
-            level().explode(this, getX(), getY(), getZ(), 1, grief, Level.ExplosionInteraction.MOB);
+            final boolean standGrief = !(getOwner() instanceof StandEntity<?,?>) || level().getGameRules().getBoolean(JCraft.STAND_GRIEFING);
+            level().explode(this, getX(), getY(), getZ(), 1, grief && standGrief, Level.ExplosionInteraction.MOB);
             discard();
             return true;
         }
@@ -362,7 +364,8 @@ public class ItemTossProjectile extends AbstractArrow {
             if (item.is(JTagRegistry.BRITTLE) && hardness >= Blocks.STONE.defaultDestroyTime()) {
                 // brittle things get destroyed
             }
-            else if (InteractionResult.SUCCESS != block.place(new BlockPlaceContext(new UseOnContext(level(), null, InteractionHand.MAIN_HAND, item, result)))) {
+            else if ((!(getOwner() instanceof StandEntity<?,?>) || level().getGameRules().getBoolean(JCraft.STAND_GRIEFING)) &&
+                    InteractionResult.SUCCESS != block.place(new BlockPlaceContext(new UseOnContext(level(), null, InteractionHand.MAIN_HAND, item, result)))) {
                 dropItem(result.getLocation());
             }
         }

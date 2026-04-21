@@ -1,7 +1,7 @@
 {
 	"format_version": "1.8.0",
 	"animations": {
-		"summon": {
+		"animation.d4c.summon": {
 			"loop": "hold_on_last_frame",
 			"animation_length": 1,
 			"bones": {
@@ -4185,13 +4185,14 @@
 			}
 		}
 	},
-    "includes": [
-      {
-        "file_id": "jcraft:animations/base_stand.animation.json",
-        "animations": [
-          "itemthrow",
-          "itemthrow_charge"
-        ]
-      }
-    ]
+	"includes": [
+		{
+			"file_id": "jcraft:animations/base_stand.animation.json",
+			"animations": ["itemthrow"]
+		},
+		{
+			"file_id": "jcraft:animations/base_stand.animation.json",
+			"animations": ["itemthrow_charge"]
+		}
+	]
 }

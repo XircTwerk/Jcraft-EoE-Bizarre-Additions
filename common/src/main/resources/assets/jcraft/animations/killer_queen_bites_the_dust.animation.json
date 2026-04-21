@@ -782,7 +782,7 @@
 				}
 			}
 		},
-		"summon": {
+		"animation.kqbtd.summon": {
 			"loop": "once",
 			"animation_length": 1.12,
 			"bones": {
@@ -5168,13 +5168,14 @@
 			}
 		}
 	},
-    "includes": [
-      {
-        "file_id": "jcraft:animations/base_stand.animation.json",
-        "animations": [
-          "itemthrow",
-          "itemthrow_charge"
-        ]
-      }
-    ]
+	"includes": [
+		{
+			"file_id": "jcraft:animations/base_stand.animation.json",
+			"animations": ["itemthrow"]
+		},
+		{
+			"file_id": "jcraft:animations/base_stand.animation.json",
+			"animations": ["itemthrow_charge"]
+		}
+	]
 }

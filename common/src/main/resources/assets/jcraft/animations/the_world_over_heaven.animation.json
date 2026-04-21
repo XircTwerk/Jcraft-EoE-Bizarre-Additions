@@ -1,7 +1,7 @@
 {
 	"format_version": "1.8.0",
 	"animations": {
-		"summon": {
+		"animation.twoh.summon": {
 			"loop": "once",
 			"animation_length": 1.64,
 			"bones": {
@@ -5933,13 +5933,14 @@
 			}
 		}
 	},
-    "includes": [
-      {
-        "file_id": "jcraft:animations/base_stand.animation.json",
-        "animations": [
-          "itemthrow",
-          "itemthrow_charge"
-        ]
-      }
-    ]
+	"includes": [
+		{
+			"file_id": "jcraft:animations/base_stand.animation.json",
+			"animations": ["itemthrow"]
+		},
+		{
+			"file_id": "jcraft:animations/base_stand.animation.json",
+			"animations": ["itemthrow_charge"]
+		}
+	]
 }

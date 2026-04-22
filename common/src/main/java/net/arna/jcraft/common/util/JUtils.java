@@ -817,7 +817,7 @@ public final class JUtils {
         }
 
         else if (itemStack.getItem() instanceof TridentItem) {
-            final ThrownTrident thrownTrident = new ThrownTrident(level, shooter, itemStack);
+            final ThrownTrident thrownTrident = new ThrownTrident(level, getUserIfStand(shooter), itemStack);
             thrownTrident.shootFromRotation(shooter, shooter.getXRot(), shooter.getYRot(), 0f, velocity, 1f);
             level.addFreshEntity(thrownTrident);
         }

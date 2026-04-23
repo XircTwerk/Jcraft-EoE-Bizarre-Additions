@@ -960,4 +960,12 @@ public final class JUtils {
             player.sendSystemMessage(Component.translatable("info.jcraft.first_spec"));
         }
     }
+
+    /**
+     * @return Whether the player is 'mortal', i.e. vulnerable, not in creative or spectator.
+     */
+    public static boolean isMortal(@Nullable final ServerPlayer player) {
+        if (player == null) return false;
+        return !player.isSpectator() && !player.isCreative() && !player.isInvulnerable();
+    }
 }

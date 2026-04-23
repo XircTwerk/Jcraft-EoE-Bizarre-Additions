@@ -1,5 +1,6 @@
 package net.arna.jcraft.common.entity.stand;
 
+import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.NonNull;
 import mod.azure.azurelib.animation.dispatch.command.AzCommand;
 import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
@@ -16,10 +17,7 @@ import net.arna.jcraft.api.stand.StandData;
 import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.api.stand.StandInfo;
 import net.arna.jcraft.api.stand.SummonData;
-import net.arna.jcraft.common.attack.moves.aerosmith.BombDropAttack;
-import net.arna.jcraft.common.attack.moves.aerosmith.ItemDropAttack;
-import net.arna.jcraft.common.attack.moves.aerosmith.MuzzleHitscanAttack;
-import net.arna.jcraft.common.attack.moves.aerosmith.PatrolMove;
+import net.arna.jcraft.common.attack.moves.aerosmith.*;
 import net.arna.jcraft.common.util.JParticleType;
 import net.arna.jcraft.common.util.StandAnimationState;
 import net.arna.jcraft.platform.JComponentPlatformUtils;
@@ -33,6 +31,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntity.State> {
@@ -41,6 +40,9 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
 
     public static final EntityDataAccessor<Float> OVERHEAT = SynchedEntityData.defineId(AerosmithEntity.class, EntityDataSerializers.FLOAT);
     public static final float OVERHEAT_MAX = 15f;
+
+    public float oldPitch = 0.0f, oldYaw = 0.0f, oldRoll = 0.0f;
+    public float pitch = 0.0f, yaw = 0.0f, roll = 0.0f;
 
     // TODO Arna balance this
     public static final MuzzleHitscanAttack BULLET = new MuzzleHitscanAttack(
@@ -66,6 +68,18 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
     public static final PatrolMove<AerosmithEntity> PATROL = new PatrolMove<>(
             200, 1, 100, 0f, 30f, 10f, 0.5f);
     // TODO Arna description
+
+    public static final AerosmithChargeAttack CHARGE = new AerosmithChargeAttack(
+            300, 50, 1.0f, 15, 1.66f, 0.1f, 0.0f,
+            IntSet.of(10, 15, 20, 25, 30, 35, 40, 45, 50))
+            .withStaticY()
+            .withStunType(StunType.LAUNCH)
+            .withSound(JSoundRegistry.AS_SUMMON)
+            .withImpactSound(JSoundRegistry.IMPACT_1)
+            .withInfo(
+                    Component.literal("Dive Charge"),
+                    Component.literal("Non-remote: a straight charge, rising at the end. Carries enemies with Aerosmith.")
+            );
 
     public static final StandData DATA = StandData.builder()
             .info(StandInfo.builder()
@@ -105,6 +119,7 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
         moves.registerImmediate(MoveClass.LIGHT, BULLET, State.LIGHT);
         moves.registerImmediate(MoveClass.HEAVY, BOMB_DROP, State.ACTIVE);
         moves.registerImmediate(MoveClass.UTILITY, PATROL, State.ACTIVE);
+        moves.registerImmediate(MoveClass.BARRAGE, CHARGE, State.CHARGE);
     }
 
     @Override
@@ -113,6 +128,13 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
         if (!(getCurrentMove() instanceof MuzzleHitscanAttack) && ++overheatTick % 5 == 0) {
             addOverheat(-0.4f);
         }
+    }
+
+    @Override
+    protected void pushEntities() {
+        if (getState() == State.CHARGE) // slice through enemies while charging
+            return;
+        super.pushEntities();
     }
 
     @Override
@@ -165,9 +187,14 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
         super.desummon();
     }
 
+    public Vec3 getPureLookVector() {
+        return calculateViewVector(getXRot(), getYRot());
+    }
+
     public enum State implements StandAnimationState<AerosmithEntity> {
         IDLE(AzCommand.create(JCraft.BASE_CONTROLLER, "idle", AzPlayBehaviors.LOOP)),
         ACTIVE(AzCommand.create(JCraft.BASE_CONTROLLER, "idle", AzPlayBehaviors.LOOP)),
+        CHARGE(AzCommand.create(JCraft.BASE_CONTROLLER, "charge", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
         LIGHT(AzCommand.create(JCraft.BASE_CONTROLLER, "burst", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
         BLOCK(AzCommand.create(JCraft.BASE_CONTROLLER, "block", AzPlayBehaviors.LOOP))
         ;

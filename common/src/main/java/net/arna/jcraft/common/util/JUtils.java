@@ -22,6 +22,7 @@ import net.arna.jcraft.common.entity.projectile.ItemTossProjectile;
 import net.arna.jcraft.common.entity.projectile.KnifeProjectile;
 import net.arna.jcraft.common.entity.projectile.ScalpelProjectile;
 import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
+import net.arna.jcraft.common.gravity.util.RotationUtil;
 import net.arna.jcraft.common.item.KnifeBundleItem;
 import net.arna.jcraft.common.item.KnifeItem;
 import net.arna.jcraft.common.item.ScalpelItem;
@@ -967,5 +968,15 @@ public final class JUtils {
     public static boolean isMortal(@Nullable final ServerPlayer player) {
         if (player == null) return false;
         return !player.isSpectator() && !player.isCreative() && !player.isInvulnerable();
+    }
+
+    @NonNull
+    public static Vec3 getLocalUp(@NonNull final LivingEntity ent) {
+        return RotationUtil.vecPlayerToWorld(0, 1.0d, 0, GravityChangerAPI.getGravityDirection(ent));
+    }
+
+    @NonNull
+    public static Vec3 getLocalDown(@NonNull final LivingEntity ent) {
+        return RotationUtil.vecPlayerToWorld(0, -1.0d, 0, GravityChangerAPI.getGravityDirection(ent));
     }
 }

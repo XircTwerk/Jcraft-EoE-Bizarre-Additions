@@ -1,5 +1,6 @@
 package net.arna.jcraft.client.renderer.entity.stands;
 
+import com.mojang.math.Axis;
 import lombok.NonNull;
 import mod.azure.azurelib.render.AzLayerRenderer;
 import mod.azure.azurelib.render.AzRendererPipeline;
@@ -16,7 +17,9 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.UUID;
 
@@ -69,6 +72,13 @@ public class AerosmithRenderer {
 
         @Override
         public void render(@NonNull AzRendererPipelineContext<UUID, AerosmithEntity> ctx, boolean isReRender) {
+            final var animatable = ctx.animatable();
+            final var partialTick = ctx.partialTick();
+
+            if (StandEntityRenderer.getAlpha(animatable, partialTick) <= 0.0f) {
+                return;
+            }
+
             if (!isReRender) {
                 final var entity = ctx.animatable();
 
@@ -93,7 +103,60 @@ public class AerosmithRenderer {
                 }
             }
 
-            super.render(ctx, isReRender);
+            final var poseStack = ctx.poseStack();
+
+            poseStack.pushPose();
+            final float lerpBodyRot = getStandLerpRot(animatable, partialTick);
+            final float nativeScale = animatable.getScale();
+            final float ageInTicks = animatable.tickCount + partialTick;
+
+            poseStack.scale(nativeScale, nativeScale, nativeScale);
+
+            if (animatable.isRemote()) {
+                final Vec3 vel = animatable.getDeltaMovement();
+
+                final double horizontalDistance = Math.sqrt(vel.x * vel.x + vel.z * vel.z);
+                final float targetYaw = (float) (Math.atan2(-vel.x, vel.z) * (180D / Math.PI)) + 180.0f;
+                final float targetPitch = (float) (Math.atan2(-vel.y, horizontalDistance) * (180D / Math.PI));
+
+                final float lerpSpeed = 0.15f;
+
+                animatable.yaw = Mth.rotLerp(lerpSpeed, animatable.yaw, targetYaw);
+                animatable.pitch = Mth.rotLerp(lerpSpeed, animatable.pitch, targetPitch);
+
+                poseStack.mulPose(Axis.YN.rotationDegrees(Mth.rotLerp(partialTick, animatable.oldYaw, animatable.yaw)));
+                poseStack.mulPose(Axis.XN.rotationDegrees(Mth.rotLerp(partialTick, animatable.oldPitch, animatable.pitch)));
+                poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.rotLerp(partialTick, animatable.oldRoll, animatable.roll)));
+
+                animatable.oldPitch = animatable.pitch;
+                animatable.oldYaw = animatable.yaw;
+                animatable.oldRoll = animatable.roll;
+            } else {
+                applyRotations(animatable, poseStack, ageInTicks, lerpBodyRot, partialTick, nativeScale);
+            }
+
+            if (!isReRender) {
+                final var animator = entityRendererPipeline.getRenderer().getAnimator();
+
+                if (animator != null) {
+                    handleAnimation(animator, animatable, ctx.partialTick());
+                }
+            }
+
+            entityRendererPipeline.modelRenderTranslations.set(poseStack.last().pose());
+
+            if (ctx.vertexConsumer() != null) { // actually render
+                ctx.rendererPipeline().updateAnimatedTextureFrame(animatable);
+
+                for (var bone : ctx.bakedModel().getTopLevelBones()) {
+                    renderRecursively(ctx, bone, isReRender);
+                }
+
+                var config = ctx.rendererPipeline().config();
+                config.renderEntry(ctx);
+            }
+
+            poseStack.popPose();
         }
     }
 }

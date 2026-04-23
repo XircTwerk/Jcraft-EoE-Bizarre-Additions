@@ -8,6 +8,7 @@ import net.arna.jcraft.api.attack.MoveType;
 import net.arna.jcraft.api.attack.moves.AbstractMultiHitAttack;
 import net.arna.jcraft.common.entity.stand.AerosmithEntity;
 import net.arna.jcraft.common.util.JUtils;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
@@ -53,6 +54,7 @@ public class AerosmithChargeAttack extends AbstractMultiHitAttack<AerosmithCharg
             attacker.setRemote(true);
             attacker.setPos(pos.subtract(forward));
             attacker.setDeltaMovement(toPeak.normalize().scale(0.5));
+            attacker.setFlyState(AerosmithEntity.FlyState.RETURN);
         } else {
             // TODO: REMOTE AERO CHARGE
         }
@@ -84,6 +86,12 @@ public class AerosmithChargeAttack extends AbstractMultiHitAttack<AerosmithCharg
         else if (segment == Segment.RISE) {
             final var vel = attacker.getDeltaMovement();
             attacker.setDeltaMovement(vel.scale(0.95).add(up.scale(0.04)));
+
+            final double d = forward.x;
+            final double f = forward.z;
+            attacker.setXRot(89.0F);
+            attacker.setYRot(Mth.wrapDegrees((float)(Mth.atan2(f, d) * Mth.RAD_TO_DEG) - 90.0F));
+            attacker.setYHeadRot(attacker.getYRot());
         }
     }
 

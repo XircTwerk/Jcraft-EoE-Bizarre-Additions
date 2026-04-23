@@ -681,6 +681,8 @@
   "key.jcraft.standsummon": "Stand Summon",
   "key.jcraft.ultimate": "Ultimate",
   "key.jcraft.utility": "Utility",
+  "move.jcraft.aerosmith.default.dive_charge.description": "Non-remote: a straight charge, rising at the end. Carries enemies with Aerosmith.",
+  "move.jcraft.aerosmith.default.dive_charge.name": "Dive Charge",
   "move.jcraft.anubis.default.aerial_cleave.air.description": "interruptible faster recovery",
   "move.jcraft.anubis.default.aerial_cleave.air.name": "Aerial Cleave",
   "move.jcraft.anubis.default.cleaving_strikes_2_hits.name": "Cleaving Strikes (2 Hits)",

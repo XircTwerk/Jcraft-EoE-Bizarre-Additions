@@ -1,7 +1,9 @@
 package net.arna.jcraft.common.entity.stand;
 
 import it.unimi.dsi.fastutil.ints.IntSet;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import mod.azure.azurelib.animation.dispatch.command.AzCommand;
 import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
 import net.arna.jcraft.JCraft;
@@ -10,6 +12,7 @@ import net.arna.jcraft.api.attack.MoveSet;
 import net.arna.jcraft.api.attack.MoveSetManager;
 import net.arna.jcraft.api.attack.enums.MoveClass;
 import net.arna.jcraft.api.attack.enums.StunType;
+import net.arna.jcraft.api.attack.moves.AbstractMove;
 import net.arna.jcraft.api.component.living.CommonMiscComponent;
 import net.arna.jcraft.api.registry.JSoundRegistry;
 import net.arna.jcraft.api.registry.JStandTypeRegistry;
@@ -32,6 +35,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntity.State> {
@@ -41,6 +45,16 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
     public static final EntityDataAccessor<Float> OVERHEAT = SynchedEntityData.defineId(AerosmithEntity.class, EntityDataSerializers.FLOAT);
     public static final float OVERHEAT_MAX = 15f;
 
+    public enum FlyState {
+        NONE,
+        PATROL,
+        RETURN,
+    }
+
+    @Getter @Setter
+    private FlyState flyState = FlyState.NONE;
+
+    // client-side rotation tracking for rendering
     public float oldPitch = 0.0f, oldYaw = 0.0f, oldRoll = 0.0f;
     public float pitch = 0.0f, yaw = 0.0f, roll = 0.0f;
 
@@ -50,8 +64,11 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
             .withSound(JSoundRegistry.AS_SHOOT)
             .withHitSpark(JParticleType.HIT_SPARK_1)
             .withShootSpark(JParticleType.LEMON)
-            .withStunType(StunType.WINDED);
-    // TODO Arna description
+            .withStunType(StunType.WINDED)
+            .withInfo(
+                    Component.literal("Fire Autocannons"),
+                    Component.literal("Shoots supersonic bullets in front of Aerosmith. Prolonged use overheats the guns, making them far less accurate.")
+            );
 
     // TODO Arna balance this
     public static final ItemDropAttack ITEM_DROP = new ItemDropAttack(
@@ -111,6 +128,11 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
     }
 
     @Override
+    public boolean allowMoveHandling() {
+        return getCurrentMove() == null && getMoveStun() < JCraft.QUEUE_MOVESTUN_LIMIT;
+    }
+
+    @Override
     public @NonNull AerosmithEntity getThis() {
         return this;
     }
@@ -125,8 +147,35 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
     @Override
     public void tick() {
         super.tick();
-        if (!(getCurrentMove() instanceof MuzzleHitscanAttack) && ++overheatTick % 5 == 0) {
+
+        final LivingEntity user = getUser();
+        if (user == null) return;
+
+        final AbstractMove<?, ? super AerosmithEntity> currentMove = getCurrentMove();
+
+        if (!(currentMove instanceof MuzzleHitscanAttack) && ++overheatTick % 5 == 0) {
             addOverheat(-0.4f);
+        }
+
+        if (currentMove != null) return;
+
+        switch (flyState) {
+            case PATROL -> {
+
+            }
+            case RETURN -> {
+                lookAt(user, 6f, 6f);
+
+                final double distanceSqr = distanceToSqr(user);
+
+                final double cruiseSpeed = distanceSqr < 49.0 ? 0.075 : 0.15;
+
+                setDeltaMovement(getDeltaMovement().scale(0.9).add(getLookAngle().scale(cruiseSpeed)));
+
+                if (distanceSqr < 4.0) {
+                    setRemote(false);
+                }
+            }
         }
     }
 
@@ -187,7 +236,8 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
         super.desummon();
     }
 
-    public Vec3 getPureLookVector() {
+    @Override
+    public @NotNull Vec3 getLookAngle() {
         return calculateViewVector(getXRot(), getYRot());
     }
 

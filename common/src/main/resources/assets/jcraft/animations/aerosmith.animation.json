@@ -1,22 +1,6 @@
 {
 	"format_version": "1.8.0",
 	"animations": {
-		"animation.aerosmith.geo.idle": {
-			"loop": true,
-			"animation_length": 0.5,
-			"bones": {
-				"propeller": {
-					"rotation": {
-						"0.0": {
-							"vector": [0, 0, 0]
-						},
-						"0.5": {
-							"vector": [0, 0, 1440]
-						}
-					}
-				}
-			}
-		},
 		"summon": {
 			"loop": "hold_on_last_frame",
 			"animation_length": 2.5,
@@ -201,28 +185,19 @@
 			"bones": {
 				"aerosmith": {
 					"position": {
-						"0.0": {
-							"vector": [0, 0, 0]
-						},
-						"0.0833": {
-							"vector": [0, 0.5, 0],
-							"easing": "easeInExpo"
-						}
+						"0.0": [0, 0, 0],
+						"0.0833": [0, 0.5, 0]
 					},
 					"scale": {
-						"0.0": {
-							"vector": [1, 1.1, 1],
-							"easing": "linear"
-						},
-						"0.0833": {
-							"vector": [1, 1, 1]
-						}
+						"0.0": [1, 1.1, 1],
+						"0.0833": [1, 1, 1]
 					}
 				},
 				"propeller": {
-					"scale": {
-						"vector": [0, 0, 0]
-					}
+					"scale": 0
+				},
+				"base": {
+					"rotation": [0, 0, 0]
 				}
 			}
 		},

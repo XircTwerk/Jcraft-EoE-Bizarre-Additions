@@ -1,8 +1,6 @@
 package net.arna.jcraft.common.entity.stand;
 
-import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
 import mod.azure.azurelib.animation.dispatch.command.AzCommand;
 import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
 import net.arna.jcraft.JCraft;
@@ -31,6 +29,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Containers;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -80,17 +79,17 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
 
     private CommonMiscComponent miscComponent;
     private int overheatTick;
-    @Getter
-    @Setter
-    @Nullable
-    private ItemStack holdItem;
 
     public AerosmithEntity(final Level world) {
         super(JStandTypeRegistry.AEROSMITH.get(), world);
-//        setYDistanceOffset(10f); // TODO for patrol mode
+        // setYDistanceOffset(10f); // TODO for patrol mode
         setYDistanceOffset(1.2f);
         setNoGravity(true);
     }
+
+    @NonNull
+    public ItemStack getHeldItem() { return getItemBySlot(EquipmentSlot.FEET); }
+    public void setHeldItem(final @NonNull ItemStack stack) { setItemSlot(EquipmentSlot.FEET, stack); }
 
     @Override
     public boolean remoteControllable() {
@@ -104,8 +103,8 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
 
     private static void registerDefaultMoves(final @NonNull MoveMap<AerosmithEntity, AerosmithEntity.State> moves) {
         moves.registerImmediate(MoveClass.LIGHT, BULLET, State.LIGHT);
-        moves.registerImmediate(MoveClass.HEAVY, BOMB_DROP, State.IDLE);
-        moves.registerImmediate(MoveClass.UTILITY, PATROL, State.IDLE);
+        moves.registerImmediate(MoveClass.HEAVY, BOMB_DROP, State.ACTIVE);
+        moves.registerImmediate(MoveClass.UTILITY, PATROL, State.ACTIVE);
     }
 
     @Override
@@ -160,15 +159,16 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
 
     @Override
     public void desummon() {
-        if (!level().isClientSide() && holdItem != null) {
-            Containers.dropItemStack(level(), getX(), getY(), getZ(), holdItem);
+        if (!level().isClientSide() && !getHeldItem().isEmpty()) {
+            Containers.dropItemStack(level(), getX(), getY(), getZ(), getHeldItem());
         }
         super.desummon();
     }
 
     public enum State implements StandAnimationState<AerosmithEntity> {
         IDLE(AzCommand.create(JCraft.BASE_CONTROLLER, "idle", AzPlayBehaviors.LOOP)),
-        LIGHT(AzCommand.create(JCraft.BASE_CONTROLLER, "light", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        ACTIVE(AzCommand.create(JCraft.BASE_CONTROLLER, "idle", AzPlayBehaviors.LOOP)),
+        LIGHT(AzCommand.create(JCraft.BASE_CONTROLLER, "burst", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
         BLOCK(AzCommand.create(JCraft.BASE_CONTROLLER, "block", AzPlayBehaviors.LOOP))
         ;
 

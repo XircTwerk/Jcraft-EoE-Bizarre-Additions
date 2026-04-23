@@ -238,7 +238,7 @@ public class JCraftClient {
     }
 
     public static void registerParticleSpriteSets() {
-        // TODO Forge version is currently handled separately cuz Forge is ass.
+        // TODO: merge Forge version handling with this somehow. until then _KEEP THEM IN SYNC_
         // See JCraftForgeClient#onParticleFactoryRegistration(RegisterParticleProvidersEvent)
 
         ParticleProviderRegistry.register(JParticleTypeRegistry.COMBO_BREAK, ComboBreakerParticle.Factory::new);

@@ -8,7 +8,6 @@ import lombok.NonNull;
 import net.arna.jcraft.api.attack.MoveType;
 import net.arna.jcraft.api.attack.enums.MoveInputType;
 import net.arna.jcraft.api.attack.moves.AbstractBarrageAttack;
-import net.arna.jcraft.api.attack.moves.AbstractMove;
 import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.arna.jcraft.common.spec.HamonSpec;
 import net.minecraft.server.level.ServerPlayer;
@@ -78,7 +77,7 @@ public class ImproviserMove extends AbstractBarrageAttack<ImproviserMove, HamonS
 
         @Override
         protected @NonNull App<RecordCodecBuilder.Mu<ImproviserMove>, ImproviserMove> buildCodec(final RecordCodecBuilder.Instance<ImproviserMove> instance) {
-            return instance.group(duration(), chargePerTick(), interval()).apply(instance, ImproviserMove::new);
+            return instance.group(extras(), attackExtras(), duration(), chargePerTick(), interval()).apply(instance, applyAttackExtras(ImproviserMove::new));
         }
 
     }

@@ -208,7 +208,7 @@
 						}
 					}
 				},
-				"overwrite": {
+				"prop": {
 					"rotation": {
 						"0.0": {
 							"vector": [0, 0, 0],
@@ -533,7 +533,7 @@
 						"easing": "linear"
 					}
 				},
-				"overwrite": {
+				"prop": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -807,7 +807,7 @@
 						"easing": "linear"
 					}
 				},
-				"overwrite": {
+				"prop": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -1170,7 +1170,7 @@
 						}
 					}
 				},
-				"overwrite": {
+				"prop": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -1455,7 +1455,7 @@
 						}
 					}
 				},
-				"overwrite": {
+				"prop": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -1625,7 +1625,7 @@
 						}
 					}
 				},
-				"overwrite": {
+				"prop": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -1915,7 +1915,7 @@
 						}
 					}
 				},
-				"overwrite": {
+				"prop": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"]
 					}
@@ -2276,7 +2276,7 @@
 						}
 					}
 				},
-				"overwrite": {
+				"prop": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"]
 					}
@@ -2882,7 +2882,7 @@
 						}
 					}
 				},
-				"overwrite": {
+				"prop": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -4908,7 +4908,7 @@
 						}
 					}
 				},
-				"overwrite": {
+				"prop": {
 					"rotation": {
 						"0.0": {
 							"vector": [0, 0, 0],
@@ -5352,7 +5352,7 @@
 						}
 					}
 				},
-				"overwrite": {
+				"prop": {
 					"rotation": {
 						"0.0": {
 							"vector": [0, 0, 0],
@@ -5766,7 +5766,7 @@
 						}
 					}
 				},
-				"overwrite": {
+				"prop": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -5969,7 +5969,7 @@
 						}
 					}
 				},
-				"overwrite": {
+				"prop": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"]
 					}
@@ -6193,7 +6193,7 @@
 						}
 					}
 				},
-				"overwrite": {
+				"prop": {
 					"rotation": {
 						"0.0": {
 							"vector": [0, 0, 0],
@@ -6502,7 +6502,7 @@
 						}
 					}
 				},
-				"overwrite": {
+				"prop": {
 					"rotation": {
 						"0.0": {
 							"vector": [0, 0, 0],
@@ -6779,7 +6779,7 @@
 						}
 					}
 				},
-				"overwrite": {
+				"prop": {
 					"rotation": {
 						"0.0": {
 							"vector": [0, 0, 0],
@@ -7048,7 +7048,7 @@
 						}
 					}
 				},
-				"overwrite": {
+				"prop": {
 					"rotation": {
 						"0.0": {
 							"vector": [0, 0, 0],

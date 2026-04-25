@@ -230,7 +230,7 @@
 						}
 					}
 				},
-				"spiral": {
+				"prop2": {
 					"rotation": {
 						"0.0": {
 							"vector": [0, 0, 0],
@@ -539,7 +539,7 @@
 						"easing": "linear"
 					}
 				},
-				"spiral": {
+				"prop2": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -813,7 +813,7 @@
 						"easing": "linear"
 					}
 				},
-				"spiral": {
+				"prop2": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -1176,7 +1176,7 @@
 						"easing": "linear"
 					}
 				},
-				"spiral": {
+				"prop2": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -1461,7 +1461,7 @@
 						"easing": "linear"
 					}
 				},
-				"spiral": {
+				"prop2": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -1631,7 +1631,7 @@
 						"easing": "linear"
 					}
 				},
-				"spiral": {
+				"prop2": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -1920,7 +1920,7 @@
 						"vector": ["linear", "linear", "linear"]
 					}
 				},
-				"spiral": {
+				"prop2": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"]
 					}
@@ -2281,7 +2281,7 @@
 						"vector": ["linear", "linear", "linear"]
 					}
 				},
-				"spiral": {
+				"prop2": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"]
 					}
@@ -2888,7 +2888,7 @@
 						"easing": "linear"
 					}
 				},
-				"spiral": {
+				"prop2": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -4940,7 +4940,7 @@
 						}
 					}
 				},
-				"spiral": {
+				"prop2": {
 					"rotation": {
 						"0.0": {
 							"vector": [0, 0, 0],
@@ -5384,7 +5384,7 @@
 						}
 					}
 				},
-				"spiral": {
+				"prop2": {
 					"rotation": {
 						"0.0": {
 							"vector": [0, 0, 0],
@@ -5772,7 +5772,7 @@
 						"easing": "linear"
 					}
 				},
-				"spiral": {
+				"prop2": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
@@ -5974,7 +5974,7 @@
 						"vector": ["linear", "linear", "linear"]
 					}
 				},
-				"spiral": {
+				"prop2": {
 					"scale": {
 						"vector": ["linear", "linear", "linear"]
 					}
@@ -6225,7 +6225,7 @@
 						}
 					}
 				},
-				"spiral": {
+				"prop2": {
 					"rotation": {
 						"0.0": {
 							"vector": [90, 0, 0],
@@ -6534,7 +6534,7 @@
 						}
 					}
 				},
-				"spiral": {
+				"prop2": {
 					"rotation": {
 						"0.0": {
 							"vector": [90, 0, 0],
@@ -6802,7 +6802,7 @@
 						}
 					}
 				},
-				"spiral": {
+				"prop2": {
 					"rotation": {
 						"0.0": {
 							"vector": [0, 0, 0],
@@ -7203,7 +7203,7 @@
 						"vector": ["linear", "linear", "linear"]
 					}
 				},
-				"spiral": {
+				"prop2": {
 					"rotation": {
 						"0.0": {
 							"vector": [0, 0, 0],

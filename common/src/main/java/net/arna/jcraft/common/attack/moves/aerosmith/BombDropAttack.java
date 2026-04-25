@@ -52,7 +52,8 @@ public class BombDropAttack extends AbstractMove<BombDropAttack, AerosmithEntity
             attacker.setFlyState(AerosmithEntity.FlyState.FLYBY);
             attacker.lookAt(EntityAnchorArgument.Anchor.FEET, dropLocation);
             attacker.setFlyTarget(dropLocation);
-            attacker.setRemote(true);
+
+            if (!attacker.isRemote()) attacker.setRemote(true);
         }
 
         return Set.of();

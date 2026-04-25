@@ -148,7 +148,9 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
 
     @Override
     public boolean allowMoveHandling() {
-        return getCurrentMove() == null && getMoveStun() < JCraft.QUEUE_MOVESTUN_LIMIT;
+        return getCurrentMove() == null &&
+                getMoveStun() < JCraft.QUEUE_MOVESTUN_LIMIT &&
+                getMove(BombDropAttack.class).getDropLocation() == null;
     }
 
     @Override
@@ -182,43 +184,43 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
             addOverheat(-0.4f);
         }
 
-        if (currentMove != null) return;
+        if (currentMove == null) {
+            switch (flyState) {
+                case PATROL -> {
+                    final Vec3 offset = RotationUtil.vecPlayerToWorld(
+                            Mth.sin(tickCount / 200.0f) * patrolRadius, 1.0, Mth.cos(tickCount / 200.0f) * patrolRadius,
+                            GravityChangerAPI.getGravityDirection(this)
+                    );
 
-        switch (flyState) {
-            case PATROL -> {
-                final Vec3 offset = RotationUtil.vecPlayerToWorld(
-                        Mth.sin(tickCount / 20.0f) * patrolRadius, 1.0, Mth.cos(tickCount / 20.0f) * patrolRadius,
-                        GravityChangerAPI.getGravityDirection(this)
-                );
+                    JCraft.createParticle((ServerLevel) level(), flyTarget.x + offset.x, flyTarget.y + offset.y, flyTarget.z + offset.z, JParticleType.GO);
 
-                JCraft.createParticle((ServerLevel) level(), flyTarget.x + offset.x, flyTarget.y + offset.y, flyTarget.z + offset.z, JParticleType.GO);
+                    lookAt(flyTarget.add(offset), 6f, 6f);
 
-                lookAt(flyTarget.add(offset), 6f, 6f);
-
-                setDeltaMovement(getDeltaMovement().scale(0.9).add(getLookAngle().scale(SLOW_CRUISE_SPEED)));
-            }
-            case FLYBY -> {
-                lookAt(flyTarget, 6f, 6f);
-
-                setDeltaMovement(getDeltaMovement().scale(0.9).add(getLookAngle().scale(CRUISE_SPEED)));
-
-                if (distanceToSqr(flyTarget) <= 4.0) {
-                    flyState = FlyState.RETURN;
+                    setDeltaMovement(getDeltaMovement().scale(0.9).add(getLookAngle().scale(SLOW_CRUISE_SPEED)));
                 }
-            }
-            case RETURN -> {
-                final Vec3 targetPos = user.position();
+                case FLYBY -> {
+                    lookAt(flyTarget, 6f, 6f);
 
-                lookAt(targetPos, 6f, 12f);
+                    setDeltaMovement(getDeltaMovement().scale(0.9).add(getLookAngle().scale(CRUISE_SPEED)));
 
-                final double distanceSqr = distanceToSqr(targetPos);
+                    if (distanceToSqr(flyTarget) <= 4.0) {
+                        flyState = FlyState.RETURN;
+                    }
+                }
+                case RETURN -> {
+                    final Vec3 targetPos = user.position();
 
-                final double cruiseSpeed = distanceSqr <= 49.0 ? SLOW_CRUISE_SPEED : CRUISE_SPEED;
+                    lookAt(targetPos, 6f, 12f);
 
-                setDeltaMovement(getDeltaMovement().scale(0.9).add(getLookAngle().scale(cruiseSpeed)));
+                    final double distanceSqr = distanceToSqr(targetPos);
 
-                if (distanceSqr <= 4.0) {
-                    setRemote(false);
+                    final double cruiseSpeed = distanceSqr <= 49.0 ? SLOW_CRUISE_SPEED : CRUISE_SPEED;
+
+                    setDeltaMovement(getDeltaMovement().scale(0.9).add(getLookAngle().scale(cruiseSpeed)));
+
+                    if (distanceSqr <= 4.0) {
+                        setRemote(false);
+                    }
                 }
             }
         }
@@ -236,6 +238,7 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
                     flyTarget = position();
                     flyState = FlyState.PATROL;
                 } else {
+                    getMove(BombDropAttack.class).clearDropLocation();
                     flyState = FlyState.RETURN;
                 }
             }

@@ -47,7 +47,7 @@ public class BombDropAttack extends AbstractMove<BombDropAttack, AerosmithEntity
             final Vec3 rotVec = user.getLookAngle();
             final HitResult goal = JUtils.raycastAll(user, userEyePos, userEyePos.add(rotVec.scale(getRange())), ClipContext.Fluid.NONE, EntitySelector.LIVING_ENTITY_STILL_ALIVE.and(EntitySelector.NO_SPECTATORS));
 
-            dropLocation = goal.getLocation().add(0d, 10d, 0d);
+            dropLocation = goal.getLocation().add(0d, 6d, 0d);
 
             attacker.setFlyState(AerosmithEntity.FlyState.FLYBY);
             attacker.lookAt(EntityAnchorArgument.Anchor.FEET, dropLocation);
@@ -98,6 +98,10 @@ public class BombDropAttack extends AbstractMove<BombDropAttack, AerosmithEntity
     @Override
     public @NonNull BombDropAttack copy() {
         return copyExtras(new BombDropAttack(getCooldown(), getRange()));
+    }
+
+    public void clearDropLocation() {
+        dropLocation = null;
     }
 
     public static class Type extends AbstractMove.Type<BombDropAttack> {

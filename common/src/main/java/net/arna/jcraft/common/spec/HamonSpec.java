@@ -199,9 +199,8 @@ public class HamonSpec extends JSpec<HamonSpec, HamonSpec.State> {
                             When using a weapon, does a Hamon-infused strike with it. (CURRENTLY ONLY OPTION)""")
             );
 
-    public static final ImproviserMove IMPROVISER_MOVE = new ImproviserMove(100, 1, 1, 0.25f)
-            .withCondition(HamonChargeCondition.atLeast(0.25f)) // same as charge per tick in the line above (?)
-            .withCondition(HamonSendoWaveKickGroundedCondition.of(-1)) // in ticks
+    public static final ImproviserMove IMPROVISER_MOVE = new ImproviserMove(60 * 20, 0.25f, 1)
+            .withCondition(HamonChargeCondition.atLeast(0.25f)) // same as charge per tick in the line above
             .withCrouchingVariant(IMPROVISER)
             .withInfo(
                     Component.literal("Improviser Move"),

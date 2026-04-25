@@ -6,6 +6,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
 import lombok.NonNull;
 import net.arna.jcraft.api.attack.MoveType;
+import net.arna.jcraft.api.attack.enums.MoveInputType;
+import net.arna.jcraft.api.attack.moves.AbstractBarrageAttack;
 import net.arna.jcraft.api.attack.moves.AbstractMove;
 import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.arna.jcraft.common.spec.HamonSpec;
@@ -16,26 +18,31 @@ import net.minecraft.world.entity.LivingEntity;
 
 import java.util.Set;
 
-public class ImproviserMove extends AbstractMove<ImproviserMove, HamonSpec> {
+public class ImproviserMove extends AbstractBarrageAttack<ImproviserMove, HamonSpec> {
 
     @Getter
     private final float chargePerTick;
-    private boolean active;
 
-    public ImproviserMove(final int cooldown, final int windup, final int duration, final float chargePerTick) {
-        super(cooldown, windup, duration, 0f);
+    public ImproviserMove(final int duration, final float chargePerTick, final int interval) {
+        super(0, 0, duration, 0f, 0, 0, 0f, 0f, 0f, interval);
         this.chargePerTick = chargePerTick;
+        withHoldable();
+        withoutSlowness();
+    }
+
+    @Override
+    public void onUserMoveInput(final HamonSpec attacker, final MoveInputType type, final boolean pressed, final  boolean moveInitiated) {
+        super.onUserMoveInput(attacker, type, pressed, moveInitiated);
+        // Must be held
+        if (type.getMoveClass() == getMoveClass() && !pressed) {
+            attacker.cancelMove();
+            attacker.updateClientHamonBar();
+        }
     }
 
     @Override
     public @NonNull Set<LivingEntity> perform(final HamonSpec attacker, final LivingEntity user) {
-        active = !active;
-        return Set.of();
-    }
-
-    @Override
-    public void tick(final HamonSpec attacker) {
-        if (active && attacker.hasUser() && attacker.getCharge() >= chargePerTick) {
+        if (attacker.hasUser() && attacker.getCharge() >= chargePerTick) {
             final LivingEntity living = attacker.getUserOrThrow();
             if (!(living instanceof ServerPlayer player) || !player.isCreative()) {
                 attacker.drainCharge(chargePerTick);
@@ -43,9 +50,7 @@ public class ImproviserMove extends AbstractMove<ImproviserMove, HamonSpec> {
             living.addEffect(new MobEffectInstance(JStatusRegistry.WATER_WALKING.get(), 1, 0, false, false, true));
             living.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 1, 0, false, false, true));
         }
-        else if (attacker.getCharge() < chargePerTick) {
-            active = false;
-        }
+        return Set.of();
     }
 
     @Override
@@ -55,7 +60,7 @@ public class ImproviserMove extends AbstractMove<ImproviserMove, HamonSpec> {
 
     @Override
     public @NonNull ImproviserMove copy() {
-        return copyExtras(new ImproviserMove(getCooldown(), getWindup(), getDuration(), getChargePerTick()));
+        return copyExtras(new ImproviserMove(getDuration(), getChargePerTick(), getInterval()));
     }
 
     @Override
@@ -63,7 +68,7 @@ public class ImproviserMove extends AbstractMove<ImproviserMove, HamonSpec> {
         return Type.INSTANCE.cast();
     }
 
-    public static class Type extends AbstractMove.Type<ImproviserMove> {
+    public static class Type extends AbstractBarrageAttack.Type<ImproviserMove> {
 
         public static final Type INSTANCE = new Type();
 
@@ -73,7 +78,7 @@ public class ImproviserMove extends AbstractMove<ImproviserMove, HamonSpec> {
 
         @Override
         protected @NonNull App<RecordCodecBuilder.Mu<ImproviserMove>, ImproviserMove> buildCodec(final RecordCodecBuilder.Instance<ImproviserMove> instance) {
-            return instance.group(cooldown(), windup(), duration(), chargePerTick()).apply(instance, ImproviserMove::new);
+            return instance.group(duration(), chargePerTick(), interval()).apply(instance, ImproviserMove::new);
         }
 
     }

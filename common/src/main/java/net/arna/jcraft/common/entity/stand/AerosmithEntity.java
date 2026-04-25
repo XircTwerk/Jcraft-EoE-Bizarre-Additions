@@ -21,15 +21,21 @@ import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.api.stand.StandInfo;
 import net.arna.jcraft.api.stand.SummonData;
 import net.arna.jcraft.common.attack.moves.aerosmith.*;
+import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
+import net.arna.jcraft.common.gravity.util.RotationUtil;
 import net.arna.jcraft.common.util.JParticleType;
+import net.arna.jcraft.common.util.JUtils;
 import net.arna.jcraft.common.util.StandAnimationState;
 import net.arna.jcraft.platform.JComponentPlatformUtils;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Containers;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -45,11 +51,21 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
     public static final EntityDataAccessor<Float> OVERHEAT = SynchedEntityData.defineId(AerosmithEntity.class, EntityDataSerializers.FLOAT);
     public static final float OVERHEAT_MAX = 15f;
 
+    public static final double SLOW_CRUISE_SPEED = 0.075;
+    public static final double CRUISE_SPEED = 0.15;
+
     public enum FlyState {
         NONE,
+        FLYBY,
         PATROL,
         RETURN,
     }
+
+    @Getter @Setter
+    private float patrolRadius = 48.0f;
+
+    @NonNull @Getter @Setter
+    private Vec3 flyTarget = Vec3.ZERO;
 
     @Getter @Setter
     private FlyState flyState = FlyState.NONE;
@@ -76,15 +92,18 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
     // TODO Arna description
 
     // TODO Arna balance this
-    public static final BombDropAttack<AerosmithEntity> BOMB_DROP = new BombDropAttack<AerosmithEntity>(
-            200, 1, 100, 0f, 30f)
-            .withCrouchingVariant(ITEM_DROP);
-    // TODO Arna description
+    public static final BombDropAttack BOMB_DROP = new BombDropAttack(200, 30f)
+            .withCrouchingVariant(ITEM_DROP)
+            .withInfo(
+                    Component.literal("Bomb Drop"),
+                    Component.literal("Orders Aerosmith to drop a bomb above a given location.")
+            );
 
-    // TODO Arna balance this
-    public static final PatrolMove<AerosmithEntity> PATROL = new PatrolMove<>(
-            200, 1, 100, 0f, 30f, 10f, 0.5f);
-    // TODO Arna description
+    public static final PatrolMove PATROL = new PatrolMove(0, 32f, 48f)
+            .withInfo(
+                    Component.literal("Patrol Location"),
+                    Component.literal("Orders Aerosmith to fly around a given location.")
+            );
 
     public static final AerosmithChargeAttack CHARGE = new AerosmithChargeAttack(
             300, 50, 1.0f, 15, 1.66f, 0.1f, 0.0f,
@@ -144,9 +163,15 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
         moves.registerImmediate(MoveClass.BARRAGE, CHARGE, State.CHARGE);
     }
 
+    private float xRotPersist = 0.0f;
+
     @Override
     public void tick() {
+        setXRot(xRotPersist);
+
         super.tick();
+
+        resetFallDistance();
 
         final LivingEntity user = getUser();
         if (user == null) return;
@@ -161,22 +186,89 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
 
         switch (flyState) {
             case PATROL -> {
+                final Vec3 offset = RotationUtil.vecPlayerToWorld(
+                        Mth.sin(tickCount / 20.0f) * patrolRadius, 1.0, Mth.cos(tickCount / 20.0f) * patrolRadius,
+                        GravityChangerAPI.getGravityDirection(this)
+                );
 
+                JCraft.createParticle((ServerLevel) level(), flyTarget.x + offset.x, flyTarget.y + offset.y, flyTarget.z + offset.z, JParticleType.GO);
+
+                lookAt(flyTarget.add(offset), 6f, 6f);
+
+                setDeltaMovement(getDeltaMovement().scale(0.9).add(getLookAngle().scale(SLOW_CRUISE_SPEED)));
+            }
+            case FLYBY -> {
+                lookAt(flyTarget, 6f, 6f);
+
+                setDeltaMovement(getDeltaMovement().scale(0.9).add(getLookAngle().scale(CRUISE_SPEED)));
+
+                if (distanceToSqr(flyTarget) <= 4.0) {
+                    flyState = FlyState.RETURN;
+                }
             }
             case RETURN -> {
-                lookAt(user, 6f, 6f);
+                final Vec3 targetPos = user.position();
 
-                final double distanceSqr = distanceToSqr(user);
+                lookAt(targetPos, 6f, 12f);
 
-                final double cruiseSpeed = distanceSqr < 49.0 ? 0.075 : 0.15;
+                final double distanceSqr = distanceToSqr(targetPos);
+
+                final double cruiseSpeed = distanceSqr <= 49.0 ? SLOW_CRUISE_SPEED : CRUISE_SPEED;
 
                 setDeltaMovement(getDeltaMovement().scale(0.9).add(getLookAngle().scale(cruiseSpeed)));
 
-                if (distanceSqr < 4.0) {
+                if (distanceSqr <= 4.0) {
                     setRemote(false);
                 }
             }
         }
+
+        xRotPersist = getXRot();
+    }
+
+    @Override
+    public void desummon(final boolean playSound) {
+        final LivingEntity user = getUser();
+
+        if (user != null) {
+            if (isRemote()) {
+                if (flyState == FlyState.RETURN) {
+                    flyTarget = position();
+                    flyState = FlyState.PATROL;
+                } else {
+                    flyState = FlyState.RETURN;
+                }
+            }
+
+            if (distanceToSqr(user) >= 4.0) return;
+        }
+
+        super.desummon(playSound);
+    }
+
+    private void lookAt(final Vec3 target, final float maxYRotIncrease, final float maxXRotIncrease) {
+        double d = target.x - getX();
+        double e = target.z - getZ();
+        double f = target.y - getY();
+
+        double g = Math.sqrt(d * d + e * e);
+        float h = (float)(Mth.atan2(e, d) * 180.0 / (float)Math.PI) - 90.0F;
+        float i = (float)(-(Mth.atan2(f, g) * 180.0 / (float)Math.PI));
+        setXRot(rotlerp(getXRot(), i, maxXRotIncrease));
+        setYRot(rotlerp(getYRot(), h, maxYRotIncrease));
+    }
+
+    private float rotlerp(final float angle, final float targetAngle, final float maxIncrease) {
+        float f = Mth.wrapDegrees(targetAngle - angle);
+        if (f > maxIncrease) {
+            f = maxIncrease;
+        }
+
+        if (f < -maxIncrease) {
+            f = -maxIncrease;
+        }
+
+        return angle + f;
     }
 
     @Override

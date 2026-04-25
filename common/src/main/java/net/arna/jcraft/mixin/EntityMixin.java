@@ -55,7 +55,4 @@ public abstract class EntityMixin implements EntityAddon {
     public boolean jcraft$isFromSpawner() {
         return fromSpawner;
     }
-
-    @Inject(method = "onGround()Z", at = @At("RETURN"), cancellable = true)
-    protected void jcraft$walkOnLiquid(final CallbackInfoReturnable<Boolean> cir) {}
 }

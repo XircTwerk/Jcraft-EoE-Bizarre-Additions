@@ -74,7 +74,7 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
     public float oldPitch = 0.0f, oldYaw = 0.0f, oldRoll = 0.0f;
     public float pitch = 0.0f, yaw = 0.0f, roll = 0.0f;
 
-    // TODO Arna balance this
+    // TODO: balance this
     public static final MuzzleHitscanAttack BULLET = new MuzzleHitscanAttack(
             1, 1, 2, 0f, 1f, 0, 0f, 30f, 10f, 1/6f, 0.01f)
             .withSound(JSoundRegistry.AS_SHOOT)
@@ -86,12 +86,12 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
                     Component.literal("Shoots supersonic bullets in front of Aerosmith. Prolonged use overheats the guns, making them far less accurate.")
             );
 
-    // TODO Arna balance this
-    public static final ItemDropAttack ITEM_DROP = new ItemDropAttack(
-            200, 1, 100, 0f, 30f);
-    // TODO Arna description
+    public static final ItemDropAttack ITEM_DROP = new ItemDropAttack(200, 30f)
+            .withInfo(
+                    Component.literal("Item Drop"),
+                    Component.literal("Orders Aerosmith to drop an item above a given location.")
+            );
 
-    // TODO Arna balance this
     public static final BombDropAttack BOMB_DROP = new BombDropAttack(200, 30f)
             .withCrouchingVariant(ITEM_DROP)
             .withInfo(
@@ -188,7 +188,7 @@ public class AerosmithEntity extends StandEntity<AerosmithEntity, AerosmithEntit
             switch (flyState) {
                 case PATROL -> {
                     final Vec3 offset = RotationUtil.vecPlayerToWorld(
-                            Mth.sin(tickCount / 200.0f) * patrolRadius, 1.0, Mth.cos(tickCount / 200.0f) * patrolRadius,
+                            Mth.sin(tickCount / 100.0f) * patrolRadius, 1.0, Mth.cos(tickCount / 100.0f) * patrolRadius,
                             GravityChangerAPI.getGravityDirection(this)
                     );
 

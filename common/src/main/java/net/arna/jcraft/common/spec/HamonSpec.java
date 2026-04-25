@@ -222,7 +222,7 @@ public class HamonSpec extends JSpec<HamonSpec, HamonSpec.State> {
         moves.register(MoveClass.SPECIAL1, STOMP, CooldownType.SPECIAL1, State.STOMP);
         moves.register(MoveClass.SPECIAL2, UPPERCUT, CooldownType.SPECIAL2, State.UPPERCUT)
                 .withAerialVariant(State.SENDO);
-        moves.register(MoveClass.SPECIAL3, IMPROVISER_MOVE, CooldownType.SPECIAL3, State.IMPROVISER)
+        moves.register(MoveClass.SPECIAL3, IMPROVISER_MOVE, CooldownType.SPECIAL3, null)
                 .withCrouchingVariant(State.IMPROVISER);
 
         moves.register(MoveClass.ULTIMATE, CHARGE_HAMON, CooldownType.ULTIMATE, null);

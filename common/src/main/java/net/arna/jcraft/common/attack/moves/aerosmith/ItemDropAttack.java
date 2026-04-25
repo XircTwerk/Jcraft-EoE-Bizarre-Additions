@@ -10,7 +10,6 @@ import lombok.Setter;
 import net.arna.jcraft.api.attack.MoveType;
 import net.arna.jcraft.api.attack.moves.AbstractMove;
 import net.arna.jcraft.common.attack.core.data.BaseMoveExtras;
-import net.arna.jcraft.common.entity.projectile.AerobombProjectile;
 import net.arna.jcraft.common.entity.projectile.ItemTossProjectile;
 import net.arna.jcraft.common.entity.stand.AerosmithEntity;
 import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
@@ -20,7 +19,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
@@ -57,7 +55,7 @@ public class ItemDropAttack extends AbstractMove<ItemDropAttack, AerosmithEntity
         if (itemStack.isEmpty()) {
             return Set.of();
         }
-        attacker.setHoldItem(itemStack.copyWithCount(1));
+        attacker.setHeldItem(itemStack.copyWithCount(1));
         if (!(user instanceof Player player) || !player.isCreative()) {
             itemStack.setCount(itemStack.getCount() - 1);
         }
@@ -74,8 +72,8 @@ public class ItemDropAttack extends AbstractMove<ItemDropAttack, AerosmithEntity
     @Override
     public void tick(final AerosmithEntity attacker) {
         if (dropLocation != null) {
-            if (attacker.position().distanceTo(dropLocation) <= 1) {
-                // TODO play the animation
+            if (attacker.position().distanceToSqr(dropLocation) <= 1) {
+                // TODO play the animation // what drop animation bruh its a tiny toy plane
                 dropItem(attacker);
                 returning = true;
                 dropLocation = null;
@@ -89,6 +87,7 @@ public class ItemDropAttack extends AbstractMove<ItemDropAttack, AerosmithEntity
             if (attacker.position().distanceTo(user.getEyePosition()) <= 1) {
                 attacker.setDeltaMovement(Vec3.ZERO);
                 attacker.setRemote(false);
+                attacker.cancelMove();
                 returning = false;
             }
             else {
@@ -103,14 +102,20 @@ public class ItemDropAttack extends AbstractMove<ItemDropAttack, AerosmithEntity
         if (!attacker.hasUser()) {
             return;
         }
-        ItemTossProjectile itemProjectile = new ItemTossProjectile(attacker.getUserOrThrow(), attacker.level(), attacker.getHoldItem());
-        attacker.setHoldItem(null);
+
+        final var itemProjectile = new ItemTossProjectile(attacker.getUserOrThrow(), attacker.level(), attacker.getHeldItem());
+
+        attacker.setHeldItem(ItemStack.EMPTY);
+
         itemProjectile.setOwner(attacker.hasUser() ? attacker.getUserOrThrow() : attacker);
         itemProjectile.setPos(attacker.position().subtract(0d, 1d, 0d));
+
         itemProjectile.setXRot(attacker.getXRot());
         itemProjectile.xRotO = attacker.xRotO;
+
         itemProjectile.setYRot(attacker.getYRot());
         itemProjectile.yRotO = attacker.yRotO;
+
         itemProjectile.setDeltaMovement(attacker.getDeltaMovement().normalize().scale(1d/16));
         attacker.level().addFreshEntity(itemProjectile);
     }
@@ -127,8 +132,9 @@ public class ItemDropAttack extends AbstractMove<ItemDropAttack, AerosmithEntity
 
     @Override
     public @NonNull ItemDropAttack copy() {
-        return copyExtras(new ItemDropAttack(getCooldown(), getWindup(), getDuration(), getMoveDistance(),
-                getRange()));
+        return copyExtras(
+                new ItemDropAttack(getCooldown(), getWindup(), getDuration(), getMoveDistance(), getRange())
+        );
     }
 
     public static class Type extends AbstractMove.Type<ItemDropAttack> {

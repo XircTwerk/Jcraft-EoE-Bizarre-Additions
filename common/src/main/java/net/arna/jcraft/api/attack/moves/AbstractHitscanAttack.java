@@ -98,14 +98,15 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
                 .xRot((float)random.nextGaussian() * spread)
                 .yRot((float)random.nextGaussian() * spread)
                 .zRot((float)random.nextGaussian() * spread);
+
         final HitResult hitResult = JUtils.raycastAll(attacker.getBaseEntity(), attackerEyePos, attackerEyePos.add(attackVector), ClipContext.Fluid.ANY, EntitySelector.LIVING_ENTITY_STILL_ALIVE.and(EntitySelector.NO_SPECTATORS));
+
         // entity hit
         if (hitResult.getType() == HitResult.Type.ENTITY) {
             final Entity hitEntity = ((EntityHitResult)hitResult).getEntity();
             if (hitEntity instanceof LivingEntity living) { // should always happen
                 final Vec3 kbVec = rotVec.scale(getKnockback()).add(new Vec3(0.0, Math.abs(getKnockback()) / 4, 0.0));
                 processTarget(attacker, living, kbVec, attacker.getDamageSource());
-                return Set.of(living);
             }
         }
         // block mining
@@ -123,8 +124,15 @@ public abstract class AbstractHitscanAttack<T extends AbstractHitscanAttack<T, A
                 }
             }
         }
+
         // create particles
-        JCraft.createHitscanTraceParticle((ServerLevel)user.level(), hitscanTraceParticleOrigin(attacker), hitscanTraceParticleVelocity(attacker, hitResult.getLocation()), shootSpark);
+        JCraft.createHitscanTraceParticle(
+                (ServerLevel)user.level(),
+                hitscanTraceParticleOrigin(attacker),
+                hitscanTraceParticleVelocity(attacker, hitResult.getLocation()),
+                shootSpark
+        );
+
         // TODO Arna add hit/block particles?
         if (hitResult.getType() != HitResult.Type.MISS) {
             JCraft.createParticle((ServerLevel)user.level(),

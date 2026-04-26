@@ -1,47 +1,45 @@
 package net.arna.jcraft.common.entity.stand;
 
 import lombok.NonNull;
-import mod.azure.azurelib.core.animation.AnimationState;
-import mod.azure.azurelib.core.animation.RawAnimation;
+import mod.azure.azurelib.animation.dispatch.command.AzCommand;
+import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
 import net.arna.jcraft.JCraft;
+import net.arna.jcraft.api.Attacks;
+import net.arna.jcraft.api.attack.MoveMap;
+import net.arna.jcraft.api.attack.MoveSet;
+import net.arna.jcraft.api.attack.MoveSetManager;
+import net.arna.jcraft.api.attack.enums.MoveClass;
+import net.arna.jcraft.api.attack.moves.AbstractMove;
+import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
+import net.arna.jcraft.api.registry.JSoundRegistry;
+import net.arna.jcraft.api.registry.JStandTypeRegistry;
 import net.arna.jcraft.api.stand.StandData;
 import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.api.stand.StandInfo;
 import net.arna.jcraft.api.stand.SummonData;
-import net.arna.jcraft.api.attack.MoveSet;
-import net.arna.jcraft.api.attack.MoveSetManager;
 import net.arna.jcraft.common.attack.actions.PlaySoundAction;
-import net.arna.jcraft.api.attack.enums.MoveClass;
-import net.arna.jcraft.api.attack.MoveMap;
-import net.arna.jcraft.api.attack.moves.AbstractMove;
 import net.arna.jcraft.common.attack.moves.horus.*;
 import net.arna.jcraft.common.attack.moves.shared.SimpleAttack;
 import net.arna.jcraft.common.attack.moves.shared.SimpleHoldableMove;
-import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
 import net.arna.jcraft.common.entity.projectile.LargeIcicleProjectile;
 import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
 import net.arna.jcraft.common.util.JParticleType;
 import net.arna.jcraft.common.util.JUtils;
 import net.arna.jcraft.common.util.StandAnimationState;
-import net.arna.jcraft.api.registry.JSoundRegistry;
-import net.arna.jcraft.api.registry.JStandTypeRegistry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.enchantment.FrostWalkerEnchantment;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 import java.lang.ref.WeakReference;
 import java.util.Objects;
-import java.util.function.Consumer;
 
 /**
  * The {@link StandEntity} for <a href="https://jojowiki.com/Horus">Horus</a>.
  * @see JStandTypeRegistry#HORUS
- * @see net.arna.jcraft.client.model.entity.stand.HorusModel HorusModel
  * @see net.arna.jcraft.client.renderer.entity.stands.HorusRenderer HorusRenderer
  * @see net.arna.jcraft.common.entity.npc.PetshopEntity PetshopEntity
  * @see HorusBarrageAttack
@@ -68,8 +66,8 @@ public class HorusEntity extends StandEntity<HorusEntity, HorusEntity.State> {
             .summonData(SummonData.of(JSoundRegistry.HORUS_SUMMON))
             .build();
 
-    public static final SimpleAttack<HorusEntity> LIGHT_CROUCHING_FOLLOWUP = new SimpleAttack<HorusEntity>(
-            0, 15, 25, 0.75f, 7f, 25, 1.85f, 1.5f, 0.2f)
+    public static final SimpleAttack<HorusEntity> LIGHT_CROUCHING_FOLLOWUP = new SimpleAttack<HorusEntity>(0,
+            15, 25, 0.75f, 7f, 25, 1.85f, 1.5f, 0.2f)
             .withAnim(State.IMPALE)
             .withImpactSound(JSoundRegistry.IMPACT_9)
             .withBlockStun(25)
@@ -79,8 +77,8 @@ public class HorusEntity extends StandEntity<HorusEntity, HorusEntity.State> {
                     Component.literal("Impale"),
                     Component.literal("slow reset tool, high stun and blockstun")
             );
-    public static final SimpleAttack<HorusEntity> LIGHT_FOLLOWUP = new SimpleAttack<HorusEntity>(
-            0, 9, 13, 0.75f, 6f, 10, 1.5f, 1f, 0.2f)
+    public static final SimpleAttack<HorusEntity> LIGHT_FOLLOWUP = new SimpleAttack<HorusEntity>(0,
+            9, 13, 0.75f, 6f, 10, 1.5f, 1f, 0.2f)
             .withAnim(State.LIGHT_FOLLOWUP)
             .withCrouchingVariant(LIGHT_CROUCHING_FOLLOWUP)
             .withImpactSound(JSoundRegistry.IMPACT_3)
@@ -91,7 +89,7 @@ public class HorusEntity extends StandEntity<HorusEntity, HorusEntity.State> {
                     Component.literal("Finisher"),
                     Component.literal("quick combo finisher")
             );
-    public static final SimpleAttack<HorusEntity> LIGHT_LOW = new SimpleAttack<HorusEntity>(JCraft.LIGHT_COOLDOWN,
+    public static final SimpleAttack<HorusEntity> LIGHT_LOW = new SimpleAttack<HorusEntity>(9,
                     5, 9, 0.95f, 4f, 8, 1.25f, 0.25f, 0.5f)
             //.withFollowup(LIGHT_FOLLOWUP)
             .withImpactSound(JSoundRegistry.IMPACT_9)
@@ -100,10 +98,10 @@ public class HorusEntity extends StandEntity<HorusEntity, HorusEntity.State> {
                     Component.literal("Low Claw"),
                     Component.literal("faster and further hitting than standing, but doesn't combo into anything")
             );
-    public static final SimpleAttack<HorusEntity> LIGHT_AIR = SimpleAttack.<HorusEntity>lightAttack(
-                    6, 11, 0.75f, 5f, 12, 0.25f, 0.5f)
+    public static final SimpleAttack<HorusEntity> LIGHT_AIR = new SimpleAttack<HorusEntity>(11,
+                    6, 11, 0.75f, 5f, 12, 1.5f, 0.25f, 0.5f)
             //.withFollowup(LIGHT_FOLLOWUP)
-            .withImpactSound(JSoundRegistry.IMPACT_3)
+            .withImpactSound(JSoundRegistry.IMPACT_9)
             .withInfo(
                     Component.literal("Downward Claw"),
                     Component.literal("quick combo starter, meant for air-to-ground")
@@ -118,8 +116,8 @@ public class HorusEntity extends StandEntity<HorusEntity, HorusEntity.State> {
                     Component.literal("Slash"),
                     Component.literal("quick combo starter, has a standing and crouching followup")
             );
-    public static final HorusBarrageAttack BARRAGE = new HorusBarrageAttack(240, 5, 80,
-            0.75f, 0, 0, 0, 0, 0, 5)
+    public static final HorusBarrageAttack BARRAGE = new HorusBarrageAttack(240,
+            5, 80,0.75f, 0, 0, 0, 0, 0, 5)
             .withInfo(
                     Component.literal("Barrage"),
                     Component.literal("4s max duration, can be held")
@@ -131,7 +129,7 @@ public class HorusEntity extends StandEntity<HorusEntity, HorusEntity.State> {
                     Component.literal("Detonate"),
                     Component.empty()
             );
-    public static final StompAttack STOMP = new StompAttack(140, 11, 22, 0.75f,
+    public static final StompAttack STOMP = new StompAttack(22, 11, 22, 0.75f,
             9f, 12, 1.3f, 0.6f, 0.4f)
             .withFollowup(DETONATE)
             .withSound(JSoundRegistry.HORUS_STOMP)
@@ -143,8 +141,8 @@ public class HorusEntity extends StandEntity<HorusEntity, HorusEntity.State> {
                     Component.literal("summons a large icicle, press Heavy again to detonate it")
             );
     // Utility
-    public static final HorusDivekickAttack DIVEKICK = new HorusDivekickAttack(
-            280, 8, 25, 8, 6f, 19, 1.5f, 0.23f, 0.3f)
+    public static final HorusDivekickAttack DIVEKICK = new HorusDivekickAttack(240,
+            8, 25, 8, 6f, 19, 1.5f, 0.23f, 0.3f)
             .withImpactSound(JSoundRegistry.IMPACT_1)
             .withHitAnimation(CommonHitPropertyComponent.HitAnimation.HIGH)
             .withHitSpark(JParticleType.HIT_SPARK_2)
@@ -156,7 +154,7 @@ public class HorusEntity extends StandEntity<HorusEntity, HorusEntity.State> {
                             Removes fall damage.""")
             );
     // Special 1
-    public static final IceLanceAttack LANCE = new IceLanceAttack(100, 18, 24, 0.75f)
+    public static final IceLanceAttack LANCE = new IceLanceAttack(80, 18, 24, 0.75f)
             .withAnim(State.LANCE)
             .withInfo(
                     Component.literal("Ice Lance"),
@@ -181,7 +179,7 @@ public class HorusEntity extends StandEntity<HorusEntity, HorusEntity.State> {
                     Component.empty()
             );
     public static final SimpleHoldableMove<HorusEntity> CHARGE_ICICLE = new SimpleHoldableMove<HorusEntity>(
-            100, IcicleFireAttack.MAX_ICICLE_CHARGE_TIME + 1, IcicleFireAttack.MAX_ICICLE_CHARGE_TIME, 0.75f, 9)
+            0, IcicleFireAttack.MAX_ICICLE_CHARGE_TIME + 1, IcicleFireAttack.MAX_ICICLE_CHARGE_TIME, 0.75f, 9)
             .withFollowup(CHARGE_FIRE)
             .withArmor(3)
             .withInfo(
@@ -272,7 +270,7 @@ public class HorusEntity extends StandEntity<HorusEntity, HorusEntity.State> {
         super.tick();
         final int moveStun = getMoveStun();
         final LivingEntity user = JUtils.getUserIfStand(this);
-        if (user != null) {
+        if (user != null && level().getGameRules().getRule(JCraft.STAND_GRIEFING).get()) {
             FrostWalkerEnchantment.onEntityMoved(user, level(), this.getOnPos().above(), 2);
         }
         if (moveStun > IcicleFireAttack.MAX_ICICLE_CHARGE_TIME + 1 || !level().isClientSide()) return;
@@ -326,46 +324,41 @@ public class HorusEntity extends StandEntity<HorusEntity, HorusEntity.State> {
 
     // Animation code
     public enum State implements StandAnimationState<HorusEntity> {
-        IDLE(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.horus.idle"))),
-        BLOCK(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.horus.block"))),
-        LIGHT(builder -> builder.setAnimation(RawAnimation.begin().thenPlay("animation.horus.light"))),
-        LIGHT_FOLLOWUP(builder -> builder.setAnimation(RawAnimation.begin().thenPlay("animation.horus.light_followup"))),
-        LIGHT_LOW(builder -> builder.setAnimation(RawAnimation.begin().thenPlay("animation.horus.light_low"))),
-        LIGHT_AIR(builder -> builder.setAnimation(RawAnimation.begin().thenPlay("animation.horus.light_air"))),
-        IMPALE(builder -> builder.setAnimation(RawAnimation.begin().thenPlay("animation.horus.impale"))),
-        BARRAGE(builder -> builder.setAnimation(RawAnimation.begin().thenPlay("animation.horus.barrage"))),
-        STOMP(builder -> builder.setAnimation(RawAnimation.begin().thenPlay("animation.horus.stomp"))),
-        DETONATE(builder -> builder.setAnimation(RawAnimation.begin().thenPlay("animation.horus.detonate"))),
-        DIVEKICK(builder -> builder.setAnimation(RawAnimation.begin().thenPlay("animation.horus.divekick"))),
-        DIVEKICK_HIT(builder -> builder.setAnimation(RawAnimation.begin().thenPlay("animation.horus.divekick_hit"))),
-        SCATTER(builder -> builder.setAnimation(RawAnimation.begin().thenPlay("animation.horus.scatter"))),
-        CHARGE_ICICLE(builder -> builder.setAnimation(RawAnimation.begin().thenPlay("animation.horus.charge_icicle"))),
-        CHARGE_FIRE(builder -> builder.setAnimation(RawAnimation.begin().thenPlay("animation.horus.charge_fire"))),
-        PLACE(builder -> builder.setAnimation(RawAnimation.begin().thenPlay("animation.horus.place"))),
-        ULTIMATE(builder -> builder.setAnimation(RawAnimation.begin().thenPlay("animation.horus.ultimate"))),
-        LANCE(builder -> builder.setAnimation(RawAnimation.begin().thenPlay("animation.horus.lance"))),
+        IDLE(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.horus.idle", AzPlayBehaviors.LOOP)),
+        BLOCK(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.horus.block", AzPlayBehaviors.LOOP)),
+        LIGHT(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.horus.light", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        LIGHT_FOLLOWUP(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.horus.light_followup", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        LIGHT_LOW(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.horus.light_low", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        LIGHT_AIR(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.horus.light_air", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        IMPALE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.horus.impale", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        BARRAGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.horus.barrage", AzPlayBehaviors.LOOP)),
+        STOMP(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.horus.stomp", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        DETONATE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.horus.detonate", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        DIVEKICK(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.horus.divekick", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        DIVEKICK_HIT(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.horus.divekick_hit", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        SCATTER(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.horus.scatter", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        CHARGE_ICICLE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.horus.charge_icicle", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        CHARGE_FIRE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.horus.charge_fire", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        PLACE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.horus.place", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        ULTIMATE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.horus.ultimate", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        LANCE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.horus.lance", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
         ;
 
-        private final Consumer<AnimationState<HorusEntity>> animator;
+        private final AzCommand animator;
 
-        State(Consumer<AnimationState<HorusEntity>> animator) {
+        State(AzCommand animator) {
             this.animator = animator;
         }
 
         @Override
-        public void playAnimation(HorusEntity attacker, AnimationState<HorusEntity> builder) {
-            animator.accept(builder);
+        public void playAnimation(HorusEntity attacker) {
+            animator.sendForEntity(attacker);
         }
     }
 
     @Override
     protected HorusEntity.State[] getStateValues() {
         return State.values();
-    }
-
-    @Override
-    protected @Nullable String getSummonAnimation() {
-        return "animation.horus.summon";
     }
 
     @Override

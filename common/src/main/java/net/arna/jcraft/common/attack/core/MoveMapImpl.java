@@ -203,15 +203,15 @@ public class MoveMapImpl<A extends IAttacker<? extends A, S>, S extends Enum<?>>
             this.followup = followup;
 
             if (this.crouchingVariant != null) {
-                ((AbstractMove<?, A>) this.move).withCrouchingVariant(this.crouchingVariant.getMove());
+                ((AbstractMove<?, A>) this.move).withCrouchingVariant(this.crouchingVariant.getMove().markCrouchingVariant());
             }
 
             if (this.aerialVariant != null) {
-                ((AbstractMove<?, A>) this.move).withAerialVariant(this.aerialVariant.getMove());
+                ((AbstractMove<?, A>) this.move).withAerialVariant(this.aerialVariant.getMove().markAerialVariant());
             }
 
             if (this.followup != null) {
-                ((AbstractMove<?, A>) this.move).withFollowup(this.followup.getMove());
+                ((AbstractMove<?, A>) this.move).withFollowup(this.followup.getMove().markFollowup());
             }
 
             this.move.onRegister(moveClass);

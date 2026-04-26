@@ -59,6 +59,18 @@ subprojects {
         maven {
             url = "https://maven.minecraftforge.net/"
         }
+        maven {
+            name = "FTB"
+            url = "https://maven.ftb.dev/releases"
+        }
+        maven {
+            name = "Jared's maven"
+            url = "https://maven.blamejared.com/"
+        }
+        maven {
+            name = "Planets's maven"
+            url = "https://maven.jcraft-eoe.com/releases"
+        }
     }
 
     dependencies {
@@ -106,7 +118,7 @@ subprojects {
         repositories {
             maven {
                 name = 'planetMaven'
-                url = 'https://maven.planetteamspeak.dev/releases'
+                url = 'https://maven.jcraft-eoe.com/releases/'
                 credentials(org.gradle.api.credentials.PasswordCredentials)
                 authentication {
                     //noinspection GroovyAssignabilityCheck

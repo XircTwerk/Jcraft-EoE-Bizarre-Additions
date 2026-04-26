@@ -1,25 +1,19 @@
 package net.arna.jcraft.common.entity.projectile;
 
 import lombok.NonNull;
-import mod.azure.azurelib.animatable.GeoEntity;
-import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
-import mod.azure.azurelib.core.animation.AnimatableManager;
-import mod.azure.azurelib.core.animation.AnimationController;
-import mod.azure.azurelib.core.animation.AnimationState;
-import mod.azure.azurelib.core.animation.RawAnimation;
-import mod.azure.azurelib.core.object.PlayState;
-import mod.azure.azurelib.util.AzureLibUtil;
+import mod.azure.azurelib.animation.dispatch.command.AzCommand;
+import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
 import net.arna.jcraft.JCraft;
+import net.arna.jcraft.api.MoveUsage;
 import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
+import net.arna.jcraft.api.registry.JEntityTypeRegistry;
+import net.arna.jcraft.api.registry.JSoundRegistry;
+import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
 import net.arna.jcraft.common.util.ICustomDamageHandler;
 import net.arna.jcraft.common.util.IOwnable;
 import net.arna.jcraft.common.util.JUtils;
-import net.arna.jcraft.api.registry.JEntityTypeRegistry;
-import net.arna.jcraft.api.registry.JSoundRegistry;
-import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -34,13 +28,16 @@ import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class HGNetEntity extends JAttackEntity implements GeoEntity, ICustomDamageHandler {
+import static net.arna.jcraft.api.Attacks.damageLogic;
+
+public class HGNetEntity extends JAttackEntity implements ICustomDamageHandler {
     public static final EntityDataAccessor<Integer> SKIN;
     public static final EntityDataAccessor<Integer> STATE;
     public static final EntityDataAccessor<Boolean> CHARGED;
@@ -147,7 +144,7 @@ public class HGNetEntity extends JAttackEntity implements GeoEntity, ICustomDama
                     getInsideEntities().forEach(
                             living -> {
                                 if (!living.isPassengerOfSameVehicle(master)) {
-                                    StandEntity.damageLogic(
+                                    damageLogic(
                                             level(), living, launchVec, 15, 3, false, 5f, false, 10,
                                             level().damageSources().mobAttack(this), master, CommonHitPropertyComponent.HitAnimation.HIGH
                                     );
@@ -239,6 +236,9 @@ public class HGNetEntity extends JAttackEntity implements GeoEntity, ICustomDama
         if (entity == null) {
             return;
         }
+        if ((entity instanceof Player player && (player.isCreative() || player.isSpectator()))) {
+            return;
+        }
         if (!JUtils.canAct(this)) {
             return;
         }
@@ -305,7 +305,9 @@ public class HGNetEntity extends JAttackEntity implements GeoEntity, ICustomDama
     }
 
     @Override
-    public boolean handleDamage(Vec3 kbVec, int stunTicks, int stunLevel, boolean overrideStun, float damage, boolean lift, int blockstun, DamageSource source, Entity attacker, CommonHitPropertyComponent.HitAnimation hitAnimation, boolean canBackstab, boolean unblockable) {
+    public boolean handleDamage(Vec3 kbVec, int stunTicks, int stunLevel, boolean overrideStun, float damage,
+                                boolean lift, int blockstun, DamageSource source, Entity attacker, CommonHitPropertyComponent.HitAnimation hitAnimation,
+                                MoveUsage moveUsage, boolean canBackstab, boolean unblockable) {
         if (attacker == master || (attacker instanceof IOwnable ownable && ownable.getMaster() == master)) {
             return false;
         }
@@ -326,7 +328,13 @@ public class HGNetEntity extends JAttackEntity implements GeoEntity, ICustomDama
         readMasterNbt(tag);
     }
 
+    public static final AzCommand SPAWN = AzCommand.create( JCraft.BASE_CONTROLLER, "animation.hg_nets.spawn");
+    public static final AzCommand WILT = AzCommand.create( JCraft.BASE_CONTROLLER, "animation.hg_nets.wilt");
+    public static final AzCommand CONSTRICT = AzCommand.create( JCraft.BASE_CONTROLLER, "animation.hg_nets.constrict");
+    public static final AzCommand IDLE = AzCommand.create( JCraft.BASE_CONTROLLER, "animation.hg_nets.idle", AzPlayBehaviors.LOOP);
+
     // Animations
+    /*
     private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
 
     @Override
@@ -357,5 +365,5 @@ public class HGNetEntity extends JAttackEntity implements GeoEntity, ICustomDama
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return cache;
-    }
+    }*/
 }

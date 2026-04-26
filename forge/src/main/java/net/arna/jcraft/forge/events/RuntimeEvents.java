@@ -9,7 +9,7 @@ import net.arna.jcraft.forge.capability.impl.entity.GravityCapability;
 import net.arna.jcraft.forge.capability.impl.entity.TimeStopCapability;
 import net.arna.jcraft.forge.capability.impl.living.*;
 import net.arna.jcraft.forge.capability.impl.player.PhCapability;
-import net.arna.jcraft.forge.capability.impl.player.SpecCapability;
+import net.arna.jcraft.forge.capability.impl.living.SpecCapability;
 import net.arna.jcraft.forge.capability.impl.world.ShockwaveHandlerCapability;
 import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.minecraft.core.BlockPos;
@@ -42,7 +42,6 @@ public class RuntimeEvents {
         // When adding a new capability, make sure to add it to the syncEntityCapability and playerClone methods.
         if (object instanceof Player player) {
             event.addCapability(JCraft.id("ph_capability"), new JCapabilityProvider<>(PhCapability.CAPABILITY, () -> new PhCapability(player)));
-            event.addCapability(JCraft.id("spec_capability"), new JCapabilityProvider<>(SpecCapability.CAPABILITY, () -> new SpecCapability(player)));
         }
 
         if (object instanceof LivingEntity living) {
@@ -53,9 +52,12 @@ public class RuntimeEvents {
 
             event.addCapability(JCraft.id("stand_capability"), new JCapabilityProvider<>(StandCapability.CAPABILITY, () -> new StandCapability(living)));
 
+            event.addCapability(JCraft.id("hamon_capability"), new JCapabilityProvider<>(HamonCapability.CAPABILITY, () -> new HamonCapability(living)));
             event.addCapability(JCraft.id("vampire_capability"), new JCapabilityProvider<>(VampireCapability.CAPABILITY, () -> new VampireCapability(living)));
 
             event.addCapability(JCraft.id("gravity_shift_capability"), new JCapabilityProvider<>(GravityShiftCapability.CAPABILITY, () -> new GravityShiftCapability(living)));
+
+            event.addCapability(JCraft.id("spec_capability"), new JCapabilityProvider<>(SpecCapability.CAPABILITY, () -> new SpecCapability(living)));
         }
 
         event.addCapability(JCraft.id("gravity_capability"), new JCapabilityProvider<>(GravityCapability.CAPABILITY, () -> new GravityCapability(object)));
@@ -85,7 +87,7 @@ public class RuntimeEvents {
         // BombTrackerCapability.syncEntityCapability(event);
         CooldownsCapability.syncEntityCapability(event);
         // HitPropertyCapability.syncEntityCapability(event);
-        MiscCapability.syncEntityCapability(event);
+        // MiscCapability.syncEntityCapability(event);
         StandCapability.syncEntityCapability(event);
         // VampireCapability.syncEntityCapability(event);
         PhCapability.syncEntityCapability(event);
@@ -110,6 +112,7 @@ public class RuntimeEvents {
         copyCapability(HitPropertyCapability.CAPABILITY, event.getOriginal(), event.getEntity());
         copyCapability(MiscCapability.CAPABILITY, event.getOriginal(), event.getEntity());
         copyCapability(StandCapability.CAPABILITY, event.getOriginal(), event.getEntity());
+        copyCapability(HamonCapability.CAPABILITY, event.getOriginal(), event.getEntity());
         copyCapability(VampireCapability.CAPABILITY, event.getOriginal(), event.getEntity());
         copyCapability(GrabCapability.CAPABILITY, event.getOriginal(), event.getEntity());
         copyCapability(TimeStopCapability.CAPABILITY, event.getOriginal(), event.getEntity());

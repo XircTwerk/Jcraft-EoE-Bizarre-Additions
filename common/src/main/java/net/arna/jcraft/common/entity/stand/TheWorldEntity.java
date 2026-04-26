@@ -2,8 +2,10 @@ package net.arna.jcraft.common.entity.stand;
 
 import com.mojang.datafixers.util.Either;
 import lombok.NonNull;
-import mod.azure.azurelib.core.animation.AnimationState;
-import mod.azure.azurelib.core.animation.RawAnimation;
+import mod.azure.azurelib.animation.dispatch.command.AzCommand;
+import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
+import net.arna.jcraft.JCraft;
+import net.arna.jcraft.api.Attacks;
 import net.arna.jcraft.api.attack.MoveMap;
 import net.arna.jcraft.api.attack.MoveSet;
 import net.arna.jcraft.api.attack.MoveSetManager;
@@ -30,17 +32,13 @@ import net.arna.jcraft.common.util.StandAnimationState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
  * The {@link StandEntity} for <a href="https://jojowiki.com/The_World">The World</a>.
  * @see JStandTypeRegistry#THE_WORLD
- * @see net.arna.jcraft.client.model.entity.stand.TheWorldModel TheWorldModel
- * @see net.arna.jcraft.client.renderer.entity.stands.TheWorldRenderer TheWorldRenderer
  * @see FeignBarrageCounterAttack
  * @see TWDonutAttack
  */
@@ -56,10 +54,10 @@ public final class TheWorldEntity extends AbstractTheWorldEntity<TheWorldEntity,
                     .freeSpace(Component.literal("""
                             BNBs:
                                 -the sauce boss
-                                (Light>)Charge>cr.Light>Roundhouse>Barrage>Light>Donut>Roundhouse>Light~Light
+                                (Light>)Charge>cr.Light>Roundhouse>Barrage>Light>Donut>Sweep>Light~Light
                             
                                 -the afternoon coffee
-                                Donut>Roundhouse>Charge>Light>Barrage>Roundhouse>Light~Light"""))
+                                Donut>Sweep>Charge>Light>Barrage>Roundhouse>Light~Light"""))
                     .skinName(Component.literal("OVA"))
                     .skinName(Component.literal("Black"))
                     .skinName(Component.literal("Greatest High"))
@@ -91,7 +89,7 @@ public final class TheWorldEntity extends AbstractTheWorldEntity<TheWorldEntity,
                     """, ModifierCondition.USER_NOT_SPRINTING))
             .build();
 
-    public static final SimpleAttack<TheWorldEntity> LOW_KICK = new SimpleAttack<TheWorldEntity>(20, 8, 14, 0.75f,
+    public static final SimpleAttack<TheWorldEntity> LOW_KICK = new SimpleAttack<TheWorldEntity>(0, 8, 14, 0.75f,
             6f, 17, 1.5f, 0.2f, 0.65f)
             .withAnim(State.LOW)
             .withImpactSound(JSoundRegistry.IMPACT_1)
@@ -130,8 +128,8 @@ public final class TheWorldEntity extends AbstractTheWorldEntity<TheWorldEntity,
                     Component.literal("Barrage"),
                     Component.literal("fast reliable combo starter/extender, high stun")
             );
-    public static final SimpleAttack<TheWorldEntity> SWEEP = new SimpleAttack<TheWorldEntity>(40, 6, 16, 0.75f, 5f,
-            16, 1.85f, 0.5f, 0.4f)
+    public static final SimpleAttack<TheWorldEntity> SWEEP = new SimpleAttack<TheWorldEntity>(16,
+            6, 16, 0.75f, 5f, 16, 1.85f, 0.5f, 0.4f)
             .withSound(JSoundRegistry.TW_KICK)
             .withImpactSound(JSoundRegistry.TW_KICK_HIT)
             .withHitAnimation(CommonHitPropertyComponent.HitAnimation.LOW)
@@ -140,8 +138,8 @@ public final class TheWorldEntity extends AbstractTheWorldEntity<TheWorldEntity,
                     Component.literal("Sweep"),
                     Component.literal("fast, decent stun")
             );
-    public static final SimpleUppercutAttack<TheWorldEntity> ROUNDHOUSE = new SimpleUppercutAttack<TheWorldEntity>(20, 7, 13, 0.75f, 5f,
-            10, 1.75f, 0.5f, -0.2f, 0.4f)
+    public static final SimpleUppercutAttack<TheWorldEntity> ROUNDHOUSE = new SimpleUppercutAttack<TheWorldEntity>(13,
+            7, 13, 0.75f, 5f, 10, 1.75f, 0.5f, -0.2f, 0.4f)
             .withCrouchingVariant(SWEEP)
             .withSound(JSoundRegistry.TW_KICK)
             .withImpactSound(JSoundRegistry.TW_KICK_HIT)
@@ -151,7 +149,8 @@ public final class TheWorldEntity extends AbstractTheWorldEntity<TheWorldEntity,
                     Component.literal("Roundhouse"),
                     Component.literal("low stun")
             );
-    public static final KnockdownAttack<TheWorldEntity> COUNTER_FOLLOWUP = new KnockdownAttack<TheWorldEntity>(0, 5, 9, 0.75f, 9f, 16, 1.75f, 0.7f, 0.1f, 35)
+    public static final KnockdownAttack<TheWorldEntity> COUNTER_FOLLOWUP = new KnockdownAttack<TheWorldEntity>(0,
+            5, 9, 0.75f, 9f, 16, 1.75f, 0.7f, 0.1f, 35)
             .withSound(JSoundRegistry.TW_COUNTER)
             .withImpactSound(JSoundRegistry.IMPACT_4)
             .withExtraHitBox(1.25)
@@ -161,15 +160,15 @@ public final class TheWorldEntity extends AbstractTheWorldEntity<TheWorldEntity,
                     Component.literal("Counter (Hit)"),
                     Component.literal("quick, armored knockdown")
             );
-    public static final FeignBarrageCounterAttack FEIGN_BARRAGE = new FeignBarrageCounterAttack(400, 5,
-            50, 0.75f, COUNTER_FOLLOWUP)
+    public static final FeignBarrageCounterAttack FEIGN_BARRAGE = new FeignBarrageCounterAttack(400,
+            5,50, 0.75f, COUNTER_FOLLOWUP)
             .withSound(JSoundRegistry.TW_BARRAGE)
             .withInfo(
                     Component.literal("Feign Barrage"),
                     Component.literal("counter, 0.25s windup, 2.25s duration, teleports and knocks down on hit")
             );
-    public static final TWDonutAttack DONUT = new TWDonutAttack(220, 20, 42, 1f,
-            9f, 52, 2f, 1f, 0f)
+    public static final TWDonutAttack DONUT = new TWDonutAttack(42,
+            20, 42, 1f,9f, 52, 2f, 1f, 0f)
             .withSound(JSoundRegistry.TW_DONUT)
             .withImpactSound(JSoundRegistry.TW_DONUT_HIT)
             .withExtraHitBox(1.5)
@@ -185,8 +184,8 @@ public final class TheWorldEntity extends AbstractTheWorldEntity<TheWorldEntity,
                     Component.literal("Timeskip"),
                     Component.literal("14m range")
             );
-    public static final SimpleAttack<TheWorldEntity> LUNGE = new SimpleAttack<TheWorldEntity>(160, 9, 14,
-            1f, 5f, 12, 1.5f, 0.6f, 0.2f)
+    public static final SimpleAttack<TheWorldEntity> LUNGE = new SimpleAttack<TheWorldEntity>(100,
+            9, 14,1f, 5f, 12, 1.5f, 0.6f, 0.2f)
             .withExtraHitBox(1)
             .withInitAction(LungeAction.lunge(0.75f, 0f).isNotFree())
             .withSound(JSoundRegistry.TW_KICK)
@@ -197,8 +196,8 @@ public final class TheWorldEntity extends AbstractTheWorldEntity<TheWorldEntity,
                     Component.literal("Lunge"),
                     Component.literal("user & stand charge forward, launches")
             );
-    public static final TWChargeAttack CHARGE = new TWChargeAttack(
-            280, 5, 19, 7.5f, 5f, 20, 1.5f, 0.25f, 0)
+    public static final TWChargeAttack CHARGE = new TWChargeAttack(100,
+            5, 19, 7.5f, 5f, 20, 1.5f, 0.25f, 0)
             .withCrouchingVariant(LUNGE)
             .withSound(JSoundRegistry.TW_CHARGE)
             .withImpactSound(JSoundRegistry.TW_CHARGE_HIT)
@@ -216,6 +215,12 @@ public final class TheWorldEntity extends AbstractTheWorldEntity<TheWorldEntity,
                     Component.literal("Timestop"),
                     Component.literal("4 seconds")
             );
+    // TODO add move info x2
+    // TODO balance x2
+    public static final TossMove<TheWorldEntity> TOSS = new TossMove<TheWorldEntity>(0, 1, 1, 0.75f)
+            .withAnim(TheWorldEntity.State.ITEM_TOSS);
+    public static final TossChargeMove<TheWorldEntity> TOSS_CHARGE = new TossChargeMove<TheWorldEntity>(70, 3 * 20 + 1, 3 * 20, 1.0f, 10)
+            .withFollowup(TOSS);
 
     public TheWorldEntity(Level worldIn) {
         super(JStandTypeRegistry.THE_WORLD.get(), worldIn);
@@ -240,6 +245,8 @@ public final class TheWorldEntity extends AbstractTheWorldEntity<TheWorldEntity,
         moves.register(MoveClass.ULTIMATE, TIME_STOP, State.TIME_STOP);
 
         moves.register(MoveClass.UTILITY, TIME_SKIP, State.IDLE);
+
+        moves.register(MoveClass.TOSS, TOSS_CHARGE, State.ITEM_TOSS_CHARGE).withFollowup(State.ITEM_TOSS);
     }
 
     @Override
@@ -269,43 +276,40 @@ public final class TheWorldEntity extends AbstractTheWorldEntity<TheWorldEntity,
 
     // Animation code
     public enum State implements StandAnimationState<TheWorldEntity> {
-        IDLE(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.theworld.idle"))),
-        LIGHT(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.theworld.light"))),
-        BLOCK(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.theworld.block"))),
-        DONUT(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.theworld.donut"))),
-        BARRAGE(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.theworld.barrage"))),
-        TIME_STOP(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.theworld.timestop"))),
-        CHARGE(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.theworld.charge"))),
-        CHARGE_HIT(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.theworld.charge_hit"))),
-        ROUNDHOUSE(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.theworld.roundhouse"))),
-        SWEEP(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.theworld.sweep"))),
-        COUNTER_HIT(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.theworld.counter_hit"))),
-        COUNTER_MISS(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.theworld.counter_miss"))),
-        LOW(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.theworld.low"))),
-        TIMESKIP(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.theworld.idle"))),
-        LIGHT_FOLLOWUP(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.theworld.light_followup"))),
-        LUNGE(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.theworld.lunge")));
+        IDLE(AzCommand.create("base_controller", "animation.theworld.idle", AzPlayBehaviors.LOOP)),
+        LIGHT(Attacks.createAnimationCommand("base_controller", "animation.theworld.light", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        BLOCK(AzCommand.create("base_controller", "animation.theworld.block", AzPlayBehaviors.LOOP)),
+        DONUT(Attacks.createAnimationCommand("base_controller", "animation.theworld.donut", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        BARRAGE(Attacks.createAnimationCommand("base_controller", "animation.theworld.barrage", AzPlayBehaviors.LOOP)),
+        TIME_STOP(Attacks.createAnimationCommand("base_controller", "animation.theworld.timestop", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        CHARGE(Attacks.createAnimationCommand("base_controller", "animation.theworld.charge", AzPlayBehaviors.LOOP)),
+        CHARGE_HIT(Attacks.createAnimationCommand("base_controller", "animation.theworld.charge_hit", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        ROUNDHOUSE(Attacks.createAnimationCommand("base_controller", "animation.theworld.roundhouse", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        SWEEP(Attacks.createAnimationCommand("base_controller", "animation.theworld.sweep", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        COUNTER_HIT(Attacks.createAnimationCommand("base_controller", "animation.theworld.counter_hit", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        COUNTER_MISS(Attacks.createAnimationCommand("base_controller", "animation.theworld.counter_miss", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        LOW(Attacks.createAnimationCommand("base_controller", "animation.theworld.low", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        TIMESKIP(Attacks.createAnimationCommand("base_controller", "animation.theworld.idle", AzPlayBehaviors.LOOP)),
+        LIGHT_FOLLOWUP(Attacks.createAnimationCommand("base_controller", "animation.theworld.light_followup", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        LUNGE(Attacks.createAnimationCommand("base_controller", "animation.theworld.lunge", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        ITEM_TOSS_CHARGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "itemthrow_charge", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        ITEM_TOSS(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "itemthrow", AzPlayBehaviors.PLAY_ONCE));
 
-        private final Consumer<AnimationState<TheWorldEntity>> animator;
+        private final AzCommand animator;
 
-        State(Consumer<AnimationState<TheWorldEntity>> animator) {
+        State(AzCommand animator) {
             this.animator = animator;
         }
 
         @Override
-        public void playAnimation(TheWorldEntity attacker, AnimationState<TheWorldEntity> builder) {
-            animator.accept(builder);
+        public void playAnimation(TheWorldEntity attacker) {
+            animator.sendForEntity(attacker);
         }
     }
 
     @Override
     protected State[] getStateValues() {
         return State.values();
-    }
-
-    @Override
-    protected @NotNull String getSummonAnimation() {
-        return "animation.theworld.summon";
     }
 
     @Override

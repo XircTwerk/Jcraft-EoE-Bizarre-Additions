@@ -7,6 +7,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import dev.architectury.registry.registries.Registrar;
 import dev.architectury.registry.registries.RegistrarManager;
+import lombok.experimental.UtilityClass;
 import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.spec.SpecType;
 import net.arna.jcraft.api.stand.StandType;
@@ -16,9 +17,12 @@ import net.arna.jcraft.api.attack.core.MoveActionType;
 import net.arna.jcraft.api.attack.core.MoveConditionType;
 import net.arna.jcraft.api.attack.MoveType;
 import net.arna.jcraft.api.attack.moves.AbstractMove;
+import net.arna.jcraft.common.util.TriConsumer;
 import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -31,6 +35,7 @@ import java.util.function.Predicate;
  * Do NOT register your objects to these registries directly, use a DeferredRegister instead.
  * (See example add-on mod and the registries in net.arna.jcraft.registry package).
  */
+@UtilityClass
 public class JRegistries {
     private static final RegistrarManager MANAGER = RegistrarManager.get(JCraft.MOD_ID);
 
@@ -50,6 +55,12 @@ public class JRegistries {
     public static final Registrar<MoveActionType<?>> MOVE_ACTION_TYPE_REGISTRY = MANAGER.<MoveActionType<?>>builder(JCraft.id("move_action_type"))
             .syncToClients()
             .build();
+    public static final Registrar<TriConsumer<ResourceLocation,Entity,CompoundTag>> EXTRACTOR_REGISTRY = MANAGER.<TriConsumer<ResourceLocation,Entity,CompoundTag>>builder(JCraft.id("extractor"))
+            .syncToClients()
+            .build();
+    public static final Registrar<TriConsumer<ResourceLocation,Entity,CompoundTag>> INJECTOR_REGISTRY = MANAGER.<TriConsumer<ResourceLocation,Entity,CompoundTag>>builder(JCraft.id("injector"))
+            .syncToClients()
+            .build();
 
     // Registry keys
     public static final ResourceKey<Registry<StandType>> STAND_TYPE_REGISTRY_KEY = createKey(STAND_TYPE_REGISTRY);
@@ -57,6 +68,8 @@ public class JRegistries {
     public static final ResourceKey<Registry<MoveType<?>>> MOVE_TYPE_REGISTRY_KEY = createKey(MOVE_TYPE_REGISTRY);
     public static final ResourceKey<Registry<MoveConditionType<?>>> MOVE_CONDITION_TYPE_REGISTRY_KEY = createKey(MOVE_CONDITION_TYPE_REGISTRY);
     public static final ResourceKey<Registry<MoveActionType<?>>> MOVE_ACTION_TYPE_REGISTRY_KEY = createKey(MOVE_ACTION_TYPE_REGISTRY);
+    public static final ResourceKey<Registry<TriConsumer<ResourceLocation,Entity,CompoundTag>>> EXTRACTOR_REGISTRY_KEY = createKey(EXTRACTOR_REGISTRY);
+    public static final ResourceKey<Registry<TriConsumer<ResourceLocation,Entity,CompoundTag>>> INJECTOR_REGISTRY_KEY = createKey(INJECTOR_REGISTRY);
 
     // Registry codecs
     public static final Codec<StandType> STAND_TYPE_CODEC = createCodec(STAND_TYPE_REGISTRY);
@@ -70,10 +83,8 @@ public class JRegistries {
     public static final Codec<MoveActionType<?>> MOVE_ACTION_TYPE_CODEC = createCodec(MOVE_ACTION_TYPE_REGISTRY);
     public static final Codec<MoveAction<?, ?>> MOVE_ACTION_CODEC = MOVE_ACTION_TYPE_CODEC
             .dispatch("type", MoveAction::getType, MoveActionType::getCodec);
-
-    private JRegistries() {
-        // No instantiation.
-    }
+    public static final Codec<TriConsumer<ResourceLocation,Entity,CompoundTag>> EXTRACTOR_CODEC = createCodec(EXTRACTOR_REGISTRY);
+    public static final Codec<TriConsumer<ResourceLocation,Entity,CompoundTag>> INJECTOR_CODEC = createCodec(INJECTOR_REGISTRY);
 
     public static void init() {
         // Left empty on purpose. Static initializers will register the registries.
@@ -83,14 +94,14 @@ public class JRegistries {
         return ResourceLocation.CODEC.flatXmap(rl -> {
             final T t = registrar.get(rl);
             if (t == null) {
-                return DataResult.error(() -> "Could not find " + registrar.key().location() + " with id: " + rl);
+                return DataResult.error(() -> "Could not find " + registrar.key().location() + " with ID: " + rl);
             }
 
             return DataResult.success(t);
         }, t -> {
             final ResourceLocation rl = registrar.getId(t);
             if (rl == null) {
-                return DataResult.error(() -> "Could not find id for " + registrar.key().location() + ": " + t);
+                return DataResult.error(() -> "Could not find ID for " + registrar.key().location() + ": " + t);
             }
             return DataResult.success(rl);
         });

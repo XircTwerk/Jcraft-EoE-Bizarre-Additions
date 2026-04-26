@@ -82,7 +82,7 @@ public class StandDiscItem extends Item {
             return InteractionResultHolder.fail(itemStack);
         }
 
-        standData.setTypeAndSkin(itemStand, itemSkin);
+        standData.setTypeAndSkin(itemStand, itemSkin, false);
         if (userStand == null) {
             data.remove("StandID");
             data.remove("Skin");
@@ -91,11 +91,18 @@ public class StandDiscItem extends Item {
             data.putInt("Skin", userSkin);
         }
 
-        StandEntity<?, ?> stand = standData.getStand();
+        final StandEntity<?, ?> stand = standData.getStand();
+
         if (stand != null) {
-            stand.discard();
+            stand.desummon(); // Cleanup
+
+            if (!stand.isRemoved()) {
+                stand.discard(); // Forced removal in case desummon() didn't go through
+            }
+
             standData.setStand(null);
         }
+
         JCraft.summon(world, user);
 
         // 1s usage cooldown to prevent overuse

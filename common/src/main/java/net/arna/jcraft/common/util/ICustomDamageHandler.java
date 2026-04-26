@@ -1,5 +1,6 @@
 package net.arna.jcraft.common.util;
 
+import net.arna.jcraft.api.MoveUsage;
 import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -13,5 +14,5 @@ public interface ICustomDamageHandler {
      */
     boolean handleDamage(Vec3 kbVec, int stunTicks, int stunLevel, boolean overrideStun,
                          float damage, boolean lift, int blockstun, DamageSource source, Entity attacker,
-                         CommonHitPropertyComponent.HitAnimation hitAnimation, boolean canBackstab, boolean unblockable);
+                         CommonHitPropertyComponent.HitAnimation hitAnimation, MoveUsage moveUsage, boolean canBackstab, boolean unblockable);
 }

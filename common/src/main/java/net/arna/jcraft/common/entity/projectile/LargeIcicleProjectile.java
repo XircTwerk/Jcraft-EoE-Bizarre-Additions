@@ -1,22 +1,15 @@
 package net.arna.jcraft.common.entity.projectile;
 
 import lombok.NonNull;
-import mod.azure.azurelib.animatable.GeoEntity;
-import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
-import mod.azure.azurelib.core.animation.AnimatableManager;
-import mod.azure.azurelib.core.animation.AnimationController;
-import mod.azure.azurelib.core.animation.AnimationState;
-import mod.azure.azurelib.core.animation.RawAnimation;
-import mod.azure.azurelib.core.object.PlayState;
-import mod.azure.azurelib.util.AzureLibUtil;
+import mod.azure.azurelib.animation.dispatch.command.AzCommand;
+import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
 import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
-import net.arna.jcraft.api.stand.StandEntity;
+import net.arna.jcraft.api.registry.JEntityTypeRegistry;
 import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
 import net.arna.jcraft.common.util.JParticleType;
 import net.arna.jcraft.common.util.JUtils;
 import net.arna.jcraft.platform.JComponentPlatformUtils;
-import net.arna.jcraft.api.registry.JEntityTypeRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -37,7 +30,9 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.Set;
 
-public class LargeIcicleProjectile extends AbstractArrow implements GeoEntity {
+import static net.arna.jcraft.api.Attacks.damageLogic;
+
+public class LargeIcicleProjectile extends AbstractArrow {
     public static final BlockParticleOption ICE_PARTICLE = new BlockParticleOption(ParticleTypes.BLOCK, Blocks.ICE.defaultBlockState());
     private int ticksInAir;
     private LivingEntity livingOwner;
@@ -86,6 +81,10 @@ public class LargeIcicleProjectile extends AbstractArrow implements GeoEntity {
     public void setInstant(boolean instant) {
         this.instant = instant;
         entityData.set(IS_INSTANT, instant);
+    }
+
+    public boolean isInstant() {
+        return entityData.get(IS_INSTANT);
     }
 
     public void markProjectile() {
@@ -157,7 +156,7 @@ public class LargeIcicleProjectile extends AbstractArrow implements GeoEntity {
 
                     int stun = 15;
 
-                    StandEntity.damageLogic(level(), target, kbVec,
+                    damageLogic(level(), target, kbVec,
                             stun, 3, false, 3f, true,
                             4, level().damageSources().mobAttack(livingOwner), livingOwner,
                             CommonHitPropertyComponent.HitAnimation.CRUSH, false, false);
@@ -208,7 +207,7 @@ public class LargeIcicleProjectile extends AbstractArrow implements GeoEntity {
             int stun = (int) (15 * scale);
             if (instant) stun += 9;
 
-            StandEntity.damageLogic(level(), target, kbVec,
+            damageLogic(level(), target, kbVec,
                     stun, 3, false, 7f * scale + (perfect ? 3f : 0), true,
                     (int) (13.0f * scale), level().damageSources().mobAttack(livingOwner), livingOwner,
                     CommonHitPropertyComponent.HitAnimation.CRUSH, false, perfect);
@@ -312,7 +311,11 @@ public class LargeIcicleProjectile extends AbstractArrow implements GeoEntity {
         this.ticksInAir = tag.getShort("life");
     }
 
+    public static final AzCommand FIRE = AzCommand.create(JCraft.BASE_CONTROLLER, "animation.large_icicle.spawn", AzPlayBehaviors.HOLD_ON_LAST_FRAME);
+    public static final AzCommand FIRE_INSTANT = AzCommand.create(JCraft.BASE_CONTROLLER, "animation.large_icicle.spawn_instant", AzPlayBehaviors.HOLD_ON_LAST_FRAME);
+
     // Animations
+    /*
     private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
@@ -328,5 +331,5 @@ public class LargeIcicleProjectile extends AbstractArrow implements GeoEntity {
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return cache;
-    }
+    }*/
 }

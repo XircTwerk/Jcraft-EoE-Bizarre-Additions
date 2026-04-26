@@ -993,7 +993,7 @@
 				}
 			}
 		},
-		"animation.kqbtd.summon": {
+		"summon": {
 			"animation_length": 1.12,
 			"bones": {
 				"torso": {
@@ -6550,5 +6550,14 @@
 			}
 		}
 	},
+    "includes": [
+      {
+        "file_id": "jcraft:animations/base_stand.animation.json",
+        "animations": [
+          "itemthrow",
+          "itemthrow_charge"
+        ]
+      }
+    ],
 	"azurelib_format_version": 2
 }

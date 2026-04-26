@@ -1,5 +1,7 @@
 package net.arna.jcraft.common.entity;
 
+import mod.azure.azurelib.animation.dispatch.command.AzCommand;
+import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
 import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
 import net.arna.jcraft.common.util.IOwnable;
@@ -16,31 +18,18 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySelector;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-
 import java.util.*;
 
-import static net.arna.jcraft.api.stand.StandEntity.damageLogic;
+import static net.arna.jcraft.api.Attacks.damageLogic;
 import static net.arna.jcraft.common.util.JUtils.canDamage;
-import mod.azure.azurelib.animatable.GeoEntity;
-import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
-import mod.azure.azurelib.core.animation.AnimatableManager;
-import mod.azure.azurelib.core.animation.AnimationController;
-import mod.azure.azurelib.core.animation.AnimationState;
-import mod.azure.azurelib.core.animation.RawAnimation;
-import mod.azure.azurelib.core.object.PlayState;
-import mod.azure.azurelib.util.AzureLibUtil;
 
-public class GERScorpionEntity extends Mob implements GeoEntity, IOwnable {
+public class GERScorpionEntity extends Mob implements IOwnable {
     private static final EntityDataAccessor<Optional<UUID>> OWNERUUID;
     private static final EntityDataAccessor<Boolean> ISROCK;
     private static final EntityDataAccessor<Boolean> CHARGED;
@@ -63,6 +52,7 @@ public class GERScorpionEntity extends Mob implements GeoEntity, IOwnable {
     public void setInitialVel(Vec3 initV) {
         this.setDeltaMovement(initV);
         initialVel = initV;
+        ROCK_IDLE.sendForEntity(this);
     }
 
     public Optional<UUID> getOwnerUUID() {
@@ -149,6 +139,7 @@ public class GERScorpionEntity extends Mob implements GeoEntity, IOwnable {
         hurtMarked = true;
         setDiscardFriction(false);
         setRock(false);
+        TRANSFORM.sendForEntity(this);
     }
 
     @Override
@@ -231,7 +222,9 @@ public class GERScorpionEntity extends Mob implements GeoEntity, IOwnable {
                         } else {
                             push(0, 0.65, 0);
                         }
+
                         hurtMarked = true;
+                        ATTACK.sendForEntity(this);
                     }
 
                     if (landedTimer == 20) { // Sting followup, 5t gap
@@ -275,25 +268,7 @@ public class GERScorpionEntity extends Mob implements GeoEntity, IOwnable {
         }
     }
 
-    // Animations
-    private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
-
-    @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "controller", 0, this::predicate));
-    }
-
-    private PlayState predicate(AnimationState<GERScorpionEntity> state) {
-        if (this.isRock()) {
-            state.setAnimation(RawAnimation.begin().thenLoop("animation.gerscorpion.rock"));
-        } else {
-            state.setAnimation(RawAnimation.begin().thenPlay("animation.gerscorpion.transform").thenPlayAndHold("animation.gerscorpion.attack"));
-        }
-        return PlayState.CONTINUE;
-    }
-
-    @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return cache;
-    }
+    private static final AzCommand ROCK_IDLE = AzCommand.create(JCraft.BASE_CONTROLLER, "animation.gerscorpion.rock", AzPlayBehaviors.LOOP);
+    private static final AzCommand TRANSFORM = AzCommand.create(JCraft.BASE_CONTROLLER, "animation.gerscorpion.transform");
+    private static final AzCommand ATTACK = AzCommand.create(JCraft.BASE_CONTROLLER, "animation.gerscorpion.attack", AzPlayBehaviors.HOLD_ON_LAST_FRAME);
 }

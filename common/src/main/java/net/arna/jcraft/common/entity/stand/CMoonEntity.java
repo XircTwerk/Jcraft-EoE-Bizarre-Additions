@@ -2,30 +2,33 @@ package net.arna.jcraft.common.entity.stand;
 
 import lombok.Data;
 import lombok.NonNull;
-import mod.azure.azurelib.core.animation.AnimationState;
-import mod.azure.azurelib.core.animation.RawAnimation;
+import mod.azure.azurelib.animation.dispatch.command.AzCommand;
+import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
 import net.arna.jcraft.JCraft;
+import net.arna.jcraft.api.Attacks;
+import net.arna.jcraft.api.attack.MoveMap;
+import net.arna.jcraft.api.attack.MoveSet;
+import net.arna.jcraft.api.attack.MoveSetManager;
+import net.arna.jcraft.api.attack.enums.BlockableType;
+import net.arna.jcraft.api.attack.enums.MoveClass;
+import net.arna.jcraft.api.component.living.CommonGravityShiftComponent;
+import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
+import net.arna.jcraft.api.registry.JSoundRegistry;
+import net.arna.jcraft.api.registry.JStandTypeRegistry;
 import net.arna.jcraft.api.stand.StandData;
 import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.api.stand.StandInfo;
 import net.arna.jcraft.api.stand.SummonData;
-import net.arna.jcraft.api.attack.MoveSetManager;
 import net.arna.jcraft.common.attack.actions.CMoonInversionAction;
-import net.arna.jcraft.api.attack.enums.BlockableType;
-import net.arna.jcraft.api.attack.enums.MoveClass;
-import net.arna.jcraft.api.attack.MoveMap;
-import net.arna.jcraft.api.attack.MoveSet;
 import net.arna.jcraft.common.attack.moves.cmoon.*;
 import net.arna.jcraft.common.attack.moves.shared.MainBarrageAttack;
 import net.arna.jcraft.common.attack.moves.shared.SimpleAttack;
-import net.arna.jcraft.api.component.living.CommonGravityShiftComponent;
-import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
+import net.arna.jcraft.common.attack.moves.shared.TossChargeMove;
+import net.arna.jcraft.common.attack.moves.shared.TossMove;
 import net.arna.jcraft.common.entity.projectile.BlockProjectile;
 import net.arna.jcraft.common.util.JParticleType;
 import net.arna.jcraft.common.util.StandAnimationState;
 import net.arna.jcraft.platform.JComponentPlatformUtils;
-import net.arna.jcraft.api.registry.JSoundRegistry;
-import net.arna.jcraft.api.registry.JStandTypeRegistry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -38,7 +41,6 @@ import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * The {@link StandEntity} for <a href="https://jojowiki.com/C-MOON">C-MOON</a>.
@@ -75,8 +77,8 @@ public class CMoonEntity extends StandEntity<CMoonEntity, CMoonEntity.State> {
             .build();
 
     public static final int GRAVITY_CHANGE_DURATION = 600; // in ticks
-    public static final SimpleAttack<CMoonEntity> INVERSION_PUNCH = SimpleAttack.<CMoonEntity>lightAttack(6, 12,
-                    0.75f, 5f, 9, 0.5f, -0.1f)
+    public static final SimpleAttack<CMoonEntity> INVERSION_PUNCH = SimpleAttack.<CMoonEntity>lightAttack(
+            6,12,0.75f, 5f, 9, 0.5f, -0.1f)
             .withAnim(State.INVERSION_PUNCH)
             .withImpactSound(JSoundRegistry.IMPACT_1)
             .withAction(CMoonInversionAction.addInversion(70, 0.5f, true))
@@ -85,8 +87,8 @@ public class CMoonEntity extends StandEntity<CMoonEntity, CMoonEntity.State> {
                     Component.literal("Inversion Punch"),
                     Component.literal("very low stun, delayed slowness")
             );
-    public static final SimpleAttack<CMoonEntity> LIGHT_FOLLOWUP = new SimpleAttack<CMoonEntity>(
-            0, 6, 12, 0.75f, 6, 7, 1.5f, 1f, -0.1f)
+    public static final SimpleAttack<CMoonEntity> LIGHT_FOLLOWUP = new SimpleAttack<CMoonEntity>(0,
+            6, 12, 0.75f, 6, 7, 1.5f, 1f, -0.1f)
             .withAnim(State.LIGHT_FOLLOWUP)
             .withImpactSound(JSoundRegistry.IMPACT_1)
             .withLaunch()
@@ -98,8 +100,8 @@ public class CMoonEntity extends StandEntity<CMoonEntity, CMoonEntity.State> {
                     Component.literal("Punch"),
                     Component.literal("quick combo finisher")
             );
-    public static final SimpleAttack<CMoonEntity> PUNCH = SimpleAttack.<CMoonEntity>lightAttack(5, 7,
-                    0.75f, 5f, 10, 0.2f, -0.1f)
+    public static final SimpleAttack<CMoonEntity> PUNCH = SimpleAttack.<CMoonEntity>lightAttack(
+            5, 7, 0.75f, 5f, 10, 0.2f, -0.1f)
             .withFollowup(LIGHT_FOLLOWUP)
             .withCrouchingVariant(INVERSION_PUNCH)
             .withImpactSound(JSoundRegistry.IMPACT_1)
@@ -108,8 +110,8 @@ public class CMoonEntity extends StandEntity<CMoonEntity, CMoonEntity.State> {
                     Component.literal("Punch"),
                     Component.literal("quick combo starter")
             );
-    public static final MainBarrageAttack<CMoonEntity> BARRAGE = new MainBarrageAttack<CMoonEntity>(280, 0,
-            40, 0.75f, 0.75f, 20, 2f, 0.25f, 0f, 4, Blocks.OBSIDIAN.defaultDestroyTime())
+    public static final MainBarrageAttack<CMoonEntity> BARRAGE = new MainBarrageAttack<CMoonEntity>(280,
+            0, 40, 0.75f, 0.75f, 20, 2f, 0.25f, 0f, 4, Blocks.OBSIDIAN.defaultDestroyTime())
             .withSound(JSoundRegistry.CMOON_BARRAGE)
             .withImpactSound(JSoundRegistry.IMPACT_3)
             .withAction(CMoonInversionAction.addInversion(40, 0.25f, false))
@@ -117,8 +119,8 @@ public class CMoonEntity extends StandEntity<CMoonEntity, CMoonEntity.State> {
                     Component.literal("Barrage"),
                     Component.literal("fast reliable combo starter/extender, medium stun")
             );
-    public static final SimpleAttack<CMoonEntity> GUT_PUNCH = new SimpleAttack<CMoonEntity>(200, 19, 30,
-            1f, 8f, 10, 2f, 1.5f, 0f)
+    public static final SimpleAttack<CMoonEntity> GUT_PUNCH = new SimpleAttack<CMoonEntity>(30,
+            19, 30,1f, 8f, 10, 2f, 1.5f, 0f)
             .withSound(JSoundRegistry.CMOON_DONUT)
             .withImpactSound(JSoundRegistry.TW_KICK_HIT)
             .withAction(CMoonInversionAction.addInversion(40, 0.5f, false))
@@ -130,8 +132,8 @@ public class CMoonEntity extends StandEntity<CMoonEntity, CMoonEntity.State> {
                     Component.literal("Gut Punch"),
                     Component.literal("slow, uninterruptible combo finisher")
             );
-    public static final LaunchAttack LAUNCH = new LaunchAttack(260, 14, 21, 0.75f,
-            5f, 19, 1.75f, 0.9f, 0.3f)
+    public static final LaunchAttack LAUNCH = new LaunchAttack(60,
+            14, 21, 0.75f,5f, 19, 1.75f, 0.9f, 0.3f)
             .withSound(JSoundRegistry.CMOON_GROUNDSHOOT)
             .withImpactSound(JSoundRegistry.IMPACT_5)
             .withAction(CMoonInversionAction.addInversion(40, 0.5f, false))
@@ -140,8 +142,8 @@ public class CMoonEntity extends StandEntity<CMoonEntity, CMoonEntity.State> {
                     Component.literal("Block Launch"),
                     Component.literal("lifts a block from the ground and launches it at a delay/crouching and using this button resets the delay on nearby blocks")
             );
-    public static final GravPunchAttack GRAV_PUNCH = new GravPunchAttack(300, 20, 32, 1f,
-            8f, 45, 1.75f, 0.35f, -0.3f)
+    public static final GravPunchAttack GRAV_PUNCH = new GravPunchAttack(300,
+            20, 32, 1f,8f, 45, 1.75f, 0.35f, -0.3f)
             .withSound(JSoundRegistry.CMOON_GRAV_PUNCH)
             .withImpactSound(JSoundRegistry.CMOON_GRAV_PUNCH_HIT)
             .withAction(CMoonInversionAction.addInversion(40, 0.5f, false))
@@ -152,8 +154,8 @@ public class CMoonEntity extends StandEntity<CMoonEntity, CMoonEntity.State> {
                     Component.literal("Only One Punch"),
                     Component.literal("inverts enemy gravity and floats on hit (3s), high stun")
             );
-    public static final CGroundSlamAttack GROUND_SLAM = new CGroundSlamAttack(240, 10, 18,
-            1f, 7f, 17, 3f, 0.2f, 1.4f)
+    public static final CGroundSlamAttack GROUND_SLAM = new CGroundSlamAttack(18,
+            10, 18, 1f, 7f, 17, 3f, 0.2f, 1.4f)
             .withSound(JSoundRegistry.CMOON_GROUNDSLAM)
             .withImpactSound(JSoundRegistry.IMPACT_10)
             .withAction(CMoonInversionAction.addInversion(40, 0.5f, false))
@@ -173,7 +175,7 @@ public class CMoonEntity extends StandEntity<CMoonEntity, CMoonEntity.State> {
                             lasts 10 seconds
                             swap between attraction/repulsion by pressing ultimate again""")
             );
-    public static final GravityShiftPulseMove GRAV_SHIFT_PULSE = new GravityShiftPulseMove(1400, 20, 32, 1f)
+    public static final GravityShiftPulseMove GRAV_SHIFT_PULSE = new GravityShiftPulseMove(1400, 20, 32, 1f, 16)
             .withCrouchingVariant(GRAV_SHIFT)
             .withSound(JSoundRegistry.CMOON_GRAVSHIFT_DIRECTIONAL)
             .withInfo(
@@ -190,6 +192,14 @@ public class CMoonEntity extends StandEntity<CMoonEntity, CMoonEntity.State> {
                     Component.literal("Gravitational Hop/Local Gravity Change"),
                     Component.literal("if used mid air, jumps up and grants 2s slow falling/otherwise changes your gravitational direction")
             );
+
+    // TODO add move info x2
+    // TODO balance x2
+    public static final TossMove<CMoonEntity> TOSS = new TossMove<CMoonEntity>(0, 1, 1, 0.75f)
+            .withAnim(CMoonEntity.State.ITEM_TOSS);
+    public static final TossChargeMove<CMoonEntity> TOSS_CHARGE = new TossChargeMove<CMoonEntity>(70, 3 * 20 + 1, 3 * 20, 1.0f, 10)
+            .withFollowup(TOSS);
+
     private final List<Inversion> inversions = new ArrayList<>();
 
     public CMoonEntity(Level worldIn) {
@@ -219,6 +229,8 @@ public class CMoonEntity extends StandEntity<CMoonEntity, CMoonEntity.State> {
         moves.register(MoveClass.ULTIMATE, GRAV_SHIFT_PULSE, State.DIRECTIONAL_SHIFT).withCrouchingVariant(State.GRAV_SHIFT);
 
         moves.register(MoveClass.UTILITY, GRAVITATIONAL_HOP);
+
+        moves.register(MoveClass.TOSS, TOSS_CHARGE, State.ITEM_TOSS_CHARGE).withFollowup(State.ITEM_TOSS);
     }
 
     @Override
@@ -300,7 +312,7 @@ public class CMoonEntity extends StandEntity<CMoonEntity, CMoonEntity.State> {
 
             if (time < 1) {
                 final LivingEntity entity = inversion.getEntity();
-                damage(this, inversion.getDamage(), level().damageSources().mobAttack(user), entity);
+                Attacks.damage(this, inversion.getDamage(), level().damageSources().mobAttack(user), entity);
                 inversions.remove(i);
 
                 if (inversion.doSlow) {
@@ -340,39 +352,36 @@ public class CMoonEntity extends StandEntity<CMoonEntity, CMoonEntity.State> {
 
     // Animation code
     public enum State implements StandAnimationState<CMoonEntity> {
-        IDLE(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.cmoon.idle"))),
-        LIGHT(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.cmoon.light"))),
-        BLOCK(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.cmoon.block"))),
-        DONUT(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.cmoon.donut"))),
-        BARRAGE(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.cmoon.barrage"))),
-        GRAV_PUNCH(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.cmoon.gravpunch"))),
-        GROUND_SLAM(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.cmoon.groundslam"))),
-        GROUND_SHOOT(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.cmoon.groundshoot"))),
-        GRAV_SHIFT(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.cmoon.gravshift"))),
-        DIRECTIONAL_SHIFT(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.cmoon.directionalshift"))),
-        INVERSION_PUNCH(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.cmoon.inversionpunch"))),
-        LIGHT_FOLLOWUP(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.cmoon.light_followup")));
+        IDLE(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.cmoon.idle", AzPlayBehaviors.LOOP)),
+        LIGHT(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.cmoon.light", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        BLOCK(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.cmoon.block", AzPlayBehaviors.LOOP)),
+        DONUT(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.cmoon.donut", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        BARRAGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.cmoon.barrage", AzPlayBehaviors.LOOP)),
+        GRAV_PUNCH(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.cmoon.gravpunch", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        GROUND_SLAM(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.cmoon.groundslam", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        GROUND_SHOOT(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.cmoon.groundshoot", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        GRAV_SHIFT(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.cmoon.gravshift", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        DIRECTIONAL_SHIFT(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.cmoon.directionalshift", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        INVERSION_PUNCH(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.cmoon.inversionpunch", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        LIGHT_FOLLOWUP(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.cmoon.light_followup", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        ITEM_TOSS_CHARGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "itemthrow_charge", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        ITEM_TOSS(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "itemthrow", AzPlayBehaviors.PLAY_ONCE));
 
-        private final Consumer<AnimationState<CMoonEntity>> animator;
+        private final AzCommand animator;
 
-        State(Consumer<AnimationState<CMoonEntity>> animator) {
+        State(AzCommand animator) {
             this.animator = animator;
         }
 
         @Override
-        public void playAnimation(CMoonEntity attacker, AnimationState<CMoonEntity> state) {
-            animator.accept(state);
+        public void playAnimation(CMoonEntity attacker) {
+            animator.sendForEntity(attacker);
         }
     }
 
     @Override
     protected State[] getStateValues() {
         return State.values();
-    }
-
-    @Override
-    protected String getSummonAnimation() {
-        return "animation.cmoon.summon";
     }
 
     @Override

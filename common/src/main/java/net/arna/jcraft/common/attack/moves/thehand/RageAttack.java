@@ -23,6 +23,8 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.Set;
 
+import static net.arna.jcraft.api.Attacks.*;
+
 public final class RageAttack extends AbstractMultiHitAttack<RageAttack, TheHandEntity> {
     public static final SimpleEraseAttack RAGE_FINISHER = new SimpleEraseAttack(0,
             41, 50, 0.74f, 6.0f, 12, 2.0f, 2.0f, 0.0f)
@@ -65,14 +67,14 @@ public final class RageAttack extends AbstractMultiHitAttack<RageAttack, TheHand
 
     @Override
     protected void processTarget(final TheHandEntity attacker, final LivingEntity target, final Vec3 kbVec, final DamageSource damageSource) {
-        StandEntity.damageLogic(attacker.getEntityWorld(), target, kbVec, getStun(), getStunType().ordinal(), true,
+        damageLogic(attacker.getEntityWorld(), target, kbVec, getStun(), getStunType().ordinal(), true,
                 0, isLift(), getBlockStun(), damageSource, attacker.getUserOrThrow(), getHitAnimation(), true, false);
 
         target.removeEffect(JStatusRegistry.DAZED.get());
         StandEntity<?, ?> stand = JUtils.getStand(target);
         if (stand != null) stand.blocking = false;
         JCraft.stun(target, getStun(), 0, attacker);
-        StandEntity.trueDamage(getDamage(), JDamageSources.stand(attacker), target);
+        trueDamage(getDamage(), JDamageSources.stand(attacker), target);
     }
 
     @Override

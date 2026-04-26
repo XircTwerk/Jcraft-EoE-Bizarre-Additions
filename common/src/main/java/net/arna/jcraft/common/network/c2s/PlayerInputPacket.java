@@ -12,6 +12,7 @@ import net.arna.jcraft.api.component.living.CommonStandComponent;
 import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.common.entity.vehicle.AbstractGroundVehicleEntity;
 import net.arna.jcraft.common.events.JServerPlayerInputEvent;
+import net.arna.jcraft.common.item.Peacemaker;
 import net.arna.jcraft.common.network.s2c.ServerChannelFeedbackPacket;
 import net.arna.jcraft.api.spec.JSpec;
 import net.arna.jcraft.common.util.*;
@@ -301,8 +302,17 @@ public class PlayerInputPacket {
                     }
                 }
                 case LIGHT -> {
+                    // First check if player is holding a Peacemaker
+                    boolean peacemakerHandled = Peacemaker.handleLeftClick(player);
+                    if (peacemakerHandled) {
+                        future.complete(true);
+                        return;
+                    }
+
+                    // If not handled by Peacemaker, proceed with normal stand logic
                     StandEntity<?, ?> stand = JUtils.getStand(player);
                     if (stand == null || !stand.allowMoveHandling()) {
+                        future.complete(false);
                         return;
                     }
 
@@ -370,13 +380,31 @@ public class PlayerInputPacket {
     private static void checkComboBreak(ServerPlayer player) {
         // Combo break if stunned, jumping and crouching
         InputStateManager sm = getInputStateManager(player);
-        if (sm == null || !sm.jumping || !player.isShiftKeyDown() || JUtils.isBlocking(player)) {
+        final boolean blocking = JUtils.isBlocking(player);
+
+        if (sm == null || !sm.jumping || !player.isShiftKeyDown()) {
             return;
         }
 
-        MobEffectInstance stun = player.getEffect(JStatusRegistry.DAZED.get());
-        if (stun != null) {
-            JCraft.comboBreak((ServerLevel) player.level(), player, stun);
+        if (blocking) {
+            StandEntity<?, ?> stand = JUtils.getStand(player);
+
+            // This check is redundant, but I'm putting it here if we add spec blocking in the future.
+            if (stand == null) {
+                JCraft.LOGGER.warn("Player " + player + " was blocking despite having no stand?");
+            } else {
+                if (stand.getMoveStun() < 2) {
+                    return;
+                }
+                // Else is in blockstun due to an attack
+
+                JCraft.tryPushBlock((ServerLevel) player.level(), player, stand);
+            }
+        } else {
+            MobEffectInstance stun = player.getEffect(JStatusRegistry.DAZED.get());
+            if (stun != null) {
+                JCraft.comboBreak((ServerLevel) player.level(), player, stun);
+            }
         }
     }
 

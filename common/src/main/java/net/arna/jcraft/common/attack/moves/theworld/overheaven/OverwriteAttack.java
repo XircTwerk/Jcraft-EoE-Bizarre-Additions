@@ -8,6 +8,7 @@ import net.arna.jcraft.api.attack.MoveType;
 import net.arna.jcraft.api.attack.enums.MoveClass;
 import net.arna.jcraft.api.attack.moves.AbstractSimpleAttack;
 import net.arna.jcraft.common.entity.stand.TheWorldOverHeavenEntity;
+import net.arna.jcraft.common.util.JUtils;
 import net.arna.jcraft.platform.JComponentPlatformUtils;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.util.RandomSource;
@@ -62,6 +63,7 @@ public final class OverwriteAttack extends AbstractSimpleAttack<OverwriteAttack,
 
             // Make strong reference to the entity, so it doesn't suddenly disappear.
             LivingEntity entity = overwrite.getEntity();
+            if (JUtils.isBlocking(entity)) return;
 
             // Inability to look at master
             final AABB box = entity

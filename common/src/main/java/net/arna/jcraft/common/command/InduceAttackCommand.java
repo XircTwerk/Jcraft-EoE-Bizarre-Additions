@@ -70,21 +70,20 @@ public class InduceAttackCommand {
             }
         } else {
             for (Entity entity : targets) {
-                if (!(entity instanceof Player player)) {
-                    continue;
-                }
-                JComponentPlatformUtils.getCooldowns(player).clear();
-                JSpec<?, ?> spec = JUtils.getSpec(player);
+                if (entity instanceof LivingEntity living) {
+                    JComponentPlatformUtils.getCooldowns(living).clear();
+                    JSpec<?, ?> spec = JUtils.getSpec(living);
 
-                if (spec != null) {
-                    if (spec.initMove(moveClass)) {
-                        source.sendSuccess(() -> Component.literal("Initiating spec attack " + typeName + " for " + entity.getName().getString()), true);
-                    } else {
-                        source.sendSuccess(() -> Component.literal("Queueing spec attack " + typeName + " for " + entity.getName().getString()), true);
-                        spec.queuedMove = MoveInputType.fromMoveClass(moveClass);
+                    if (spec != null) {
+                        if (spec.initMove(moveClass)) {
+                            source.sendSuccess(() -> Component.literal("Initiating spec attack " + typeName + " for " + entity.getName().getString()), true);
+                        } else {
+                            source.sendSuccess(() -> Component.literal("Queueing spec attack " + typeName + " for " + entity.getName().getString()), true);
+                            spec.queuedMove = MoveInputType.fromMoveClass(moveClass);
+                        }
+
+                        flag = 1;
                     }
-
-                    flag = 1;
                 }
             }
         }

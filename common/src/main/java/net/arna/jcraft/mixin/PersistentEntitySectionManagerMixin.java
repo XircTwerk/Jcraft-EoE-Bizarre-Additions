@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class PersistentEntitySectionManagerMixin<T extends EntityAccess> {
     @Inject(method = "addEntity", at = @At("TAIL"))
     private void addEntity(T entityAccess, boolean worldGenSpawned, CallbackInfoReturnable<Boolean> cir) {
-        if (entityAccess instanceof Entity entity) {
+        if (cir.getReturnValue() && entityAccess instanceof Entity entity) {
             JEntityEvents.POST_ADD.invoker().add(entity, worldGenSpawned);
         }
     }

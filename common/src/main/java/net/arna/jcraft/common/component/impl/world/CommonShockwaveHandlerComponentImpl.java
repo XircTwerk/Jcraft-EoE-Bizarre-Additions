@@ -24,8 +24,8 @@ public class CommonShockwaveHandlerComponentImpl implements CommonShockwaveHandl
     }
 
     @Override
-    public void addShockwave(final double x, final double y, final double z, final float pitch, final float yaw, final float scale) {
-        Shockwave shockwave = new Shockwave(x, y, z, pitch, yaw, scale);
+    public void addShockwave(final double x, final double y, final double z, final float pitch, final float yaw, final float scale, final Shockwave.Type type) {
+        Shockwave shockwave = new Shockwave(x, y, z, pitch, yaw, scale, type);
         shockwaves.add(shockwave);
         sync(shockwave);
     }
@@ -44,7 +44,8 @@ public class CommonShockwaveHandlerComponentImpl implements CommonShockwaveHandl
                     compound.getFloat("pitch"),
                     compound.getFloat("yaw"),
                     compound.getFloat("scale"),
-                    compound.getInt("age")
+                    compound.getInt("age"),
+                    Shockwave.Type.of(compound.getInt("type"))
             ));
         }
     }
@@ -60,6 +61,7 @@ public class CommonShockwaveHandlerComponentImpl implements CommonShockwaveHandl
             compound.putFloat("yaw", shockwave.getYaw());
             compound.putFloat("scale", shockwave.getScale());
             compound.putInt("age", shockwave.getAge());
+            compound.putInt("type", shockwave.getType().getId());
             list.add(compound);
         }
         tag.put("shockwaves", list);
@@ -81,6 +83,7 @@ public class CommonShockwaveHandlerComponentImpl implements CommonShockwaveHandl
             buf.writeFloat(sw.getYaw());
             buf.writeFloat(sw.getScale());
             buf.writeInt(sw.getAge());
+            buf.writeInt(sw.getType().getId());
         }
     }
 
@@ -94,7 +97,8 @@ public class CommonShockwaveHandlerComponentImpl implements CommonShockwaveHandl
                     buf.readFloat(),
                     buf.readFloat(),
                     buf.readFloat(),
-                    buf.readInt()
+                    buf.readInt(),
+                    Shockwave.Type.of(buf.readInt())
             ));
         }
     }

@@ -2,20 +2,13 @@ package net.arna.jcraft.common.entity.projectile;
 
 
 import lombok.NonNull;
-import mod.azure.azurelib.animatable.GeoEntity;
-import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
-import mod.azure.azurelib.core.animation.AnimatableManager;
-import mod.azure.azurelib.core.animation.AnimationController;
-import mod.azure.azurelib.core.animation.AnimationState;
-import mod.azure.azurelib.core.animation.RawAnimation;
-import mod.azure.azurelib.core.object.PlayState;
-import mod.azure.azurelib.util.AzureLibUtil;
+import mod.azure.azurelib.animation.dispatch.command.AzCommand;
+import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
+import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
-import net.arna.jcraft.api.stand.StandEntity;
-import net.arna.jcraft.common.util.JUtils;
 import net.arna.jcraft.api.registry.JEntityTypeRegistry;
 import net.arna.jcraft.api.registry.JSoundRegistry;
+import net.arna.jcraft.common.util.JUtils;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -46,12 +39,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.Set;
 
+import static net.arna.jcraft.api.Attacks.damageLogic;
+
 /**
  * Used in C-Moon's {@link net.arna.jcraft.common.attack.moves.cmoon.LaunchAttack}
  */
-public class BlockProjectile extends JAttackEntity implements GeoEntity {
-    private final int maxTimeToLaunch = 15;
-    private int timeToLaunch = maxTimeToLaunch;
+public class BlockProjectile extends JAttackEntity {
+    private static final int MAX_TIME_TO_LAUNCH = 15;
+
+    private int timeToLaunch = MAX_TIME_TO_LAUNCH;
     private int timeLaunched = 0;
     private boolean toRefresh = false;
     private boolean launched = false;
@@ -107,8 +103,11 @@ public class BlockProjectile extends JAttackEntity implements GeoEntity {
     public void tick() {
         super.tick();
         if (level().isClientSide) {
-            Vec3 vel = getDeltaMovement();
+            IDLE.sendForEntity(this);
+
+            final Vec3 vel = getDeltaMovement();
             final int effect = entityData.get(EFFECT);
+
             if (effect != 0) {
                 for (int i = 0; i < 32; i++) {
                     ParticleOptions particle = (effect == 1) ?
@@ -150,7 +149,7 @@ public class BlockProjectile extends JAttackEntity implements GeoEntity {
             timeToLaunch--;
             if (timeToLaunch == 0) {
                 if (toRefresh) {
-                    timeToLaunch = maxTimeToLaunch;
+                    timeToLaunch = MAX_TIME_TO_LAUNCH;
                     toRefresh = false;
                     setDeltaMovement(0, 0, 0);
                     setEffect((byte)2);
@@ -186,7 +185,7 @@ public class BlockProjectile extends JAttackEntity implements GeoEntity {
                         continue;
                     }
                     hit = true;
-                    StandEntity.damageLogic(level(), target, getDeltaMovement(), 15, 1, true,
+                    damageLogic(level(), target, getDeltaMovement(), 15, 1, true,
                             6, false, 11, damageSource, master, CommonHitPropertyComponent.HitAnimation.MID, false);
                 }
             }
@@ -260,7 +259,10 @@ public class BlockProjectile extends JAttackEntity implements GeoEntity {
         return item;
     }
 
+    private static final AzCommand IDLE = AzCommand.create(JCraft.BASE_CONTROLLER, "animation.block.idle", AzPlayBehaviors.LOOP);
+
     // Animations
+    /*
     private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
 
     @Override
@@ -276,5 +278,5 @@ public class BlockProjectile extends JAttackEntity implements GeoEntity {
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return cache;
-    }
+    }*/
 }

@@ -59,6 +59,10 @@ public abstract class BipedEntityModelMixin<T extends LivingEntity> {
             AnimationUtils.animateCrossbowHold(rightArm, leftArm, head, livingEntity.getMainArm() == HumanoidArm.RIGHT);
         }
 
+        if (livingEntity.isHolding(JItemRegistry.PEACEMAKER.get())) {
+            AnimationUtils.animateCrossbowHold(rightArm, leftArm, head, livingEntity.getMainArm() == HumanoidArm.RIGHT);
+        }
+
         if (livingEntity.hasPose(Pose.STANDING)) {
             JClientUtils.resetPartAngles(body);
 

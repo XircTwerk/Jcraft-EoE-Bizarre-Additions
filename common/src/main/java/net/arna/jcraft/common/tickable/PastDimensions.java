@@ -29,7 +29,7 @@ public class PastDimensions {
         for (ServerPlayer serverPlayer : JCraft.auWorld.players()) {
             boolean contained = false;
             for (DimensionData dimensionData : dimensions) {
-                if (dimensionData.user == serverPlayer) {
+                if (dimensionData.getUser() == serverPlayer) {
                     contained = true;
                     break;
                 }
@@ -40,17 +40,18 @@ public class PastDimensions {
         List<DimensionData> newDimensions = new ArrayList<>();
 
         for (DimensionData dimensionData : dimensions) {
-            Entity user = dimensionData.user;
+            Entity user = dimensionData.getUser();
             if (user == null || !user.isAlive()) {
                 continue;
             }
 
-            ServerLevel original = server.getLevel(dimensionData.worldKey);
+            ServerLevel original = server.getLevel(dimensionData.getWorldKey());
             if (user.level() == original) {
                 continue;
             }
 
-            if (--dimensionData.timer > 1) {
+            dimensionData.decreaseTimer();
+            if (dimensionData.getTimer() > 1) {
                 newDimensions.add(dimensionData);
                 continue;
             }
@@ -90,16 +91,16 @@ public class PastDimensions {
 
         for (DimensionData dimV : dimensions) {
             // Bring others out of the AU
-            if (targets.contains(dimV.user)) {
-                dimV.timer = 1;
+            if (targets.contains(dimV.getUser())) {
+                dimV.setTimer(1);
                 continue;
             }
 
-            if (dimV.user != user) {
+            if (dimV.getUser() != user) {
                 continue;
             }
             isStored = true;
-            dimV.timer = 1;
+            dimV.setTimer(1);
         }
 
         return isStored;

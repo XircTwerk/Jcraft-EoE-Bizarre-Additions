@@ -2,10 +2,11 @@ package net.arna.jcraft.common.entity.stand;
 
 import com.mojang.datafixers.util.Either;
 import lombok.NonNull;
-import mod.azure.azurelib.core.animation.AnimationState;
-import mod.azure.azurelib.core.animation.RawAnimation;
+import mod.azure.azurelib.animation.dispatch.command.AzCommand;
+import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
 import mod.azure.azurelib.core.object.Color;
 import net.arna.jcraft.JCraft;
+import net.arna.jcraft.api.Attacks;
 import net.arna.jcraft.api.attack.MoveMap;
 import net.arna.jcraft.api.attack.MoveSet;
 import net.arna.jcraft.api.attack.MoveSetManager;
@@ -31,16 +32,13 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
  * The {@link StandEntity} for <a href="https://jojowiki.com/The_World">The World Over Heaven</a>.
  * @see JStandTypeRegistry#THE_WORLD
- * @see net.arna.jcraft.client.model.entity.stand.TheWorldOverHeavenModel TheWorldOverHeavenModel
  * @see net.arna.jcraft.client.renderer.entity.stands.TheWorldOverHeavenRenderer TheWorldOverHeavenRenderer
  * @see AerialDivineFinisherAttack
  * @see DivineFinisherAttack
@@ -98,8 +96,8 @@ public class TheWorldOverHeavenEntity extends StandEntity<TheWorldOverHeavenEnti
                     Component.literal("Low Kick"),
                     Component.literal("quick combo starter")
             );
-    public static final SimpleAttack<TheWorldOverHeavenEntity> LIGHT_FOLLOWUP = new SimpleAttack<TheWorldOverHeavenEntity>(
-            0, 9, 13, 0.75f, 6f, 8, 1.75f, 1.25f, -0.1f)
+    public static final SimpleAttack<TheWorldOverHeavenEntity> LIGHT_FOLLOWUP = new SimpleAttack<TheWorldOverHeavenEntity>(0,
+            9, 13, 0.75f, 6f, 8, 1.75f, 1.25f, -0.1f)
             .withAnim(State.LIGHT_FOLLOWUP)
             .withImpactSound(JSoundRegistry.IMPACT_1)
             .withLaunch()
@@ -119,16 +117,16 @@ public class TheWorldOverHeavenEntity extends StandEntity<TheWorldOverHeavenEnti
                     Component.literal("Punch"),
                     Component.literal("quick combo starter")
             );
-    public static final MainBarrageAttack<TheWorldOverHeavenEntity> BARRAGE = new MainBarrageAttack<TheWorldOverHeavenEntity>(
-            280, 0, 40, 0.75f, 1f, 30, 2f, 0.1f, 0f, 3, Blocks.OBSIDIAN.defaultDestroyTime())
+    public static final MainBarrageAttack<TheWorldOverHeavenEntity> BARRAGE = new MainBarrageAttack<TheWorldOverHeavenEntity>(280,
+            0, 40, 0.75f, 1f, 30, 2f, 0.1f, 0f, 3, Blocks.OBSIDIAN.defaultDestroyTime())
             .withSound(JSoundRegistry.TWOH_BARRAGE)
             .withImpactSound(JSoundRegistry.IMPACT_1)
             .withInfo(
                     Component.literal("Barrage"),
                     Component.literal("fast reliable combo starter/extender, high stun")
             );
-    public static final SingularityAttack SINGULARITY = new SingularityAttack(260, 11, 23,
-            1f, 0f, 25, 2f, 0.4f, 0.2f, true)
+    public static final SingularityAttack SINGULARITY = new SingularityAttack(140,
+            11, 23,1f, 0f, 25, 2f, 0.4f, 0.2f, true)
             .withSound(JSoundRegistry.TWOH_SINGULARITY)
             .withAnim(State.SINGULARITY)
             .withImpactSound(JSoundRegistry.IMPACT_12)
@@ -139,8 +137,8 @@ public class TheWorldOverHeavenEntity extends StandEntity<TheWorldOverHeavenEnti
                     Component.literal("Singularity"),
                     Component.literal("block bypass (stun will always hit, but the opponent can stay blocking)")
             );
-    public static final SimpleUppercutAttack<TheWorldOverHeavenEntity> OVERHEAD_KICK = new SimpleUppercutAttack<TheWorldOverHeavenEntity>(
-            200, 10, 20, 1.25f, 8f, 20, 1.5f, 0.3f, 0f, -1)
+    public static final SimpleUppercutAttack<TheWorldOverHeavenEntity> OVERHEAD_KICK = new SimpleUppercutAttack<TheWorldOverHeavenEntity>(0,
+            10, 20, 1.25f, 8f, 20, 1.5f, 0.3f, 0f, -1)
             //.withSound(JSoundRegistry.TWOH_HEAVY)
             .withAnim(State.AIR_HEAVY)
             .withImpactSound(JSoundRegistry.IMPACT_1)
@@ -152,8 +150,8 @@ public class TheWorldOverHeavenEntity extends StandEntity<TheWorldOverHeavenEnti
                     Component.literal("Overhead Kick"),
                     Component.literal("high damage, good reach, launches down")
             );
-    public static final SingularityAttack TRUE_STRIKE = new SingularityAttack(200, 10, 22,
-            1f, 0f, 20, 2f, 0.3f, 0f, false)
+    public static final SingularityAttack TRUE_STRIKE = new SingularityAttack(0,
+            10, 22,1f, 0f, 20, 2f, 0.3f, 0f, false)
             .withBlockStun(20)
             .withAerialVariant(OVERHEAD_KICK)
             .withCrouchingVariant(SINGULARITY)
@@ -164,10 +162,10 @@ public class TheWorldOverHeavenEntity extends StandEntity<TheWorldOverHeavenEnti
             .withHitSpark(JParticleType.HIT_SPARK_2)
             .withInfo(
                     Component.literal("True Strike"),
-                    Component.literal("damage ignores potions and enchantments, low stun, high blockstun, medium windup")
+                    Component.literal("damage ignores potions and enchantments, good stun, high blockstun, medium windup")
             );
-    public static final SmiteAttack AIR_SMITE = new SmiteAttack(300, 10, 20, 1f,
-            6f, 21, 3f, 0f, 0f, true, 7, 9)
+    public static final SmiteAttack AIR_SMITE = new SmiteAttack(200,
+            10, 20, 1f,6f, 21, 3f, 0f, 0f, true, 7, 9)
             .withSound(JSoundRegistry.TWOH_SMITE)
             .withBlockStun(13)
             .withHitAnimation(CommonHitPropertyComponent.HitAnimation.HIGH)
@@ -175,8 +173,8 @@ public class TheWorldOverHeavenEntity extends StandEntity<TheWorldOverHeavenEnti
                     Component.literal("You won't run away!"),
                     Component.literal("summons a weaker lightning bolt at the aimed position")
             );
-    public static final SmiteAttack SMITE = new SmiteAttack(300, 10, 20, 1f,
-            8f, 21, 3f, 0f, 0f, false, 7, 9)
+    public static final SmiteAttack SMITE = new SmiteAttack(200,
+            10, 20, 1f,8f, 21, 3f, 0f, 0f, false, 7, 9)
             .withAerialVariant(AIR_SMITE)
             .withSound(JSoundRegistry.TWOH_SMITE)
             .withBlockStun(13)
@@ -197,8 +195,7 @@ public class TheWorldOverHeavenEntity extends StandEntity<TheWorldOverHeavenEnti
                     Component.literal("Overwrite (Hit)"),
                     Component.empty()
             );
-    // Does absolutely nothing on its own.
-    public static final ChargeOverwriteMove CHARGE_OVERWRITE = new ChargeOverwriteMove(
+    public static final ChargeOverwriteMove CHARGE_OVERWRITE = new ChargeOverwriteMove( // Does absolutely nothing on its own.
             360, 71, 70, 1f, 20)
             .withFollowup(OVERWRITE)
             .withSound(JSoundRegistry.TWOH_CHARGE_OVERWRITE)
@@ -209,18 +206,18 @@ public class TheWorldOverHeavenEntity extends StandEntity<TheWorldOverHeavenEnti
                     SPECIAL 2 - applies every damage over time effect to victims
                     SPECIAL 3 - heals and enslaves mobs"""));
 
-    public static final AerialDivineFinisherAttack AERIAL_DIVINE_FINISHER = new AerialDivineFinisherAttack(280,
+    public static final AerialDivineFinisherAttack AERIAL_DIVINE_FINISHER = new AerialDivineFinisherAttack(200,
             16, 22, 0.75f, 0f, 20, 1.5f, 0f, 0f)
             .withSound(JSoundRegistry.TWOH_KNIFETHROW)
             .withBlockStun(6)
             .withInfo(
                     Component.literal("Aerial Divine Finisher"),
-                    Component.empty()
+                    Component.literal("briefly stalls mid-air")
             );
-    public static final DivineFinisherAttack DIVINE_FINISHER = new DivineFinisherAttack(280, 16, 22,
-            0.75f, 0f, 20, 1.5f, 0f, 0f)
+    public static final DivineFinisherAttack DIVINE_FINISHER = new DivineFinisherAttack(280,
+            16, 22,0.75f, 0f, 20, 1.5f, 0f, 0f)
             .withAerialVariant(AERIAL_DIVINE_FINISHER)
-            .withSound(JSoundRegistry.TWOH_AIRKNIVES)
+            .withSound(JSoundRegistry.TWOH_KNIFESUMMON)
             .withBlockStun(6)
             .withInfo(
                     Component.literal("Divine Finisher"),
@@ -241,6 +238,13 @@ public class TheWorldOverHeavenEntity extends StandEntity<TheWorldOverHeavenEnti
                     Component.literal("Timeskip"),
                     Component.literal("14m range")
             );
+    // TODO add move info x2
+    // TODO balance x2
+    public static final TossMove<TheWorldOverHeavenEntity> TOSS = new TossMove<TheWorldOverHeavenEntity>(0, 1, 1, 0.75f)
+            .withAnim(TheWorldOverHeavenEntity.State.ITEM_TOSS);
+    public static final TossChargeMove<TheWorldOverHeavenEntity> TOSS_CHARGE = new TossChargeMove<TheWorldOverHeavenEntity>(70, 3 * 20 + 1, 3 * 20, 1.0f, 10)
+            .withFollowup(TOSS);
+
     private static final EntityDataAccessor<Integer> OVERWRITE_TYPE = SynchedEntityData.defineId(TheWorldOverHeavenEntity.class, EntityDataSerializers.INT);
 
     public TheWorldOverHeavenEntity(Level worldIn) {
@@ -291,6 +295,8 @@ public class TheWorldOverHeavenEntity extends StandEntity<TheWorldOverHeavenEnti
         moves.register(MoveClass.ULTIMATE, TIME_STOP, State.TIME_STOP);
 
         moves.register(MoveClass.UTILITY, TIME_SKIP, State.TIME_SKIP);
+
+        moves.register(MoveClass.TOSS, TOSS_CHARGE, State.ITEM_TOSS_CHARGE).withFollowup(State.ITEM_TOSS);
     }
 
     @Override
@@ -341,45 +347,42 @@ public class TheWorldOverHeavenEntity extends StandEntity<TheWorldOverHeavenEnti
 
     // Animation code
     public enum State implements StandAnimationState<TheWorldOverHeavenEntity> {
-        IDLE(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.twoh.idle"))),
-        LIGHT(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.twoh.light"))),
-        BLOCK(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.twoh.block"))),
-        HEAVY(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.twoh.heavy"))),
-        BARRAGE(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.twoh.barrage"))),
-        SMITE(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.twoh.smite"))),
-        TIME_STOP(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.twoh.timestop"))),
-        CHARGE_OVERWRITE(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.twoh.chargeoverwrite"))),
-        OVERWRITE(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.twoh.overwrite"))),
-        THROW(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.twoh.throw"))),
-        AIR_KNIVES(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.twoh.airknives"))),
-        TIME_SKIP(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.twoh.idle"))),
-        LUNGE(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.twoh.lunge"))),
-        LOW_KICK(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.twoh.low_kick"))),
-        LIGHT_FOLLOWUP(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.twoh.light_followup"))),
-        SINGULARITY(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.twoh.singularity"))),
-        AIR_HEAVY(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.twoh.air_heavy"))),
+        IDLE(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.twoh.idle", AzPlayBehaviors.LOOP)),
+        LIGHT(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.twoh.light", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        BLOCK(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.twoh.block", AzPlayBehaviors.LOOP)),
+        HEAVY(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.twoh.heavy", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        BARRAGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.twoh.barrage", AzPlayBehaviors.LOOP)),
+        SMITE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.twoh.smite", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        TIME_STOP(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.twoh.timestop", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        CHARGE_OVERWRITE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.twoh.chargeoverwrite", AzPlayBehaviors.LOOP)),
+        OVERWRITE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.twoh.overwrite", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        THROW(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.twoh.throw", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        AIR_KNIVES(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.twoh.airknives", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        TIME_SKIP(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.twoh.idle", AzPlayBehaviors.LOOP)),
+        LUNGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.twoh.lunge", AzPlayBehaviors.LOOP)),
+        LOW_KICK(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.twoh.low_kick", AzPlayBehaviors.LOOP)),
+        LIGHT_FOLLOWUP(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.twoh.light_followup", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        SINGULARITY(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.twoh.singularity", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        AIR_HEAVY(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.twoh.air_heavy", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        ITEM_TOSS_CHARGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "itemthrow_charge", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        ITEM_TOSS(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "itemthrow", AzPlayBehaviors.PLAY_ONCE))
         ;
 
-        private final Consumer<AnimationState<TheWorldOverHeavenEntity>> animator;
+        private final AzCommand animator;
 
-        State(Consumer<AnimationState<TheWorldOverHeavenEntity>> animator) {
+        State(AzCommand animator) {
             this.animator = animator;
         }
 
         @Override
-        public void playAnimation(TheWorldOverHeavenEntity attacker, AnimationState<TheWorldOverHeavenEntity> builder) {
-            animator.accept(builder);
+        public void playAnimation(TheWorldOverHeavenEntity attacker) {
+            animator.sendForEntity(attacker);
         }
     }
 
     @Override
     protected State[] getStateValues() {
         return State.values();
-    }
-
-    @Override
-    protected @Nullable String getSummonAnimation() {
-        return "animation.twoh.summon";
     }
 
     @Override

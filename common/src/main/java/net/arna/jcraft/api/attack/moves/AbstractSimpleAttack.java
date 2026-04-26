@@ -8,17 +8,18 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
 import lombok.NonNull;
 import net.arna.jcraft.JCraft;
+import net.arna.jcraft.api.AttackData;
 import net.arna.jcraft.api.attack.IAttacker;
-import net.arna.jcraft.api.attack.enums.BlockableType;
 import net.arna.jcraft.api.attack.core.HitBoxData;
+import net.arna.jcraft.api.attack.enums.BlockableType;
 import net.arna.jcraft.api.attack.enums.StunType;
-import net.arna.jcraft.common.attack.core.data.AttackMoveExtras;
-import net.arna.jcraft.common.attack.core.data.BaseMoveExtras;
-import net.arna.jcraft.common.util.ExtraProducts;
 import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
 import net.arna.jcraft.api.stand.StandEntity;
+import net.arna.jcraft.common.attack.core.data.AttackMoveExtras;
+import net.arna.jcraft.common.attack.core.data.BaseMoveExtras;
 import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
 import net.arna.jcraft.common.gravity.util.RotationUtil;
+import net.arna.jcraft.common.util.ExtraProducts;
 import net.arna.jcraft.common.util.JParticleType;
 import net.arna.jcraft.common.util.JUtils;
 import net.arna.jcraft.platform.JComponentPlatformUtils;
@@ -41,6 +42,8 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+
+import static net.arna.jcraft.api.Attacks.damageLogic;
 
 /**
  * An attack with just one hit box.
@@ -594,13 +597,19 @@ public abstract class AbstractSimpleAttack<T extends AbstractSimpleAttack<T, A>,
      *
      * @param attacker     The attacker that performed this
      * @param target       The target to process
-     * @param kbVec        The knockback vector to pass to {@link StandEntity#damageLogic(Level, LivingEntity, Vec3, int, int,
-     *                     boolean, float, boolean, int, DamageSource, Entity, CommonHitPropertyComponent.HitAnimation, boolean, boolean)}
+     * @param kbVec        The knockback vector to pass to {@link net.arna.jcraft.api.Attacks#damageLogic(Level, LivingEntity, AttackData)}
      * @param damageSource The damage source to apply damage with
      */
     protected void processTarget(final A attacker, final LivingEntity target, final Vec3 kbVec, final DamageSource damageSource) {
-        StandEntity.damageLogic(attacker.getEntityWorld(), target, kbVec, stun, stunType.ordinal(), overrideStun,
-                damage, lift, getBlockStun(), damageSource, attacker.getUserOrThrow(), hitAnimation, canBackstab, blockableType.isNonBlockable());
+        damageLogic(
+                attacker.getEntityWorld(),
+                target,
+                new AttackData(
+                    kbVec, stun, stunType.ordinal(), overrideStun,
+                    damage, lift, getBlockStun(), damageSource, attacker.getUserOrThrow(),
+                    hitAnimation, attacker.getMoveUsage(), canBackstab, blockableType.isNonBlockable()
+                )
+        );
     }
 
     protected Set<LivingEntity> validateTargets(final A attacker, final Set<LivingEntity> targets) {

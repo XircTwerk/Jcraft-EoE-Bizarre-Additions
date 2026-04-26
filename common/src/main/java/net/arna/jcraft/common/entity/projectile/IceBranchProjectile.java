@@ -1,21 +1,14 @@
 package net.arna.jcraft.common.entity.projectile;
 
 import lombok.NonNull;
-import mod.azure.azurelib.animatable.GeoEntity;
-import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
-import mod.azure.azurelib.core.animation.AnimatableManager;
-import mod.azure.azurelib.core.animation.AnimationController;
-import mod.azure.azurelib.core.animation.AnimationState;
-import mod.azure.azurelib.core.animation.RawAnimation;
-import mod.azure.azurelib.core.object.PlayState;
-import mod.azure.azurelib.util.AzureLibUtil;
+import mod.azure.azurelib.animation.dispatch.command.AzCommand;
+import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
 import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
-import net.arna.jcraft.api.stand.StandEntity;
+import net.arna.jcraft.api.registry.JEntityTypeRegistry;
 import net.arna.jcraft.common.util.JParticleType;
 import net.arna.jcraft.common.util.JUtils;
 import net.arna.jcraft.platform.JComponentPlatformUtils;
-import net.arna.jcraft.api.registry.JEntityTypeRegistry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -33,7 +26,9 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 
-public class IceBranchProjectile extends AbstractArrow implements GeoEntity {
+import static net.arna.jcraft.api.Attacks.damageLogic;
+
+public class IceBranchProjectile extends AbstractArrow {
     private static final int MAX_CHAIN_LENGTH = 10;
     private final int chainIndex;
 
@@ -135,7 +130,7 @@ public class IceBranchProjectile extends AbstractArrow implements GeoEntity {
 
                 LivingEntity target = JUtils.getUserIfStand(living);
 
-                StandEntity.damageLogic(level, target, Vec3.ZERO,
+                damageLogic(level, target, Vec3.ZERO,
                         30 - 10 * chainIndex / MAX_CHAIN_LENGTH, 0, false, 4f, true,
                         10, level.damageSources().mobAttack(livingOwner), livingOwner,
                         CommonHitPropertyComponent.HitAnimation.MID);
@@ -241,7 +236,10 @@ public class IceBranchProjectile extends AbstractArrow implements GeoEntity {
         return ItemStack.EMPTY;
     }
 
+    public static final AzCommand SPAWN = AzCommand.create(JCraft.BASE_CONTROLLER, "animation.ice_branch.spawn", AzPlayBehaviors.HOLD_ON_LAST_FRAME);
+
     // Animations
+    /*
     private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
@@ -256,5 +254,5 @@ public class IceBranchProjectile extends AbstractArrow implements GeoEntity {
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return cache;
-    }
+    }*/
 }

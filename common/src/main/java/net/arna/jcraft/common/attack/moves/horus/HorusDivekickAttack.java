@@ -39,7 +39,7 @@ public final class HorusDivekickAttack extends AbstractChargeAttack<HorusDivekic
         final LivingEntity user = attacker.getUserOrThrow();
         if (attacker.isFree()) attacker.setFree(false);
 
-        lookDir = user.getLookAngle().scale(0.65);
+        lookDir = user.getLookAngle().scale(0.95);
 
         int duration = 20 + (int)user.getXRot();
         if (duration < getWindup()) duration = getWindup();

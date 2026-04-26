@@ -6,14 +6,17 @@ import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.JRegistries;
 import net.arna.jcraft.api.attack.MoveSet;
 import net.arna.jcraft.api.attack.MoveSetManager;
+import net.arna.jcraft.api.attack.moves.AbstractMove;
 import net.arna.jcraft.api.spec.SpecType;
 import net.arna.jcraft.api.stand.StandType;
 import net.arna.jcraft.api.attack.IAttacker;
 import net.arna.jcraft.api.attack.MoveMap;
-import net.arna.jcraft.datagen.JDataGen;
+import net.arna.jcraft.datagen.Util;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricCodecDataProvider;
 import net.minecraft.data.PackOutput;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Arrays;
@@ -49,11 +52,11 @@ public class JMoveSetProvider<A extends IAttacker<A, S>, S extends Enum<S>>
         // Ensure the corresponding class is loaded so the move sets have been created.
         StandType standType = JRegistries.STAND_TYPE_REGISTRY.get(type);
         if (standType != null) {
-            JDataGen.getEntityClass(standType.getEntityType());
+            Util.getEntityClass(standType.getEntityType());
         } else {
             SpecType specType = JRegistries.SPEC_TYPE_REGISTRY.get(type);
             if (specType != null) {
-                JDataGen.getSpecClass(specType);
+                Util.getSpecClass(specType);
             }
         }
     }
@@ -65,7 +68,31 @@ public class JMoveSetProvider<A extends IAttacker<A, S>, S extends Enum<S>>
         moveSets.forEach((name, moveSet) ->
                 moveSet.save().getEntries().entries().forEach(e ->
                         provider.accept(JCraft.id(String.format("%s/%s/%s", name, e.getKey().getName(), getMoveName(e.getValue()))),
-                                e.getValue())));
+                                processMove(name, e.getValue()))));
+    }
+
+    private MoveMap.Entry<A, S> processMove(String moveSetName, MoveMap.Entry<A, S> entry) {
+        AbstractMove<?, ? super A> move = entry.getMove();
+        Component name = move.getName();
+
+        String key = "move." + String.join(".", type.toLanguageKey(), moveSetName, Util.generateKey(name));
+        if (move.isFollowup()) key += ".followup";
+        else if (move.isCrouchingVariant()) key += ".cr";
+        else if (move.isAerialVariant()) key += ".air";
+
+        move.withInfo(name.getContents() instanceof TranslatableContents ? name :
+                Component.translatable(key + ".name"),
+                move.getDescription().getContents() instanceof TranslatableContents ? move.getDescription() :
+                Component.translatable(key + ".description"));
+
+        if (entry.getFollowup() != null)
+            processMove(moveSetName, entry.getFollowup());
+        if (entry.getCrouchingVariant() != null)
+            processMove(moveSetName, entry.getCrouchingVariant());
+        if (entry.getAerialVariant() != null)
+            processMove(moveSetName, entry.getAerialVariant());
+
+        return entry;
     }
 
     private static String getMoveName(MoveMap.Entry<?, ?> entry) {

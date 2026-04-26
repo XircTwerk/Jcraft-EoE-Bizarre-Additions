@@ -2,31 +2,35 @@ package net.arna.jcraft.common.entity.stand;
 
 import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.NonNull;
-import mod.azure.azurelib.core.animation.AnimationState;
-import mod.azure.azurelib.core.animation.RawAnimation;
+import mod.azure.azurelib.animation.dispatch.command.AzCommand;
+import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
 import net.arna.jcraft.JCraft;
+import net.arna.jcraft.api.Attacks;
+import net.arna.jcraft.api.attack.MoveMap;
+import net.arna.jcraft.api.attack.MoveSet;
 import net.arna.jcraft.api.attack.MoveSetManager;
-import net.arna.jcraft.api.stand.*;
+import net.arna.jcraft.api.attack.StateContainer;
 import net.arna.jcraft.api.attack.enums.MoveClass;
 import net.arna.jcraft.api.attack.enums.MoveInputType;
-import net.arna.jcraft.api.attack.MoveMap;
 import net.arna.jcraft.api.attack.enums.StunType;
-import net.arna.jcraft.api.attack.MoveSet;
-import net.arna.jcraft.api.attack.StateContainer;
 import net.arna.jcraft.api.attack.moves.AbstractMove;
+import net.arna.jcraft.api.component.player.CommonPhComponent;
+import net.arna.jcraft.api.registry.JSoundRegistry;
+import net.arna.jcraft.api.registry.JStandTypeRegistry;
+import net.arna.jcraft.api.registry.JStatusRegistry;
+import net.arna.jcraft.api.stand.*;
+import net.arna.jcraft.common.ai.AttackerBrainInfo;
+import net.arna.jcraft.common.ai.IJAttackerBrain;
+import net.arna.jcraft.common.ai.brain.StandAttackerBrain;
 import net.arna.jcraft.common.attack.moves.purplehaze.BackhandAttack;
 import net.arna.jcraft.common.attack.moves.purplehaze.PHGroundSlamAttack;
 import net.arna.jcraft.common.attack.moves.purplehaze.PHRekkaAttack;
 import net.arna.jcraft.common.attack.moves.purplehaze.PlayMove;
 import net.arna.jcraft.common.attack.moves.shared.*;
-import net.arna.jcraft.api.component.player.CommonPhComponent;
 import net.arna.jcraft.common.util.JParticleType;
 import net.arna.jcraft.common.util.JUtils;
 import net.arna.jcraft.common.util.StandAnimationState;
 import net.arna.jcraft.platform.JComponentPlatformUtils;
-import net.arna.jcraft.api.registry.JSoundRegistry;
-import net.arna.jcraft.api.registry.JStandTypeRegistry;
-import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
@@ -48,13 +52,10 @@ import org.joml.Vector3f;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * The {@link StandEntity} for <a href="https://jojowiki.com/Purple_Haze">Purple Haze</a>.
  * @see JStandTypeRegistry#PURPLE_HAZE
- * @see net.arna.jcraft.client.model.entity.stand.PurpleHazeModel PurpleHazeModel
  * @see net.arna.jcraft.client.renderer.entity.stands.PurpleHazeRenderer PurpleHazeRenderer
  */
 public final class PurpleHazeEntity extends AbstractPurpleHazeEntity<PurpleHazeEntity, PurpleHazeEntity.State> {
@@ -131,6 +132,12 @@ public final class PurpleHazeEntity extends AbstractPurpleHazeEntity<PurpleHazeE
     public static final int MAX_RAGE = 20 * 60;
     private int rage = 0;
     private boolean flowerable = false, hasFlower = false, toEvolve = false;
+    private final AttackerBrainInfo attackerBrainInfo = new AttackerBrainInfo(IJAttackerBrain.COMPETITIVE_LEVEL);
+    final Comparator<Entity> distanceComparator = (entity1, entity2) -> {
+        double distance1 = this.distanceToSqr(entity1);
+        double distance2 = this.distanceToSqr(entity2);
+        return Double.compare(distance1, distance2);
+    };
 
     public PurpleHazeEntity(Level worldIn) {
         super(JStandTypeRegistry.PURPLE_HAZE.get(), worldIn);
@@ -283,11 +290,6 @@ public final class PurpleHazeEntity extends AbstractPurpleHazeEntity<PurpleHazeE
                                 EntitySelector.NO_CREATIVE_OR_SPECTATOR.and(EntitySelector.LIVING_ENTITY_STILL_ALIVE));
                         potentialTargets.remove(this);
 
-                        Comparator<Entity> distanceComparator = (entity1, entity2) -> {
-                            double distance1 = this.distanceToSqr(entity1);
-                            double distance2 = this.distanceToSqr(entity2);
-                            return Double.compare(distance1, distance2);
-                        };
                         potentialTargets.sort(distanceComparator);
 
                         for (LivingEntity potentialTarget : potentialTargets) {
@@ -318,8 +320,6 @@ public final class PurpleHazeEntity extends AbstractPurpleHazeEntity<PurpleHazeE
                         {
                             navigation.moveTo(target, speed);
                         }
-
-                        standUserCombatAI(this, target, this);
                     }
 
                     if (!isRemote) {
@@ -329,6 +329,7 @@ public final class PurpleHazeEntity extends AbstractPurpleHazeEntity<PurpleHazeE
 
                 if (isRemote) {
                     tickRemoteState(getMoveControl().getSpeedModifier(), getMoveControl().strafeRight, onGround());
+                    StandAttackerBrain.tick(this, attackerBrainInfo);
                 }
             }
         }
@@ -347,19 +348,24 @@ public final class PurpleHazeEntity extends AbstractPurpleHazeEntity<PurpleHazeE
     @Override
     protected void tickRemoteState(double f, double s, boolean dashing) {
         LivingEntity user = getUserOrThrow();
-        if (getState() == State.IDLE) {
+
+        if (getMoveStun() <= 0) {
             if (JUtils.canAct(user)) {
-                if (s > 0) {
-                    setStateNoReset(dashing ? State.RIGHT : State.RIGHT_DASH);
-                }
-                if (s < 0) {
-                    setStateNoReset(dashing ? State.LEFT : State.LEFT_DASH);
-                }
-                if (f < 0) {
-                    setStateNoReset(dashing ? State.BACKWARD : State.BACKWARD_DASH);
-                }
-                if (f > 0) {
-                    setStateNoReset(dashing ? State.FORWARD : State.FORWARD_DASH);
+                if (f == 0) {
+                    if (s > 0) {
+                        setStateNoReset(onGround() ? State.RIGHT : State.RIGHT_DASH);
+                    } else if (s < 0) {
+                        setStateNoReset(onGround() ? State.LEFT : State.LEFT_DASH);
+                    } else {
+                        setStateNoReset(State.IDLE);
+                    }
+                } else {
+                    if (f < 0) {
+                        setStateNoReset(onGround() ? State.BACKWARD : State.BACKWARD_DASH);
+                    }
+                    if (f > 0) {
+                        setStateNoReset(onGround() ? State.FORWARD : State.FORWARD_DASH);
+                    }
                 }
             } else {
                 setStateNoReset(State.HURT);
@@ -411,65 +417,56 @@ public final class PurpleHazeEntity extends AbstractPurpleHazeEntity<PurpleHazeE
 
     // Animation code
     public enum State implements StandAnimationState<PurpleHazeEntity> {
-        IDLE((PurpleHaze, builder) -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.purple_haze.idle"))),
-        PUNCH(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.purple_haze.light"))),
-        BLOCK(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.purple_haze.block"))),
-        HEAVY(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.purple_haze.heavy"))),
+        IDLE(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.purple_haze.idle", AzPlayBehaviors.LOOP)),
+        PUNCH(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.purple_haze.light", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        BLOCK(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.purple_haze.block", AzPlayBehaviors.LOOP)),
+        HEAVY(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.purple_haze.heavy", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
 
-        FULL_RELEASE(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.purple_haze.full_release"))),
-        GROUND_SLAM(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.purple_haze.ground_slam"))),
+        FULL_RELEASE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.purple_haze.full_release", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        GROUND_SLAM(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.purple_haze.ground_slam", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
 
-        BARRAGE(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.purple_haze.barrage"))),
-        LAUNCH(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.purple_haze.launch"))),
-        LAUNCH2(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.purple_haze.launch2"))),
+        BARRAGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.purple_haze.barrage", AzPlayBehaviors.LOOP)),
+        LAUNCH(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.purple_haze.launch", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        LAUNCH2(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.purple_haze.launch2", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
 
-        REKKA1(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.purple_haze.rekka1"))),
-        REKKA2(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.purple_haze.rekka2"))),
-        REKKA3(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.purple_haze.rekka3"))),
+        REKKA1(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.purple_haze.rekka1", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        REKKA2(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.purple_haze.rekka2", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        REKKA3(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.purple_haze.rekka3", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
 
-        GRAB(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.purple_haze.grab"))),
-        GRAB_HIT(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.purple_haze.grab_hit"))),
+        GRAB(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.purple_haze.grab", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        GRAB_HIT(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.purple_haze.grab_hit", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
 
-        BACKHAND(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.purple_haze.backhand"))),
-        BACKHAND_FOLLOWUP(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.purple_haze.backhand_followup"))),
-        LIGHT_FOLLOWUP(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.purple_haze.light_followup"))),
-        HURT(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.purple_haze.hurt"))),
-        PLAY(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.purple_haze.play"))),
+        BACKHAND(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.purple_haze.backhand", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        BACKHAND_FOLLOWUP(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.purple_haze.backhand_followup", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        LIGHT_FOLLOWUP(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.purple_haze.light_followup", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        HURT(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.purple_haze.hurt", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        PLAY(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.purple_haze.play", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
 
-        FORWARD(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.purple_haze.forw"))),
-        BACKWARD(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.purple_haze.back"))),
-        LEFT(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.purple_haze.left"))),
-        RIGHT(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.purple_haze.right"))),
-        FORWARD_DASH(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.purple_haze.fdash"))),
-        BACKWARD_DASH(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.purple_haze.bdash"))),
-        LEFT_DASH(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.purple_haze.ldash"))),
-        RIGHT_DASH(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.purple_haze.rdash"))),
+        FORWARD(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.purple_haze.forw", AzPlayBehaviors.LOOP)),
+        BACKWARD(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.purple_haze.back", AzPlayBehaviors.LOOP)),
+        LEFT(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.purple_haze.left", AzPlayBehaviors.LOOP)),
+        RIGHT(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.purple_haze.right", AzPlayBehaviors.LOOP)),
+        FORWARD_DASH(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.purple_haze.fdash", AzPlayBehaviors.LOOP)),
+        BACKWARD_DASH(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.purple_haze.bdash", AzPlayBehaviors.LOOP)),
+        LEFT_DASH(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.purple_haze.ldash", AzPlayBehaviors.LOOP)),
+        RIGHT_DASH(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.purple_haze.rdash", AzPlayBehaviors.LOOP)),
         ;
 
-        private final BiConsumer<PurpleHazeEntity, AnimationState<PurpleHazeEntity>> animator;
+        private final AzCommand animator;
 
-        State(Consumer<AnimationState<PurpleHazeEntity>> animator) {
-            this((silverChariot, builder) -> animator.accept(builder));
-        }
-
-        State(BiConsumer<PurpleHazeEntity, AnimationState<PurpleHazeEntity>> animator) {
+        State(AzCommand animator) {
             this.animator = animator;
         }
 
         @Override
-        public void playAnimation(PurpleHazeEntity attacker, AnimationState<PurpleHazeEntity> state) {
-            animator.accept(attacker, state);
+        public void playAnimation(PurpleHazeEntity attacker) {
+            animator.sendForEntity(attacker);
         }
     }
 
     @Override
     protected State[] getStateValues() {
         return State.values();
-    }
-
-    @Override
-    protected @NonNull String getSummonAnimation() {
-        return "animation.purple_haze.summon";
     }
 
     @Override

@@ -2,9 +2,10 @@ package net.arna.jcraft.common.entity.stand;
 
 import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.NonNull;
-import mod.azure.azurelib.core.animation.AnimationState;
-import mod.azure.azurelib.core.animation.RawAnimation;
+import mod.azure.azurelib.animation.dispatch.command.AzCommand;
+import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
 import net.arna.jcraft.JCraft;
+import net.arna.jcraft.api.Attacks;
 import net.arna.jcraft.api.stand.StandData;
 import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.api.stand.StandInfo;
@@ -26,15 +27,11 @@ import net.arna.jcraft.api.registry.JStandTypeRegistry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
-
-import java.util.function.Consumer;
 
 /**
  * The {@link StandEntity} for <a href="https://jojowiki.com/The_Hand">The Hand</a>.
  * @see JStandTypeRegistry#THE_HAND
- * @see net.arna.jcraft.client.model.entity.stand.TheHandModel TheHandModel
  * @see net.arna.jcraft.client.renderer.entity.stands.TheHandRenderer TheHandRenderer
  */
 public class TheHandEntity extends StandEntity<TheHandEntity, TheHandEntity.State> {
@@ -71,7 +68,7 @@ public class TheHandEntity extends StandEntity<TheHandEntity, TheHandEntity.Stat
                     Component.literal("Stomp (Second Hit)"),
                     Component.literal("Lifts knocked down enemies off the ground.")
             );
-    public static final SimpleAttack<TheHandEntity> CROUCHING_LIGHT = new SimpleAttack<TheHandEntity>((int) (JCraft.LIGHT_COOLDOWN * 2.0),
+    public static final SimpleAttack<TheHandEntity> CROUCHING_LIGHT = new SimpleAttack<TheHandEntity>(JCraft.LIGHT_COOLDOWN,
             9, 14, 0.5f, 5f, 15, 1.5f, 0.25f, 0.4f)
             .withFollowup(CROUCHING_LIGHT_FOLLOWUP)
             .withImpactSound(JSoundRegistry.IMPACT_1)
@@ -100,6 +97,7 @@ public class TheHandEntity extends StandEntity<TheHandEntity, TheHandEntity.Stat
             .withCrouchingVariant(CROUCHING_LIGHT)
             .withImpactSound(JSoundRegistry.IMPACT_6)
             .withHitAnimation(CommonHitPropertyComponent.HitAnimation.HIGH)
+            .noLoopPrevention()
             .withInfo(
                     Component.literal("Punch"),
                     Component.literal("Relatively quick combo starter."));
@@ -114,7 +112,7 @@ public class TheHandEntity extends StandEntity<TheHandEntity, TheHandEntity.Stat
                     Component.literal("Stomp Barrage (Last Hit)"),
                     Component.literal("Lifts knocked down enemies off the ground.")
             );
-    public static final SimpleMultiHitAttack<TheHandEntity> STOMP_BARRAGE = new SimpleMultiHitAttack<TheHandEntity>(180,
+    public static final SimpleMultiHitAttack<TheHandEntity> STOMP_BARRAGE = new SimpleMultiHitAttack<TheHandEntity>(100,
             33, 1.0f, 1.0f, 10, 1.5f, 0.3f, 0.2f, IntSet.of(6, 9, 13, 16, 19, 22))
             .withSound(JSoundRegistry.THE_HAND_KICK_BARRAGE)
             .withImpactSound(JSoundRegistry.IMPACT_1)
@@ -135,7 +133,7 @@ public class TheHandEntity extends StandEntity<TheHandEntity, TheHandEntity.Stat
                     Component.literal("fast reliable combo starter/extender, high stun")
             );
 
-    public static final KnockdownAttack<TheHandEntity> SWEEP = new KnockdownAttack<TheHandEntity>(100, 13, 18, 1.0f,
+    public static final KnockdownAttack<TheHandEntity> SWEEP = new KnockdownAttack<TheHandEntity>(0, 13, 18, 1.0f,
             9f, 15, 1.6f, 0.4f, 0.3f, 35)
             .withSound(JSoundRegistry.D4C_LIGHT)
             .withAnim(State.SWEEP)
@@ -145,7 +143,7 @@ public class TheHandEntity extends StandEntity<TheHandEntity, TheHandEntity.Stat
                     Component.literal("Sweep"),
                     Component.literal("Can be comboed out of with cr.M1~M1>...")
             );
-    public static final SimpleUppercutAttack<TheHandEntity> KICK = new SimpleUppercutAttack<TheHandEntity>(100, 13, 24, 0.75f,
+    public static final SimpleUppercutAttack<TheHandEntity> KICK = new SimpleUppercutAttack<TheHandEntity>(0, 13, 24, 0.75f,
             9f, 12, 2f, 1.1f, 0.1f, 0.3f)
             .withSound(JSoundRegistry.D4C_LIGHT)
             .withCrouchingVariant(SWEEP)
@@ -223,6 +221,12 @@ public class TheHandEntity extends StandEntity<TheHandEntity, TheHandEntity.Stat
                             If the second hit makes contact, The Hand will beat the opponent down.
                             """)
             );
+    // TODO add move info x2
+    // TODO balance x2
+    public static final TossMove<TheHandEntity> TOSS = new TossMove<TheHandEntity>(0, 1, 1, 0.75f)
+            .withAnim(TheHandEntity.State.ITEM_TOSS);
+    public static final TossChargeMove<TheHandEntity> TOSS_CHARGE = new TossChargeMove<TheHandEntity>(70, 3 * 20 + 1, 3 * 20, 1.0f, 10)
+            .withFollowup(TOSS);
 
     public TheHandEntity(final Level world) {
         super(JStandTypeRegistry.THE_HAND.get(), world);
@@ -249,6 +253,8 @@ public class TheHandEntity extends StandEntity<TheHandEntity, TheHandEntity.Stat
         moves.register(MoveClass.ULTIMATE, RAGE, State.RAGE);
 
         moves.register(MoveClass.UTILITY, ERASE_SPACE, State.ERASE_SPACE);
+
+        moves.register(MoveClass.TOSS, TOSS_CHARGE, State.ITEM_TOSS_CHARGE).withFollowup(State.ITEM_TOSS);
     }
 
     @Override
@@ -290,45 +296,42 @@ public class TheHandEntity extends StandEntity<TheHandEntity, TheHandEntity.Stat
     }
 
     public enum State implements StandAnimationState<TheHandEntity> {
-        IDLE(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.the_hand.idle"))),
-        LIGHT(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.the_hand.light"))),
-        LIGHT_FOLLOWUP(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.the_hand.light2"))),
-        CROUCHING_LIGHT(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.the_hand.crouching_light"))),
-        CROUCHING_LIGHT_FOLLOWUP(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.the_hand.crouching_light2"))),
-        BLOCK(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.the_hand.block"))),
-        KICK(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.the_hand.heavy"))),
-        BARRAGE(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.the_hand.barrage"))),
-        ERASE(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.the_hand.erase"))),
-        ERASE_GROUND(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.the_hand.erase_ground"))),
-        ERASE_SPACE(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.the_hand.erase_space"))),
-        SWEEP(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.the_hand.sweep"))),
-        GRAB(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.the_hand.grab"))),
-        GRAB_HIT(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.the_hand.grab_hit"))),
-        STOMP_BARRAGE(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.the_hand.stomp_barrage"))),
-        RAGE(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.the_hand.rage"))),
-        RAGE_FOLLOWUP(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.the_hand.rage_followup"))),
+        IDLE(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.the_hand.idle", AzPlayBehaviors.LOOP)),
+        LIGHT(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.the_hand.light", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        LIGHT_FOLLOWUP(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.the_hand.light2", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        CROUCHING_LIGHT(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.the_hand.crouching_light", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        CROUCHING_LIGHT_FOLLOWUP(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.the_hand.crouching_light2", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        BLOCK(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.the_hand.block", AzPlayBehaviors.LOOP)),
+        KICK(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.the_hand.heavy", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        BARRAGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.the_hand.barrage", AzPlayBehaviors.LOOP)),
+        ERASE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.the_hand.erase", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        ERASE_GROUND(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.the_hand.erase_ground", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        ERASE_SPACE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.the_hand.erase_space", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        SWEEP(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.the_hand.sweep", AzPlayBehaviors.LOOP)),
+        GRAB(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.the_hand.grab", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        GRAB_HIT(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.the_hand.grab_hit", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        STOMP_BARRAGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.the_hand.stomp_barrage", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        RAGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.the_hand.rage", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        RAGE_FOLLOWUP(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.the_hand.rage_followup", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        ITEM_TOSS_CHARGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "itemthrow_charge", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        ITEM_TOSS(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "itemthrow", AzPlayBehaviors.PLAY_ONCE))
         ;
 
-        private final Consumer<AnimationState<TheHandEntity>> animator;
+        private final AzCommand animator;
 
-        State(Consumer<AnimationState<TheHandEntity>> animator) {
+        State(AzCommand animator) {
             this.animator = animator;
         }
 
         @Override
-        public void playAnimation(TheHandEntity attacker, AnimationState<TheHandEntity> state) {
-            animator.accept(state);
+        public void playAnimation(TheHandEntity attacker) {
+            animator.sendForEntity(attacker);
         }
     }
 
     @Override
     protected State[] getStateValues() {
         return State.values();
-    }
-
-    @Override
-    protected @Nullable String getSummonAnimation() {
-        return "animation.the_hand.summon";
     }
 
     @Override

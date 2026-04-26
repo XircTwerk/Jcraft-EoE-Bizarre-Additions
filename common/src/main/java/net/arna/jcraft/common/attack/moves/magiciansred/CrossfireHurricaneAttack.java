@@ -7,12 +7,11 @@ import lombok.NonNull;
 import net.arna.jcraft.api.attack.MoveType;
 import net.arna.jcraft.api.attack.moves.AbstractMove;
 import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
+import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.arna.jcraft.common.entity.damage.JDamageSources;
 import net.arna.jcraft.common.entity.stand.MagiciansRedEntity;
-import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.common.network.s2c.ServerChannelFeedbackPacket;
 import net.arna.jcraft.common.util.JUtils;
-import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -25,6 +24,8 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 import java.util.Set;
+
+import static net.arna.jcraft.api.Attacks.damageLogic;
 
 public final class CrossfireHurricaneAttack extends AbstractMove<CrossfireHurricaneAttack, MagiciansRedEntity> {
     private int hurricaneTime = 0;
@@ -86,7 +87,7 @@ public final class CrossfireHurricaneAttack extends AbstractMove<CrossfireHurric
         for (LivingEntity living : toHurt) {
             LivingEntity target = JUtils.getUserIfStand(living);
             if (hurricaneTime > 1) {
-                StandEntity.damageLogic(world, target, new Vec3(Math.sin(stand.tickCount / 10.0) * 3, 0.0, Math.cos(stand.tickCount / 10.0) * 3),
+                damageLogic(world, target, new Vec3(Math.sin(stand.tickCount / 10.0) * 3, 0.0, Math.cos(stand.tickCount / 10.0) * 3),
                         10, 1, false, 0.5f, true, 5, JDamageSources.stand(stand), user, CommonHitPropertyComponent.HitAnimation.MID);
                 if (hurricaneTime > 15) {
                     hurricaneTime = 15; // Allows for zoning until it hits something

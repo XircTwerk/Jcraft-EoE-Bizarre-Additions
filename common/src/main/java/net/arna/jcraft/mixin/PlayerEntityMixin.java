@@ -3,29 +3,34 @@ package net.arna.jcraft.mixin;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.arna.jcraft.api.attack.moves.AbstractCounterAttack;
 import net.arna.jcraft.api.attack.moves.AbstractMove;
-import net.arna.jcraft.common.config.JServerConfig;
-import net.arna.jcraft.api.stand.StandEntity;
-import net.arna.jcraft.common.network.s2c.ComboCounterPacket;
+import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.arna.jcraft.api.spec.JSpec;
+import net.arna.jcraft.api.stand.StandEntity;
+import net.arna.jcraft.common.config.JServerConfig;
+import net.arna.jcraft.common.food.IFoodData;
+import net.arna.jcraft.common.network.s2c.ComboCounterPacket;
 import net.arna.jcraft.common.util.IComboCounter;
+import net.arna.jcraft.common.util.IOwnable;
 import net.arna.jcraft.common.util.JUtils;
 import net.arna.jcraft.platform.JComponentPlatformUtils;
-import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.food.FoodData;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Player.class)
-public abstract class PlayerEntityMixin implements IComboCounter {
+public abstract class PlayerEntityMixin implements IComboCounter, IFoodData {
 
+    @Shadow protected FoodData foodData;
     // Combo tracking
     @Unique
     private int comboCount = 1;
@@ -69,6 +74,11 @@ public abstract class PlayerEntityMixin implements IComboCounter {
         comboCount++;
     }
 
+    @Override
+    public FoodData getFoodData() {
+        return foodData;
+    }
+
     /*
     @Inject(at = @At("HEAD"), method = "tick")
     public void jcraft$playerTickHead(CallbackInfo info) {
@@ -93,12 +103,12 @@ public abstract class PlayerEntityMixin implements IComboCounter {
 
     @Inject(at = @At("TAIL"), method = "tick")
     public void jcraft$playerTickTail(CallbackInfo info) {
-        Player player = (Player) (Object) this;
+        final Player player = (Player) (Object) this;
         if (JUtils.isAffectedByTimeStop(player)) {
             return;
         }
 
-        JSpec<?, ?> spec = JComponentPlatformUtils.getSpecData(player).getSpec();
+        final JSpec<?, ?> spec = JComponentPlatformUtils.getSpecData(player).getSpec();
         if (spec != null) {
             spec.tickSpec();
         }
@@ -107,8 +117,11 @@ public abstract class PlayerEntityMixin implements IComboCounter {
             return;
         }
 
-        LivingEntity attacker = lastAttacked.getLastHurtByMob();
-        if (attacker == null || attacker == player) {
+        final LivingEntity attacker = lastAttacked.getLastHurtByMob();
+        if (
+                attacker == null || attacker == player ||
+                (attacker instanceof IOwnable ownableAttacker && ownableAttacker.getMaster() == player))
+        {
             return;
         }
         lastAttacked = null;

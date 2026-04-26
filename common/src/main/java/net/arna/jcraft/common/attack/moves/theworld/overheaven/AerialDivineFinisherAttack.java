@@ -8,6 +8,8 @@ import net.arna.jcraft.api.attack.moves.AbstractSimpleAttack;
 import net.arna.jcraft.common.entity.projectile.KnifeProjectile;
 import net.arna.jcraft.common.entity.stand.TheWorldOverHeavenEntity;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.phys.Vec3;
@@ -27,6 +29,14 @@ public final class AerialDivineFinisherAttack extends AbstractSimpleAttack<Aeria
     }
 
     @Override
+    public void onInitiate(TheWorldOverHeavenEntity attacker) {
+        super.onInitiate(attacker);
+        attacker.getUserOrThrow().addEffect(new MobEffectInstance(
+                MobEffects.LEVITATION, 10, 2, true, false
+        ));
+    }
+
+    @Override
     public @NonNull Set<LivingEntity> perform(final TheWorldOverHeavenEntity attacker, final LivingEntity user) {
         final Set<LivingEntity> targets = super.perform(attacker, user);
 
@@ -37,7 +47,8 @@ public final class AerialDivineFinisherAttack extends AbstractSimpleAttack<Aeria
             final KnifeProjectile knife = new KnifeProjectile(attacker.level(), user);
             knife.setLightning(true);
             knife.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
-            knife.shootFromRotation(user, user.getXRot(), user.getYRot(), 0.0F, 2F, 1F);
+            knife.explosive = true;
+            knife.shootFromRotation(user, user.getXRot(), user.getYRot(), 0, 2.0f - (i / 8.0f), 1);
             knife.setPos(heightOffset.add(
                     random.triangle(0, 0.5),
                     random.triangle(0, 0.5),

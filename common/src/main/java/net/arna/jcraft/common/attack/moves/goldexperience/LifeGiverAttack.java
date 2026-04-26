@@ -83,7 +83,9 @@ public final class LifeGiverAttack extends AbstractMove<LifeGiverAttack, GoldExp
             JCraft.LOGGER.error("Failed to create animal of type {} from item {}", typeToSummon, animalItem);
             return Set.of();
         }
-        item.shrink(1);
+        if (!(user instanceof Player player && player.getAbilities().instabuild)) {
+            item.shrink(1);
+        }
         animal.moveTo(attacker.getX(), attacker.getY() + 0.5f, attacker.getZ(), attacker.getYRot(), attacker.getXRot());
         animal.setItemInHand(InteractionHand.MAIN_HAND, animalItem);
         attacker.level().addFreshEntity(animal);

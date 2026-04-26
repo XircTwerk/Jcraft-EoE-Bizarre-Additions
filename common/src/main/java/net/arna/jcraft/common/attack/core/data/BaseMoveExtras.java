@@ -26,22 +26,35 @@ import java.util.function.Supplier;
 public class BaseMoveExtras {
     public static final Supplier<Codec<BaseMoveExtras>> CODEC = () -> RecordCodecBuilder.create(instance -> instance.group(
             ExtraCodecs.COMPONENT.optionalFieldOf("name", Component.empty()).forGetter(BaseMoveExtras::getName),
+
             ExtraCodecs.COMPONENT.optionalFieldOf("description", Component.empty()).forGetter(BaseMoveExtras::getDescription),
+
             JRegistries.MOVE_CONDITION_CODEC.listOf().optionalFieldOf("conditions", new ArrayList<>()).forGetter(BaseMoveExtras::getConditions),
+
             JRegistries.MOVE_ACTION_CODEC.listOf().optionalFieldOf("actions", new ArrayList<>()).forGetter(BaseMoveExtras::getActions),
+
             ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("armor", 0).forGetter(BaseMoveExtras::getArmor),
+
             MobilityType.CODEC.optionalFieldOf("mobility_type").forGetter(BaseMoveExtras::getMobilityType),
+
+
             Codec.BOOL.optionalFieldOf("is_holdable").forGetter(BaseMoveExtras::getIsHoldable),
+
             Codec.BOOL.optionalFieldOf("ranged", false).forGetter(BaseMoveExtras::isRanged),
+
             Codec.BOOL.optionalFieldOf("may_hit_user", false).forGetter(BaseMoveExtras::isMayHitUser),
+
             RecordCodecBuilder.<IntObjectPair<AbstractMove<?, ?>>>create(i1 -> i1.group(
                     Codec.INT.fieldOf("tick").forGetter(IntObjectPair::leftInt),
                     JRegistries.MOVE_CODEC.fieldOf("move").forGetter(IntObjectPair::right)
             ).apply(i1, IntObjectPair::of)).optionalFieldOf("finisher").forGetter(BaseMoveExtras::getFinisher),
+
             ExtraCodecs.POSITIVE_INT.optionalFieldOf("followup_frame")
                     .xmap(i -> i.map(OptionalInt::of).orElseGet(OptionalInt::empty),
                             i -> i.isEmpty() ? Optional.empty() : Optional.of(i.getAsInt()))
-                    .forGetter(BaseMoveExtras::getFollowupFrame)
+                    .forGetter(BaseMoveExtras::getFollowupFrame),
+
+            Codec.BOOL.optionalFieldOf("loop_prevention", true).forGetter(BaseMoveExtras::isLoopPrevention)
     ).apply(instance, BaseMoveExtras::new));
     private Component name = Component.empty();
     private Component description = Component.empty();
@@ -54,12 +67,13 @@ public class BaseMoveExtras {
     protected boolean mayHitUser;
     private Optional<IntObjectPair<AbstractMove<?, ?>>> finisher = Optional.empty();
     private OptionalInt followupFrame = OptionalInt.empty();
+    private boolean loopPrevention = true;
 
     private BaseMoveExtras(final Component name, final Component description, final List<MoveCondition<?, ?>> conditions,
                            final List<MoveAction<?, ?>> actions,
                            final int armor, Optional<MobilityType> mobilityType, final Optional<Boolean> isHoldable, final boolean ranged,
                            final boolean mayHitUser, final Optional<IntObjectPair<AbstractMove<?, ?>>> finisher,
-                           final OptionalInt followupFrame) {
+                           final OptionalInt followupFrame, final boolean loopPrevention) {
         this.name = name;
         this.description = description;
         this.conditions.addAll(conditions);
@@ -71,6 +85,7 @@ public class BaseMoveExtras {
         this.mayHitUser = mayHitUser;
         this.finisher = finisher;
         this.followupFrame = followupFrame;
+        this.loopPrevention = loopPrevention;
     }
 
     @SuppressWarnings({"unchecked", "RedundantCast", "rawtypes"})
@@ -79,7 +94,7 @@ public class BaseMoveExtras {
                 (List<MoveAction<?, ?>>) (List) move.getActions(),
                 move.getArmor(), Optional.ofNullable(move.getMobilityType()), Optional.ofNullable(move.getIsHoldable()),
                 move.isRanged(), move.isMayHitUser(), Optional.ofNullable((IntObjectPair<AbstractMove<?, ?>>) (IntObjectPair) move.getFinisher()),
-                move.getFollowupFrame());
+                move.getFollowupFrame(), move.isLoopPrevention());
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"}) // generic types and (de)serialization don't mix well
@@ -95,6 +110,7 @@ public class BaseMoveExtras {
                 .withFollowupFrame(followupFrame);
         if (ranged) move.markRanged();
         if (mayHitUser) move.allowHitUser();
+        if (!loopPrevention) move.noLoopPrevention();
         finisher.ifPresent(f -> ((AbstractMove) move).withFinisher(f.leftInt(), f.right()));
 
         return move;

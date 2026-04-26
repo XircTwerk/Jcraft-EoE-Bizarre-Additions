@@ -5,23 +5,27 @@ import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.networking.NetworkManager;
 import dev.architectury.registry.registries.DeferredRegister;
 import io.netty.buffer.Unpooled;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import mod.azure.azurelib.animation.cache.AzIdentityRegistry;
 import net.arna.jcraft.api.JRegistries;
+import net.arna.jcraft.api.component.living.CommonCooldownsComponent;
+import net.arna.jcraft.api.component.living.CommonStandComponent;
 import net.arna.jcraft.api.registry.*;
+import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.api.stand.StandType;
 import net.arna.jcraft.api.stand.StandTypeUtil;
 import net.arna.jcraft.common.argumenttype.StandArgumentType;
 import net.arna.jcraft.common.block.CoffinBlock;
-import net.arna.jcraft.api.component.living.CommonCooldownsComponent;
-import net.arna.jcraft.api.component.living.CommonStandComponent;
 import net.arna.jcraft.common.config.JServerConfig;
 import net.arna.jcraft.common.effects.DazedStatusEffect;
 import net.arna.jcraft.common.entity.projectile.KnifeProjectile;
-import net.arna.jcraft.api.stand.StandEntity;
+import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
 import net.arna.jcraft.common.gravity.config.GravityChangerConfig;
 import net.arna.jcraft.common.gravity.util.GravityChannel;
 import net.arna.jcraft.common.loot.JLootTableHelper;
@@ -80,10 +84,13 @@ import org.jetbrains.annotations.Range;
 
 import java.util.*;
 
+import static net.arna.jcraft.api.component.world.CommonShockwaveHandlerComponent.Shockwave;
 import static net.arna.jcraft.api.registry.JBlockEntityTypeRegistry.BLOCK_ENTITY_TYPE_REGISTRY;
 import static net.arna.jcraft.api.registry.JBlockRegistry.BLOCK_REGISTRY;
 import static net.arna.jcraft.api.registry.JEntityTypeRegistry.ENTITY_TYPE_REGISTRY;
 import static net.arna.jcraft.api.registry.JItemRegistry.ITEM_REGISTRY;
+import static net.arna.jcraft.api.registry.JMarkerExtractorRegistry.EXTRACTOR_REGISTRY;
+import static net.arna.jcraft.api.registry.JMarkerInjectorRegistry.INJECTOR_REGISTRY;
 import static net.arna.jcraft.api.registry.JMoveActionTypeRegistry.MOVE_ACTION_TYPE_REGISTRY;
 import static net.arna.jcraft.api.registry.JMoveConditionTypeRegistry.MOVE_CONDITION_TYPE_REGISTRY;
 import static net.arna.jcraft.api.registry.JMoveTypeRegistry.MOVE_TYPE_REGISTRY;
@@ -115,7 +122,7 @@ public final class JCraft {
 
     // Gamerules
     //public static final GameRules.Key<GameRules.BooleanRule> KINGCRIMSON_TELEPORT_EFFECT = GameRuleRegistry.register("kingCrimsonTeleportEffect", GameRules.Category.MISC, GameRuleFactory.createBooleanRule(false));
-    public static final GameRules.Key<BooleanValue> COMBO_COUNTER = register("comboCounter", Category.MISC, BooleanValue.create(true));
+    //public static final GameRules.Key<BooleanValue> COMBO_COUNTER = register("comboCounter", Category.MISC, BooleanValue.create(true));
     public static final GameRules.Key<IntegerValue> CHANCE_MOB_SPAWNS_WITH_STAND = register("chanceMobSpawnsWithStand", Category.MOBS, IntegerValue.create(5));
     public static final GameRules.Key<BooleanValue> ALLOW_MOB_EVOLVED_STANDS = register("allowMobEvolvedStands", Category.MOBS, BooleanValue.create(false));
     public static final GameRules.Key<BooleanValue> STAND_GRIEFING = register("standGriefing", Category.MISC, BooleanValue.create(true));
@@ -126,6 +133,11 @@ public final class JCraft {
 
     public static final GameRules.Key<BooleanValue> FALLING_METEORS = register("doFallingMeteors", Category.SPAWNING, BooleanValue.create(true));
 
+    /**
+     * String ID of the base controller.
+     */
+    public static final String BASE_CONTROLLER = "base_controller";
+
     // Dimensional travel bullshit
     /**
      * Used to lock the AU chunks from being unloaded automatically by JServerTickEvents
@@ -135,6 +147,7 @@ public final class JCraft {
     private static final List<ChunkPos> preloadedChunks = new ArrayList<>();
 
     public static final Object2IntMap<LivingEntity> burstTimers = new Object2IntOpenHashMap<>();
+    public static final Object2IntMap<LivingEntity> pushblockCooldowns = new Object2IntOpenHashMap<>();
 
     public static final Map<LivingEntity, DashData> dashes = new WeakHashMap<>();
 
@@ -164,10 +177,15 @@ public final class JCraft {
         JParticleTypeRegistry.init();
         PARTICLES.register();
 
+        JSoundRegistry.init();
+        SOUNDS.register();
+
         ENTITY_TYPE_REGISTRY.register();
         BLOCK_REGISTRY.register();
         ITEM_REGISTRY.register();
         BLOCK_ENTITY_TYPE_REGISTRY.register();
+
+        JRecipeRegistry.register();
 
         // Custom registries
         STAND_TYPE_REGISTRY.register();
@@ -175,6 +193,8 @@ public final class JCraft {
         MOVE_ACTION_TYPE_REGISTRY.register();
         MOVE_CONDITION_TYPE_REGISTRY.register();
         MOVE_TYPE_REGISTRY.register();
+        EXTRACTOR_REGISTRY.register();
+        INJECTOR_REGISTRY.register();
 
         JTagRegistry.init();
         JAdvancementTriggerRegistry.init();
@@ -192,10 +212,10 @@ public final class JCraft {
         JStatusRegistry.init();
         EFFECTS.register();
 
-        JSoundRegistry.init();
-        SOUNDS.register();
-
         JEntityTypeRegistry.registerAttributes();
+
+        JStructureTypeRegistry.register();
+        JStructurePieceRegistry.register();
 
         JDimensionRegistry.init();
 
@@ -229,11 +249,17 @@ public final class JCraft {
         NetworkManager.registerReceiver(NetworkManager.Side.C2S, JPacketRegistry.C2S_MENU_CALL, MenuCallPacket::handle);
     }
 
+    private static void registerAzArmor() {
+        AzIdentityRegistry.register(JItemRegistry.STONE_MASK.get());
+        AzIdentityRegistry.register(JItemRegistry.RED_HAT.get());
+    }
+
     public static void postInit() {
         initBlockPostLoad();
         EvolutionItemHandler.init();
         initDispenserBehaviors();
         JStatRegistry.initFormatters();
+        registerAzArmor();
     }
 
     private static void initBlockPostLoad() {
@@ -343,7 +369,7 @@ public final class JCraft {
         // Synchronization
         TimeStopStatePacket.send(serverWorld.players(), TimeStopStatePacket.createStopPacket(timestopper.getId()));
 
-        Vec3 position = Objects.requireNonNull(timestop.pos);
+        Vec3 position = Objects.requireNonNull(timestop.getPos());
 
         List<ServerPlayer> toUnfreeze = serverWorld.getEntitiesOfClass(ServerPlayer.class,
                 new AABB(position.add(96.0, 96.0, 96.0), position.subtract(96.0, 96.0, 96.0)), EntitySelector.LIVING_ENTITY_STILL_ALIVE);
@@ -384,6 +410,8 @@ public final class JCraft {
         preloadedChunks.add(new ChunkPos(chunkX, chunkZ));
         auWorld.setChunkForced(chunkX, chunkZ, true);
     }
+
+    public static StandEntity<?, ?> summon(LivingEntity user) { return summon(user.level(), user); }
 
     public static StandEntity<?, ?> summon(Level world, LivingEntity user) {
         if (user.hasEffect(JStatusRegistry.STANDLESS.get()) || user.isSpectator()) {
@@ -447,14 +475,119 @@ public final class JCraft {
         ServerChannelFeedbackPacket.send(JUtils.around(world, new Vec3(x, y, z), 128), buf);
     }
 
+    public static void createHitscanTraceParticle(ServerLevel world, Vec3 start, Vec3 velocity, JParticleType type) {
+        if (world == null || type == null) {
+            return;
+        }
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+
+        buf.writeShort(14);
+        buf.writeDouble(start.x());
+        buf.writeDouble(start.y());
+        buf.writeDouble(start.z());
+        buf.writeDouble(velocity.x());
+        buf.writeDouble(velocity.y());
+        buf.writeDouble(velocity.z());
+        buf.writeEnum(type);
+
+        ServerChannelFeedbackPacket.send(JUtils.around(world, start, 128), buf);
+    }
+
+    public static void tryPushBlock(final ServerLevel world, final LivingEntity user, final @NonNull StandEntity<?, ?> stand) {
+        if (pushblockCooldowns.getOrDefault(user, -1) > 0) {
+            return;
+        }
+
+        final float third = stand.getMaxStandGauge() / 3.0f;
+        final float gauge = stand.getStandGauge();
+
+        if (gauge <= third) {
+            return;
+        }
+
+        pushblockCooldowns.put(user, 8);
+
+        stand.setStandGauge(gauge - third);
+
+        stand.setMoveStun(10);
+
+        world.playSound(null, user, JSoundRegistry.STAND_PUSHBLOCK.get(), SoundSource.PLAYERS, 1, 1);
+
+        JUtils.setVelocity(user, Vec3.ZERO);
+        final Vec3 position = user.position();
+        final double userWidth = user.getBbWidth();
+
+        final IntSet pushed = new IntOpenHashSet();
+
+        for (final Entity entity : world.getAllEntities()) {
+            if (entity == user || entity == stand) continue;
+            if (!(entity instanceof final LivingEntity living)) continue;
+
+            LivingEntity target = living;
+
+            // If the target is using a stand, we consider the closer entity for pushblock distance calculations
+            final CommonStandComponent standComponent = JComponentPlatformUtils.getStandComponent(living);
+            if (standComponent.getStand() != null) {
+                final StandEntity<?, ?> targetStand = standComponent.getStand();
+                if (targetStand.distanceToSqr(position) < living.distanceToSqr(position)) target = targetStand;
+            }
+
+            final double distance = target.position().distanceTo(position);
+            final double radius = target.getBbWidth() + 2.0;
+
+            // If the target is a non-remote stand, we want to target its user instead
+            if (target instanceof StandEntity<?,?> standTarget) {
+                if (!standTarget.isRemote() && standTarget.hasUser()) {
+                    target = standTarget.getUserOrThrow();
+                }
+            }
+
+            // Mark pushed and don't push the same entity more than once
+            final int id = target.getId();
+            if (pushed.contains(id)) continue;
+
+            if (distance < radius) {
+                if (DashData.isDashing(target)) {
+                    DashData.getDash(target).finished = true;
+                }
+
+                double launchVel = target.onGround() ? 1.5 : 0.75;
+
+                // The closer they are, the harder they're pushed
+                if (distance < userWidth * 2.0) {
+                    launchVel += (userWidth * 2.0 - distance) / 1.5;
+                }
+
+                Vec3 delta = target.position().subtract(position).normalize();
+
+                // The launch should be horizontal from the victims POV
+                delta = switch (GravityChangerAPI.getGravityDirection(target).getAxis()) {
+                    case X -> new Vec3(0, delta.y, delta.z);
+                    case Y -> new Vec3( delta.x, 0, delta.z);
+                    case Z -> new Vec3(delta.x, delta.y, 0);
+                };
+
+                JComponentPlatformUtils.getShockwaveHandler(world).addShockwave(stand.getEyePosition(), delta, 1.5f, Shockwave.Type.PUSHBLOCK);
+
+                JUtils.addVelocity(target,
+                        delta
+                        .scale(launchVel)
+                );
+
+                pushed.add(id);
+
+                // if (user instanceof ServerPlayer serverPlayer) serverPlayer.sendSystemMessage( Component.literal(launchVel + "; " + id) );
+            }
+        }
+    }
+
     /**
      * Breaks out of a combo using a slightly delayed attack centered at the player.
      * This attack is blockable, launches and stuns on hit.
      */
     public static void comboBreak(ServerLevel world, LivingEntity player, MobEffectInstance stun) {
-        if (player.isSpectator()) {
-            return;
-        }
+        if (stun == null) return;
+        if (player.isSpectator()) return;
         CommonCooldownsComponent cooldowns = JComponentPlatformUtils.getCooldowns(player);
 
         if (stun.getDuration() > 1 && DazedStatusEffect.canBeComboBroken(stun.getAmplifier()) && cooldowns.getCooldown(CooldownType.COMBO_BREAKER) <= 0) {
@@ -488,10 +621,16 @@ public final class JCraft {
         return null;
     }
 
-    public static void dimensionHop(LivingEntity entity, int heightOffset) {
-        ServerLevel original = (ServerLevel) entity.level();
-        MinecraftServer server = original.getServer();
-        ServerLevel au = server.getLevel(JDimensionRegistry.AU_DIMENSION_KEY);
+    /**
+     * @param entity the entity to hop
+     * @param heightOffset the height offset
+     * @param time the time in the other dimension
+     * @throws IllegalArgumentException If <code>time</code> is not positive.
+     */
+    public static void dimensionHop(final LivingEntity entity, final int heightOffset, final int time) {
+        final ServerLevel original = (ServerLevel) entity.level();
+        final MinecraftServer server = original.getServer();
+        final ServerLevel au = server.getLevel(JDimensionRegistry.AU_DIMENSION_KEY);
         if (au == null) {
             JCraft.LOGGER.fatal("Alternate universe world does not exist!");
             return;
@@ -500,11 +639,11 @@ public final class JCraft {
             return;
         }
 
-        Vec3 pos = entity.position();
+        final Vec3 pos = entity.position();
         LivingEntity finalEnt = entity;
 
         if (entity instanceof ServerPlayer player) {
-            ChunkPos chunkPos = new ChunkPos(BlockPos.containing(pos.x, pos.y, pos.z));
+            final ChunkPos chunkPos = new ChunkPos(BlockPos.containing(pos.x, pos.y, pos.z));
             au.getChunkSource().addRegionTicket(TicketType.POST_TELEPORT, chunkPos, 1, player.getId());
             player.teleportTo(au, pos.x, pos.y - heightOffset, pos.z, entity.getYRot(), entity.getXRot());
             player.connection.send(
@@ -520,7 +659,7 @@ public final class JCraft {
         }
 
         finalEnt.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 100, 9, true, false, true));
-        PastDimensions.enqueue(new DimensionData(finalEnt, pos, original.dimension()));
+        PastDimensions.enqueue(new DimensionData(finalEnt, pos, original.dimension(), time)); // throws IAE
     }
 
     public static boolean wasRecentlyAttacked(CombatTracker tracker) {

@@ -44,7 +44,6 @@ public final class BloodSuckAttack extends AbstractSpecGrabAttack<BloodSuckAttac
     @Override
     public void performHook(final VampireSpec attacker, final Set<LivingEntity> targets, final Set<AABB> boxes,
                             final DamageSource damageSource, final Vec3 forwardPos, final Vec3 rotationVector) {
-        super.performHook(attacker, targets, boxes, damageSource, forwardPos, rotationVector);
         if (!targets.isEmpty()) {
             if (getHitMove() instanceof BloodSuckHitsAttack bloodSuckHitsAttack) {
                 bloodSuckHitsAttack.setTarget(new WeakReference<>(targets.stream().findFirst().get()));

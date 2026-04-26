@@ -34,7 +34,7 @@ public class VampireSpec extends JSpec<VampireSpec, VampireSpec.State> {
                     Bloodsuck is extremely rewarding and allows linking into almost any move."""))
             .build();
 
-    public static final SimpleUppercutAttack<VampireSpec> AIR_KICK = new SimpleUppercutAttack<VampireSpec>(30, 6,
+    public static final SimpleUppercutAttack<VampireSpec> AIR_KICK = new SimpleUppercutAttack<VampireSpec>(0, 6,
             12, 1f, 5f, 14, 1.5f, 0.2f, 0.5f, -0.5f)
             .withImpactSound(JSoundRegistry.IMPACT_1)
             .withStaticY()
@@ -42,14 +42,14 @@ public class VampireSpec extends JSpec<VampireSpec, VampireSpec.State> {
             .withHitAnimation(CommonHitPropertyComponent.HitAnimation.CRUSH)
             .withInfo(Component.literal("Axe Kick"), Component.literal("jab"));
 
-    public static final SimpleUppercutAttack<VampireSpec> SWEEP = new SimpleUppercutAttack<VampireSpec>(30, 6,
+    public static final SimpleUppercutAttack<VampireSpec> SWEEP = new SimpleUppercutAttack<VampireSpec>(0, 6,
             12, 1f, 5f, 12, 1.5f, 0.2f, 0.5f, 0.5f)
             .withImpactSound(JSoundRegistry.IMPACT_1)
             .withStaticY()
             .withHitAnimation(CommonHitPropertyComponent.HitAnimation.LOW)
             .withInfo(Component.literal("Sweep Kick"), Component.literal("fast launcher"));
 
-    public static final SimpleAttack<VampireSpec> ROUNDHOUSE = new SimpleAttack<VampireSpec>(30, 8,
+    public static final SimpleAttack<VampireSpec> ROUNDHOUSE = new SimpleAttack<VampireSpec>(0, 8,
             15, 1f, 6f, 19, 1.5f, 1.5f, 0f)
             .withCrouchingVariant(SWEEP)
             .withAerialVariant(AIR_KICK)
@@ -66,7 +66,7 @@ public class VampireSpec extends JSpec<VampireSpec, VampireSpec.State> {
 
     public static final BloodSuckHitsAttack BLOODSUCK_HITS = new BloodSuckHitsAttack(0, 25, 1f,
             4, 5, 1.5f, 0.6f, -0.1f, IntSet.of(8, 16, 24))
-            .withStunType(StunType.LAUNCH)
+            .withStunType(StunType.UNBURSTABLE)
             .withInfo(Component.literal("Blood Suck (Hit)"), Component.empty());
     public static final BloodSuckAttack BLOODSUCK = new BloodSuckAttack(240, 10, 18,
             1f, 1f, BLOODSUCK_HITS.getDuration(), 1.5f, 0f, 0f, BLOODSUCK_HITS,
@@ -96,6 +96,8 @@ public class VampireSpec extends JSpec<VampireSpec, VampireSpec.State> {
             .withCrouchingVariant(TOGGLE_NV)
             .withSound(JSoundRegistry.VAMPIRE_REANIMATE)
             .withInfo(Component.literal("Resurrection"), Component.literal("revives humanoid/undead enemies within 5 meters, that died within the last 1 minute"));
+
+    public static final float MAX_BLOOD = 20f;
 
     private final CommonVampireComponent vampireComponent;
 

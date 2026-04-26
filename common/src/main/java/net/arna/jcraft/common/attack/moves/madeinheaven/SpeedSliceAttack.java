@@ -5,14 +5,14 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
 import lombok.NonNull;
+import net.arna.jcraft.api.AttackData;
 import net.arna.jcraft.api.attack.MoveType;
+import net.arna.jcraft.api.attack.enums.MobilityType;
 import net.arna.jcraft.api.attack.moves.AbstractMove;
 import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
-import net.arna.jcraft.common.entity.stand.MadeInHeavenEntity;
-import net.arna.jcraft.api.stand.StandEntity;
-import net.arna.jcraft.common.util.JUtils;
-import net.arna.jcraft.api.attack.enums.MobilityType;
 import net.arna.jcraft.api.registry.JSoundRegistry;
+import net.arna.jcraft.common.entity.stand.MadeInHeavenEntity;
+import net.arna.jcraft.common.util.JUtils;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
@@ -21,9 +21,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static net.arna.jcraft.api.Attacks.damageLogic;
 
 @Getter
 public final class SpeedSliceAttack extends AbstractMove<SpeedSliceAttack, MadeInHeavenEntity> {
@@ -86,8 +89,12 @@ public final class SpeedSliceAttack extends AbstractMove<SpeedSliceAttack, MadeI
 
         for (final LivingEntity ent : targets) {
             LivingEntity target = JUtils.getUserIfStand(ent);
-            StandEntity.damageLogic(world, target, kbVec.scale(knockback).add(0, knockback / 4, 0),
-                    stunTicks, stunType, false, damage, true, (int) (4 + damage), playerSource, user, CommonHitPropertyComponent.HitAnimation.MID);
+            damageLogic(world, target, new AttackData(
+                    kbVec.scale(knockback).add(0, knockback / 4, 0),
+                    stunTicks, stunType, false, damage, true, (int) (4 + damage),
+                    playerSource, user, CommonHitPropertyComponent.HitAnimation.MID, attacker.getMoveUsage(),
+                    false, false
+            ));
         }
 
         if (attacker.getAccelTime() > 0 && !targets.isEmpty()) {

@@ -10,7 +10,8 @@ import net.arna.jcraft.platform.JComponentPlatformUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 
 import java.util.Collection;
 
@@ -19,7 +20,7 @@ public class SetSpecCommand {
         dispatcher.register(Commands.literal("spec")
                 .then(Commands.literal("set")
                         .requires(source -> source.hasPermission(2))
-                        .then(Commands.argument("players", EntityArgument.players())
+                        .then(Commands.argument("entities", EntityArgument.entities())
                                 .then(Commands.argument("spec", SpecArgumentType.spec())
                                         .executes(SetSpecCommand::run)
                                 )
@@ -31,13 +32,13 @@ public class SetSpecCommand {
     public static int run(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         try {
             final SpecType specType = context.getArgument("spec", SpecType.class);
-            final Collection<? extends Player> targets = EntityArgument.getPlayers(context, "players");
+            final Collection<? extends Entity> targets = EntityArgument.getEntities(context, "entities");
 
             if (targets.isEmpty()) {
                 return 0;
             }
-            for (Player player : targets) {
-                JComponentPlatformUtils.getSpecData(player).setType(specType);
+            for (Entity entity : targets) {
+                if (entity instanceof LivingEntity living) JComponentPlatformUtils.getSpecData(living).setType(specType);
             }
         } catch (Exception e) {
             JCraft.LOGGER.error("Failed to set spec", e);

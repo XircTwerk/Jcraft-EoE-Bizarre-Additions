@@ -3,7 +3,9 @@ package net.arna.jcraft.common.component.impl.entity;
 import lombok.Getter;
 import lombok.NonNull;
 import net.arna.jcraft.JCraft;
+import net.arna.jcraft.api.attack.enums.StunType;
 import net.arna.jcraft.api.component.entity.CommonGrabComponent;
+import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
 import net.arna.jcraft.common.gravity.util.RotationUtil;
 import net.minecraft.core.BlockPos;
@@ -11,7 +13,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
 public abstract class CommonGrabComponentImpl implements CommonGrabComponent {
@@ -59,6 +63,14 @@ public abstract class CommonGrabComponentImpl implements CommonGrabComponent {
 
     public void tick() {
         if (attacker != null) {
+            if (grabbed instanceof final LivingEntity living) {
+                final MobEffectInstance stun = living.getEffect(JStatusRegistry.DAZED.get());
+                if (stun != null && stun.getAmplifier() == StunType.LAUNCH.ordinal()) {
+                    endGrab();
+                    return;
+                }
+            }
+
             if (attacker.isAlive() && duration-- > 0) {
                 Direction gravity = GravityChangerAPI.getGravityDirection(attacker);
                 Vec3 newPos = attacker.position()
@@ -98,6 +110,8 @@ public abstract class CommonGrabComponentImpl implements CommonGrabComponent {
 
     public void applySyncPacket(final FriendlyByteBuf buf) {
         if (buf.readBoolean()) {
+            attacker = null;
+            duration = 0;
             return;
         }
         attacker = grabbed.level().getEntity(buf.readVarInt());

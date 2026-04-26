@@ -1,16 +1,14 @@
 package net.arna.jcraft.common.entity.projectile;
 
 import lombok.NonNull;
-import mod.azure.azurelib.animatable.GeoEntity;
-import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
-import mod.azure.azurelib.core.animation.AnimatableManager;
-import mod.azure.azurelib.util.AzureLibUtil;
+import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
-import net.arna.jcraft.common.util.JUtils;
-import net.arna.jcraft.platform.JComponentPlatformUtils;
 import net.arna.jcraft.api.registry.JEntityTypeRegistry;
 import net.arna.jcraft.api.registry.JItemRegistry;
 import net.arna.jcraft.api.registry.JSoundRegistry;
+import net.arna.jcraft.common.util.JParticleType;
+import net.arna.jcraft.common.util.JUtils;
+import net.arna.jcraft.platform.JComponentPlatformUtils;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -18,6 +16,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LightningBolt;
@@ -31,8 +30,13 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
-public class KnifeProjectile extends AbstractArrow implements GeoEntity {
+import java.util.Set;
+
+import static net.arna.jcraft.api.Attacks.damageLogic;
+
+public class KnifeProjectile extends AbstractArrow {
     private static final EntityDataAccessor<Boolean> LIGHTNING;
+    public boolean explosive = false;
     private int ticksInAir;
     private boolean delayed = false;
     private boolean delayFired = false;
@@ -89,16 +93,19 @@ public class KnifeProjectile extends AbstractArrow implements GeoEntity {
             }
             return;
         }
+
+        // Lightning Knives
+
         if (level().isClientSide) {
-            final double x = getX();
-            final double y = getY();
-            final double z = getZ();
+            final double x = getX(), y = getY(), z = getZ();
+
             level().addParticle(ParticleTypes.ELECTRIC_SPARK, x, y, z, 0, 0, 0);
             level().addParticle(ParticleTypes.ELECTRIC_SPARK, (x + xo) / 2, (y + yo) / 2, (z + zo) / 2, 0, 0, 0);
             return;
         }
 
         if (ticksInAir > 200 || inGround) {
+            if (explosive) explode();
             discard();
         }
         if (!delayed) {
@@ -142,6 +149,26 @@ public class KnifeProjectile extends AbstractArrow implements GeoEntity {
         delayFired = true;
     }
 
+    private void explode() {
+        final double x = getX(), y = getY(), z = getZ();
+
+        JCraft.createParticle((ServerLevel) level(), x, y, z, JParticleType.FLASH);
+
+        if (!isSilent()) {
+            level().playSound(null, x, y, z, JSoundRegistry.TWOH_SHOOT.get(), SoundSource.PLAYERS, 0.5f, 0.5f);
+        }
+
+        final Entity owner = getOwner(); // Guaranteed non-null due to spawning conditions of explosive knives
+        final Vec3 pos = position();
+        final Set<LivingEntity> hurt = JUtils.generateHitbox(level(), pos, 1.5, e -> !e.isPassengerOfSameVehicle(owner));
+        for (LivingEntity living : hurt) {
+            final LivingEntity target = JUtils.getUserIfStand(living);
+            final Vec3 kbVec = target.position().subtract(pos).normalize();
+            damageLogic(level(), target, kbVec, 10, 1, false, 1f, true, 9,
+                    level().damageSources().indirectMagic(owner, this), getOwner(), CommonHitPropertyComponent.HitAnimation.MID, false);
+        }
+    }
+
     @Override
     public void thunderHit(@NonNull ServerLevel world, @NonNull LightningBolt lightning) {
         this.setLightning(true);
@@ -175,7 +202,10 @@ public class KnifeProjectile extends AbstractArrow implements GeoEntity {
             spawnAtLocation(getPickupItem(), 0.1F);
         }
 
-        JUtils.projectileDamageLogic(this, level(), entity, Vec3.ZERO, stunT, 1, false, 2, blockstun, CommonHitPropertyComponent.HitAnimation.MID);
+        if (explosive) explode();
+
+        JUtils.projectileDamageLogic(this, level(), entity, Vec3.ZERO, stunT, 1, false, 2,
+                blockstun, CommonHitPropertyComponent.HitAnimation.MID, false, false, getLightning());
         playSound(SoundEvents.TRIDENT_HIT, 1, 1);
         if (entity instanceof LivingEntity living) {
             JComponentPlatformUtils.getMiscData(living).stab();
@@ -195,19 +225,5 @@ public class KnifeProjectile extends AbstractArrow implements GeoEntity {
         super.readAdditionalSaveData(tag);
         this.ticksInAir = tag.getShort("life");
         setLightning(tag.getBoolean("lightning"));
-    }
-
-    // Animations
-    private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
-
-
-    @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-
-    }
-
-    @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return cache;
     }
 }

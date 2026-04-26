@@ -19,6 +19,11 @@
       "jcraft:generic/stand_block"
     ]
   },
+  "standpushblock": {
+    "sounds": [
+      "jcraft:generic/stand_pushblock"
+    ]
+  },
   "backstab": {
     "subtitle": "subtitles.jcraft.backstab",
     "sounds": [
@@ -690,12 +695,12 @@
       "jcraft:stands/theworldoverheaven/overwrite"
     ]
   },
-  "twohowarida": {
+  "twohairknives": {
     "sounds": [
-      "jcraft:stands/theworldoverheaven/owarida"
+      "jcraft:stands/theworldoverheaven/air_knives_2"
     ]
   },
-  "twohairknives": {
+  "twohknives": {
     "sounds": [
       "jcraft:stands/theworldoverheaven/air_knives"
     ]
@@ -1135,6 +1140,46 @@
       "jcraft:specs/vampire/spec_change"
     ]
   },
+  "hamoncrash": {
+    "sounds": [
+      "jcraft:specs/hamon/crash"
+    ]
+  },
+  "hamonecho": {
+    "sounds": [
+      "jcraft:specs/hamon/echo"
+    ]
+  },
+  "hamonring": {
+    "sounds": [
+      "jcraft:specs/hamon/ring"
+    ]
+  },
+  "hamonsurge": {
+    "sounds": [
+      "jcraft:specs/hamon/surge"
+    ]
+  },
+  "hamonswoosh": {
+    "sounds": [
+      "jcraft:specs/hamon/swoosh"
+    ]
+  },
+  "hamoncrackleimpact": {
+    "sounds": [
+      "jcraft:specs/hamon/crackle_impact"
+    ]
+  },
+  "hamoncrackles": {
+    "sounds": [
+      "jcraft:specs/hamon/crackles"
+    ]
+  },
+  "hamonbreathe": {
+    "sounds": [
+      "jcraft:specs/hamon/breathe"
+    ]
+  },
   "bulletricochet": {
     "sounds": [
       "jcraft:projectiles/bullet/ricochet"
@@ -1143,6 +1188,11 @@
   "bulletpenetrate": {
     "sounds": [
       "jcraft:projectiles/bullet/penetrate"
+    ]
+  },
+  "reload": {
+    "sounds": [
+      "jcraft:projectiles/bullet/load"
     ]
   },
   "shatread": {
@@ -1173,6 +1223,20 @@
   "rrignition": {
     "sounds": [
       "jcraft:vehicles/roadroller/ignition"
+    ]
+  },
+  "asshoot": {
+    "sounds": [
+      "jcraft:stands/aerosmith/burst1",
+      "jcraft:stands/aerosmith/burst2",
+      "jcraft:stands/aerosmith/burst3",
+      "jcraft:stands/aerosmith/burst4",
+      "jcraft:stands/aerosmith/burst5"
+    ]
+  },
+  "assummon": {
+    "sounds": [
+      "jcraft:stands/aerosmith/summon"
     ]
   }
 }

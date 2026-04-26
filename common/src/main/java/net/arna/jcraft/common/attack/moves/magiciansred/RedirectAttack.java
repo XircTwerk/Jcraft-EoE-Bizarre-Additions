@@ -3,6 +3,7 @@ package net.arna.jcraft.common.attack.moves.magiciansred;
 import com.mojang.datafixers.kinds.App;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.NonNull;
+import net.arna.jcraft.api.MoveSelectionResult;
 import net.arna.jcraft.api.attack.MoveType;
 import net.arna.jcraft.api.attack.moves.AbstractMove;
 import net.arna.jcraft.common.entity.projectile.AnkhProjectile;
@@ -51,11 +52,11 @@ public final class RedirectAttack extends AbstractMove<RedirectAttack, Magicians
     }
 
     @Override
-    public StandEntity.MoveSelectionResult specificMoveSelectionCriterion(MagiciansRedEntity attacker, LivingEntity mob,
-                                                                          LivingEntity target, int stunTicks, int enemyMoveStun,
-                                                                          double distance, StandEntity<?, ?> enemyStand,
-                                                                          AbstractMove<?, ?> enemyAttack) {
-        return attacker.getRandom().nextFloat() > 0.05 ? StandEntity.MoveSelectionResult.STOP : StandEntity.MoveSelectionResult.PASS;
+    public MoveSelectionResult specificMoveSelectionCriterion(MagiciansRedEntity attacker, LivingEntity mob,
+                                                                                  LivingEntity target, int stunTicks, int enemyMoveStun,
+                                                                                  double distance, StandEntity<?, ?> enemyStand,
+                                                                                  AbstractMove<?, ?> enemyAttack) {
+        return attacker.getRandom().nextFloat() > 0.05 ? MoveSelectionResult.STOP : MoveSelectionResult.PASS;
     }
 
     @Override

@@ -170,13 +170,13 @@ public class JCraftAbilityHud {
     public static String cooldownTypeToKeybind(CooldownType type, boolean makeShort) {
         return switch (type) {
             case STAND_LIGHT ->                 "M1";
-            case HEAVY, STAND_HEAVY, STAND_TOSS -> generateName(heavyKey.getParent(), makeShort);
+            case HEAVY, STAND_HEAVY ->          generateName(heavyKey.getParent(), makeShort);
             case BARRAGE, STAND_BARRAGE ->      generateName(barrageKey.getParent(), makeShort);
             case ULTIMATE, STAND_ULTIMATE ->    generateName(ultKey.getParent(), makeShort);
             case SPECIAL1, STAND_SP1 ->         generateName(special1Key.getParent(), makeShort);
             case SPECIAL2, STAND_SP2 ->         generateName(special2Key.getParent(), makeShort);
             case SPECIAL3, STAND_SP3 ->         generateName(special3Key.getParent(), makeShort);
-            case UTILITY, STAND_STANDBY ->      generateName(utility.getParent(), makeShort);
+            case UTILITY, STAND_TOSS ->         generateName(utility.getParent(), makeShort);
             case COMBO_BREAKER ->               makeShort ? "CB" : "Combo Breaker";
             case COOLDOWN_CANCEL ->             generateName(cooldownCancel.getParent(), makeShort);
             case DASH ->                        generateName(dash.getParent(), makeShort);
@@ -194,6 +194,11 @@ public class JCraftAbilityHud {
      */
     private static void renderIcons(final GuiGraphics ctx, final Map<CooldownType, IconPos> icons, final int selectedX,
                                     final int selectedY, final Function<CooldownType, ResourceLocation> type) {
+        final JClientConfig.UIDuration uiDuration = JClientConfig.getInstance().getUiDuration();
+        if (uiDuration == JClientConfig.UIDuration.NEVER) {
+            return;
+        }
+
         final Font textRenderer = Minecraft.getInstance().gui.getFont();
 
         for (Map.Entry<CooldownType, IconPos> entry : icons.entrySet()) {
@@ -212,7 +217,9 @@ public class JCraftAbilityHud {
                 alpha = 1.0f;
             }
 
-            if (timeSinceNoCooldowns >= 100) continue;
+            if (timeSinceNoCooldowns >= 100 && uiDuration == JClientConfig.UIDuration.COOLDOWN) {
+                continue;
+            }
 
             if (alpha <= 0.0f) continue;
 

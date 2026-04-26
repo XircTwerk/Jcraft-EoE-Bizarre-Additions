@@ -79,17 +79,19 @@ public class Timestops {
         final List<DimensionData> newActiveTimestops = new ArrayList<>();
 
         for (final DimensionData timestop : TIMESTOPS) {
-            final Entity user = timestop.user;
+            final Entity user = timestop.getUser();
             //JCraft.LOGGER.info("SERVER: Ticking timestop " + timestop + " with user " + user + " and duration " + timestop.timer);
 
-            if (user != null && user.isAlive() && timestop.timer-- > 0) {
-                final ServerLevel world = server.getLevel(timestop.worldKey);
+            final int timer = timestop.getTimer();
+            if (user != null && user.isAlive() && timer > 0) {
+                timestop.decreaseTimer();
+                final ServerLevel world = server.getLevel(timestop.getWorldKey());
                 if (world == null) {
-                    JCraft.LOGGER.warn("World that timestop belongs to no longer exists! Key: " + timestop.worldKey + " Timestopper: " + user);
+                    JCraft.LOGGER.warn("World that timestop belongs to no longer exists! Key: " + timestop.getWorldKey() + " Timestopper: " + user);
                     continue;
                 }
 
-                final Vec3 pos = timestop.pos;
+                final Vec3 pos = timestop.getPos();
 
                 final List<? extends Entity> toStop = world.getEntitiesOfClass(Entity.class,
                         new AABB(pos.add(96.0, 96.0, 96.0), pos.subtract(96.0, 96.0, 96.0)), TIMESTOP_PREDICATE);
@@ -114,7 +116,7 @@ public class Timestops {
     public static boolean isInTSRange(Vec3 pos) {
         for (DimensionData timeStop : TIMESTOPS) {
             if (timeStop != null) {
-                if (timeStop.pos.distanceToSqr(pos.x(), pos.y(), pos.z()) <= 65536) {
+                if (timeStop.getPos().distanceToSqr(pos.x(), pos.y(), pos.z()) <= 65536) {
                     return true;
                 }
             }
@@ -125,7 +127,7 @@ public class Timestops {
 
     public static boolean isInTSRange(BlockPos pos) {
         for (DimensionData timeStop : TIMESTOPS) {
-            if (timeStop != null && timeStop.pos.distanceToSqr(pos.getX(), pos.getY(), pos.getZ()) <= 65536) {
+            if (timeStop != null && timeStop.getPos().distanceToSqr(pos.getX(), pos.getY(), pos.getZ()) <= 65536) {
                 return true;
             }
         }
@@ -135,8 +137,8 @@ public class Timestops {
 
     public static int getTicksIfInTSRange(BlockPos pos) {
         for (DimensionData timeStop : TIMESTOPS) {
-            if (timeStop != null && timeStop.pos.distanceToSqr(pos.getX(), pos.getY(), pos.getZ()) <= 65536) {
-                return timeStop.timer;
+            if (timeStop != null && timeStop.getUser().distanceToSqr(pos.getX(), pos.getY(), pos.getZ()) <= 65536) {
+                return timeStop.getTimer();
             }
         }
 
@@ -144,9 +146,9 @@ public class Timestops {
     }
 
     public static @Nullable DimensionData getTimestop(Entity entity) {
-        for (DimensionData d : TIMESTOPS) {
-            if (d.user == entity) {
-                return d;
+        for (DimensionData data : TIMESTOPS) {
+            if (data.getUser() == entity) {
+                return data;
             }
         }
         return null;

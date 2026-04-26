@@ -5,38 +5,41 @@ import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.ints.IntObjectPair;
 import lombok.NonNull;
 import net.arna.jcraft.JCraft;
-import net.arna.jcraft.api.registry.JSoundRegistry;
-import net.arna.jcraft.api.stand.StandType;
-import net.arna.jcraft.api.stand.StandTypeUtil;
+import net.arna.jcraft.api.AttackData;
 import net.arna.jcraft.api.attack.enums.MoveInputType;
 import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
+import net.arna.jcraft.api.registry.JSoundRegistry;
+import net.arna.jcraft.api.registry.JStatusRegistry;
+import net.arna.jcraft.api.registry.JTagRegistry;
+import net.arna.jcraft.api.spec.JSpec;
+import net.arna.jcraft.api.spec.JSpecHolder;
+import net.arna.jcraft.api.stand.StandEntity;
+import net.arna.jcraft.api.stand.StandType;
+import net.arna.jcraft.api.stand.StandTypeUtil;
 import net.arna.jcraft.common.config.JServerConfig;
 import net.arna.jcraft.common.entity.damage.JDamageSources;
 import net.arna.jcraft.common.entity.projectile.ItemTossProjectile;
-import net.arna.jcraft.common.entity.projectile.JAttackEntity;
 import net.arna.jcraft.common.entity.projectile.KnifeProjectile;
 import net.arna.jcraft.common.entity.projectile.ScalpelProjectile;
-import net.arna.jcraft.common.entity.spec.JSpecHolder;
-import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
+import net.arna.jcraft.common.gravity.util.RotationUtil;
 import net.arna.jcraft.common.item.KnifeBundleItem;
 import net.arna.jcraft.common.item.KnifeItem;
 import net.arna.jcraft.common.item.ScalpelItem;
 import net.arna.jcraft.common.network.s2c.JExplosionPacket;
 import net.arna.jcraft.common.network.s2c.PlayerAnimPacket;
 import net.arna.jcraft.common.network.s2c.ServerChannelFeedbackPacket;
-import net.arna.jcraft.api.spec.JSpec;
 import net.arna.jcraft.common.splatter.JSplatterManager;
 import net.arna.jcraft.platform.JComponentPlatformUtils;
-import net.arna.jcraft.api.registry.JEntityTypeRegistry;
-import net.arna.jcraft.api.registry.JStatusRegistry;
-import net.arna.jcraft.api.registry.JTagRegistry;
+import net.minecraft.advancements.Advancement;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerChunkCache;
@@ -47,6 +50,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
@@ -57,19 +61,8 @@ import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
-import net.minecraft.world.entity.projectile.Snowball;
-import net.minecraft.world.entity.projectile.ThrownEgg;
-import net.minecraft.world.entity.projectile.ThrownPotion;
-import net.minecraft.world.entity.projectile.ThrownTrident;
-import net.minecraft.world.item.ArrowItem;
-import net.minecraft.world.item.EggItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SnowballItem;
-import net.minecraft.world.item.ThrowablePotionItem;
-import net.minecraft.world.item.TridentItem;
+import net.minecraft.world.entity.projectile.*;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
@@ -85,7 +78,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static net.arna.jcraft.api.stand.StandEntity.damageLogic;
+import static net.arna.jcraft.api.Attacks.damageLogic;
 
 public final class JUtils {
     public static final float DEG_TO_RAD = 0.017453292F;
@@ -231,6 +224,25 @@ public final class JUtils {
         return toReturn;
     }
 
+    public static Set<LivingEntity> generateHitboxNoDisplay(Level world, Vec3 center, double hitboxSize, Predicate<Entity> predicate) {
+        double size = hitboxSize / 2;
+
+        Vec3 v1 = center.subtract(size, size, size);
+        Vec3 v2 = center.add(size, size, size);
+
+        List<LivingEntity> hit = world.getEntitiesOfClass(LivingEntity.class, new AABB(v1, v2),
+                EntitySelector.NO_CREATIVE_OR_SPECTATOR.and(predicate));
+        Set<LivingEntity> toReturn = new HashSet<>(hit);
+        for (LivingEntity l : hit)
+        {
+            if (l instanceof StandEntity<?, ?> stand && stand.hasUser()) {
+                toReturn.add(stand.getUserOrThrow());
+            }
+        }
+
+        return toReturn;
+    }
+
     public static JSpec<?, ?> getSpec(LivingEntity livingEntity) {
         return JComponentPlatformUtils.getSpecData(livingEntity).getSpec();
     }
@@ -342,33 +354,49 @@ public final class JUtils {
         return ent;
     }
 
-    public static void projectileDamageLogic(Projectile proj, Level world, Entity ent, Vec3 kb, int stunT, int stunType, boolean overrideStun, float damage, int blockstun, CommonHitPropertyComponent.HitAnimation hitAnimation) {
-        projectileDamageLogic(proj, world, ent, kb, stunT, stunType, overrideStun, damage, blockstun, hitAnimation, false, false);
+    public static void projectileDamageLogic(Projectile proj, Level world, Entity ent, Vec3 kb, int stunTicks, int stunType, boolean overrideStun,
+                                             float damage, int blockstun, CommonHitPropertyComponent.HitAnimation hitAnimation) {
+        projectileDamageLogic(proj, world, ent, kb, stunTicks, stunType, overrideStun, damage, blockstun, hitAnimation, false, false, true);
     }
 
-    public static void projectileDamageLogic(Projectile proj, Level world, Entity ent, Vec3 kb, int stunT, int stunType, boolean overrideStun, float damage, int blockstun, CommonHitPropertyComponent.HitAnimation hitAnimation, boolean unblockable, boolean canBackstab) {
+    public static void projectileDamageLogic(Projectile proj, Level world, Entity ent, Vec3 kb, int stunTicks, int stunType, boolean overrideStun,
+                                             float damage, int blockstun, CommonHitPropertyComponent.HitAnimation hitAnimation, boolean canBackstab, boolean unblockable) {
+        projectileDamageLogic(proj, world, ent, kb, stunTicks, stunType, overrideStun, damage, blockstun, hitAnimation, canBackstab, unblockable, true);
+    }
+
+    public static void projectileDamageLogic(Projectile proj, Level world, Entity ent, Vec3 kb, int stunTicks, int stunType, boolean overrideStun,
+                                             float damage, int blockstun, CommonHitPropertyComponent.HitAnimation hitAnimation,
+                                             boolean canBackstab, boolean unblockable, boolean cancelMoves) {
+        final Entity owner = proj.getOwner();
+
+        DamageSource source = (owner == null) ?
+                JDamageSources.create(world, DamageTypes.GENERIC) :
+                JDamageSources.create(world, DamageTypes.MOB_PROJECTILE, proj, owner);
+
+        projectileDamageLogic(proj, world, ent, new AttackData(
+                kb, stunTicks, stunType, overrideStun, damage, true,
+                blockstun, source, owner, hitAnimation, null,
+                canBackstab, unblockable, cancelMoves
+        ));
+    }
+
+    public static void projectileDamageLogic(Projectile proj, Level world, Entity ent, AttackData attackData) {
         if (world.isClientSide) {
             return;
         }
         Objects.requireNonNull(proj, "Attempted to run ProjectileDamageLogic with invalid projectile in world " + world);
-        Entity owner = proj.getOwner();
-        DamageSource source;
-        if (owner == null) {
-            source = JDamageSources.create(world, DamageTypes.GENERIC);
-        } else {
-            source = JDamageSources.create(world, DamageTypes.MOB_PROJECTILE, proj, owner);
-        }
 
         if (ent instanceof LivingEntity living) {
             LivingEntity target = living;
             if (ent instanceof StandEntity<?, ?> stand) {
                 target = stand.getUser();
             }
-            damageLogic(world, target, kb, stunT, stunType, overrideStun, damage, false, blockstun, source, owner, hitAnimation, canBackstab, unblockable);
+
+            damageLogic(world, target, attackData);
         }
 
         if (ent instanceof EndCrystal endCrystal) {
-            endCrystal.hurt(source, damage);
+            endCrystal.hurt(attackData.source(), attackData.damage());
         }
     }
 
@@ -598,27 +626,18 @@ public final class JUtils {
             Map.entry(EntityType.HUSK, 0.1f),
 
             Map.entry(EntityType.VILLAGER, 1.5f),
-            Map.entry(EntityType.PLAYER, 1.5f),
-
-            Map.entry(EntityType.IRON_GOLEM, 0.0f),
-            Map.entry(EntityType.SNOW_GOLEM, 0.0f),
-
-            Map.entry(JEntityTypeRegistry.ROAD_ROLLER.get(), 0.0f),
-
-            Map.entry(JEntityTypeRegistry.SHEER_HEART_ATTACK.get(), 0.0f)
+            Map.entry(EntityType.PLAYER, 1.5f)
     );
 
     public static float getBloodMult(LivingEntity entity) {
         EntityType<?> type = entity.getType();
 
-        if (entity instanceof StandEntity<?,?>) return 0;
+        if (type.is(JTagRegistry.BLOODLESS_ENTITIES)) {
+            return 0;
+        }
 
         if (type.is(EntityTypeTags.RAIDERS)) {
             return 1.5f;
-        }
-
-        if (type.is(EntityTypeTags.SKELETONS) || entity instanceof JAttackEntity) {
-            return 0;
         }
 
         if (type.is(EntityTypeTags.AXOLOTL_HUNT_TARGETS)) // Fishes
@@ -694,10 +713,13 @@ public final class JUtils {
     public static Collection<ServerPlayer> around(ServerLevel world, Vec3 pos, double radius) {
         double radiusSq = radius * radius;
 
-        return world.players()
-                .stream()
-                .filter((p) -> p.distanceToSqr(pos) <= radiusSq)
-                .collect(Collectors.toList());
+        List<ServerPlayer> list = new ArrayList<>();
+        for (ServerPlayer p : world.players()) {
+            if (p.distanceToSqr(pos) <= radiusSq) {
+                list.add(p);
+            }
+        }
+        return list;
     }
 
     public static Collection<ServerPlayer> all(MinecraftServer server) {
@@ -763,7 +785,7 @@ public final class JUtils {
         }
 
         final String stringName = entity.getName().toString().toLowerCase(Locale.ROOT);
-        return stringName.contains("iron") || stringName.contains("ferro");
+        return stringName.contains("iron") || stringName.contains("ferro"); // Cross-mod compatibility :D
     }
 
     public static boolean shouldRenderStandsFor(Player player) {
@@ -796,7 +818,7 @@ public final class JUtils {
         }
 
         else if (itemStack.getItem() instanceof TridentItem) {
-            final ThrownTrident thrownTrident = new ThrownTrident(level, shooter, itemStack);
+            final ThrownTrident thrownTrident = new ThrownTrident(level, getUserIfStand(shooter), itemStack);
             thrownTrident.shootFromRotation(shooter, shooter.getXRot(), shooter.getYRot(), 0f, velocity, 1f);
             level.addFreshEntity(thrownTrident);
         }
@@ -834,6 +856,12 @@ public final class JUtils {
             knifeProjectile.shootFromRotation(shooter, shooter.getXRot(), shooter.getYRot(), 0f, velocity, 1f);
             level.addFreshEntity(knifeProjectile);
         }
+        else if (itemStack.getItem() instanceof EnderpearlItem) {
+            final ThrownEnderpearl enderpearlProjectile = new ThrownEnderpearl(level, JUtils.getUserIfStand(shooter));
+            enderpearlProjectile.setItem(itemStack);
+            enderpearlProjectile.shootFromRotation(shooter, shooter.getXRot(), shooter.getYRot(), 0.0F, 1.5F, 1.0F);
+            level.addFreshEntity(enderpearlProjectile);
+        }
         else {
             final AbstractArrow projectile = new ItemTossProjectile(shooter, level, itemStack);
             projectile.shootFromRotation(shooter, shooter.getXRot(), shooter.getYRot(), 0f, velocity, 1f);
@@ -847,5 +875,108 @@ public final class JUtils {
 
     public static void tossItem(final Player player) {
         tossItem(player, player.level(), player.getItemInHand(InteractionHand.MAIN_HAND), 1f, !player.getAbilities().instabuild);
+    }
+
+    public static double nullSafeDistanceSqr(@Nullable Entity a, @Nullable Entity b) {
+        if (a == null || b == null) return Double.POSITIVE_INFINITY;
+        return a.distanceToSqr(b);
+    }
+
+    /**
+     * Returns the minimum of any number of {@code double}s
+     */
+    public static double min(double... arr) {
+        double min = Double.POSITIVE_INFINITY;
+        for (double v : arr) {
+            if (v < min) min = v;
+        }
+        return min;
+    }
+
+    /**
+     * Selects a random element from the given varargs using the provided {@link RandomSource}.
+     *
+     * @throws IllegalArgumentException If no items are provided.
+     */
+    @SafeVarargs
+    public static <T> @NonNull T chooseRandom(@NonNull RandomSource rng, T... items) {
+        if (items == null || items.length == 0) {
+            throw new IllegalArgumentException("At least one item must be provided.");
+        }
+        return items[rng.nextInt(items.length)];
+    }
+
+    /**
+     * Selects a random element from the given collection using the provided {@link RandomSource}.
+     *
+     * @throws IllegalArgumentException If no items are provided.
+     */
+    public static <T> @NonNull T chooseRandom(@NonNull RandomSource rng, Collection<T> items) {
+        if (items == null || items.isEmpty()) {
+            throw new IllegalArgumentException("At least one item must be provided.");
+        }
+        final Iterator<T> it = items.iterator();
+        int selection = rng.nextInt(items.size());
+        while (selection > 0) {
+            it.next();
+            selection--;
+        }
+        return it.next();
+    }
+
+    public static void awardAdvancement(final ServerPlayer player, final ResourceLocation advancementLoc) {
+        final MinecraftServer server = player.getServer();
+        if (server == null) {
+            return;
+        }
+        final Advancement advancement = server.getAdvancements().getAdvancement(advancementLoc);
+        if (advancement == null) {
+            return;
+        }
+        for (final String criterion : advancement.getCriteria().keySet()) {
+            player.getAdvancements().award(advancement, criterion);
+        }
+    }
+
+    public static boolean hasAdvancement(final ServerPlayer player, final ResourceLocation advancementLoc) {
+        final MinecraftServer server = player.getServer();
+        if (server == null) {
+            return false;
+        }
+        final Advancement advancement = server.getAdvancements().getAdvancement(advancementLoc);
+        if (advancement == null) {
+            return false;
+        }
+        return player.getAdvancements().getOrStartProgress(advancement).isDone();
+    }
+
+    public static void maySendStandAboutInfo(final ServerPlayer player) {
+        if (!hasAdvancement(player, JCraft.id("obtain_stand"))) {
+            player.sendSystemMessage(Component.translatable("info.jcraft.first_stand"));
+        }
+    }
+
+    public static void maySendSpecAboutInfo(final ServerPlayer player) {
+        if (!hasAdvancement(player, JCraft.id("obtain_any_spec"))) {
+            player.sendSystemMessage(Component.translatable("info.jcraft.first_spec"));
+        }
+    }
+
+    /**
+     * @return Whether the player is 'mortal', i.e. vulnerable, not in creative or spectator.
+     */
+    public static boolean isMortal(@Nullable final ServerPlayer player) {
+        if (player == null) return false;
+        return !player.isSpectator() && !player.isCreative() && !player.isInvulnerable();
+    }
+
+    @NonNull
+    public static Vec3 getLocalUp(@NonNull final LivingEntity ent) {
+        return RotationUtil.vecPlayerToWorld(0, 1.0d, 0, GravityChangerAPI.getGravityDirection(ent));
+    }
+
+    @NonNull
+    public static Vec3 getLocalDown(@NonNull final LivingEntity ent) {
+        return RotationUtil.vecPlayerToWorld(0, -1.0d, 0, GravityChangerAPI.getGravityDirection(ent));
     }
 }

@@ -1,5 +1,6 @@
 package net.arna.jcraft.common.effects;
 
+import net.arna.jcraft.common.tickable.JEnemies;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -22,7 +23,7 @@ public class DazedStatusEffect extends MobEffect {
                 Attributes.ATTACK_DAMAGE,
                 "FE04CA6A-A3D1-E22B-CB00-EDA6A853F90E",
                 -1.0,
-                AttributeModifier.Operation.MULTIPLY_TOTAL
+                AttributeModifier.Operation.MULTIPLY_BASE
         ).addAttributeModifier(
                 Attributes.ATTACK_SPEED,
                 "CB402E34-0AAC-383B-B26B-B253430DEEEA",
@@ -58,7 +59,7 @@ public class DazedStatusEffect extends MobEffect {
     // 0 - Hitstun, not combo breakable
     // 1 - Hitstun, combo breakable
     // 2 - Blocking, not combo breakable
-    // 3 - Launch, not combo breakable
+    // 3 - Launch, combo breakable
     // 4 - Winded, small movement penalty, combo breakable
     @Override
     public void applyEffectTick(final LivingEntity entity, final int amplifier) {
@@ -82,11 +83,11 @@ public class DazedStatusEffect extends MobEffect {
         if (amplifier == 2) {
             return; // Blockstun should not disable targetting
         }
-        if (!(entity instanceof Mob mob)) {
-            return;
+        if (entity instanceof Mob mob) {
+            if (JEnemies.contains(mob)) return;
+            mob.setTarget(null);
+            mob.setAggressive(false);
         }
-        mob.setTarget(null);
-        mob.setAggressive(false);
     }
 
     @Override

@@ -19,6 +19,7 @@ public interface JSoundRegistry {
     RegistrySupplier<SoundEvent> STAND_SUMMON = register("standsummon");
     RegistrySupplier<SoundEvent> STAND_DESUMMON = register("desummon");
     RegistrySupplier<SoundEvent> STAND_BLOCK = register("standblock");
+    RegistrySupplier<SoundEvent> STAND_PUSHBLOCK = register("standpushblock");
     RegistrySupplier<SoundEvent> BACKSTAB = register("backstab");
     RegistrySupplier<SoundEvent> ARMORED_HIT = register("armoredhit");
     RegistrySupplier<SoundEvent> COMBO_BREAK = register("combobreak");
@@ -223,8 +224,8 @@ public interface JSoundRegistry {
     RegistrySupplier<SoundEvent> TWOH_CHARGE_OVERWRITE = register("twohchargeoverwrite");
     RegistrySupplier<SoundEvent> TWOH_CHARGE = register("twohcharge");
     RegistrySupplier<SoundEvent> TWOH_OVERWRITE = register("twohoverwrite");
-    RegistrySupplier<SoundEvent> TWOH_KNIFETHROW = register("twohowarida");
-    RegistrySupplier<SoundEvent> TWOH_AIRKNIVES = register("twohairknives");
+    RegistrySupplier<SoundEvent> TWOH_KNIFETHROW = register("twohairknives");
+    RegistrySupplier<SoundEvent> TWOH_KNIFESUMMON = register("twohknives");
 
     // Star Platinum: The World
     RegistrySupplier<SoundEvent> SPTW_GRAB = register("sptwgrab");
@@ -277,9 +278,14 @@ public interface JSoundRegistry {
     RegistrySupplier<SoundEvent> METALLICA_RAZOR_VOMIT_PREPARE = register("mrazorvomitprepare");
     RegistrySupplier<SoundEvent> METALLICA_BLADE_SWIPE = register("mbladeswipe");
 
+    // Mandom
     RegistrySupplier<SoundEvent> MANDOM_REWIND = register("mandomrewind");
     RegistrySupplier<SoundEvent> MANDOM_SUMMON = register("mandomsummon");
     RegistrySupplier<SoundEvent> MANDOM_COUNTDOWN = register("mandomcountdown");
+
+    // Aerosmith
+    RegistrySupplier<SoundEvent> AS_SHOOT = register("asshoot");
+    RegistrySupplier<SoundEvent> AS_SUMMON = register("assummon");
 
     //// SPECS
     // Brawler
@@ -301,9 +307,21 @@ public interface JSoundRegistry {
     RegistrySupplier<SoundEvent> VAMPIRE_REANIMATE = register("vampirereanimate");
     RegistrySupplier<SoundEvent> VAMPIRE_SPEC_CHANGE = register("vampirespecchange");
 
+    // Hamon
+
+    RegistrySupplier<SoundEvent> HAMON_CRASH = register("hamoncrash");
+    RegistrySupplier<SoundEvent> HAMON_ECHO = register("hamonecho");
+    RegistrySupplier<SoundEvent> HAMON_RING = register("hamonring");
+    RegistrySupplier<SoundEvent> HAMON_SURGE = register("hamonsurge");
+    RegistrySupplier<SoundEvent> HAMON_SWOOSH = register("hamonswoosh");
+    RegistrySupplier<SoundEvent> HAMON_CRACKLE_IMPACT = register("hamoncrackleimpact");
+    RegistrySupplier<SoundEvent> HAMON_BREATHE = register("hamonbreathe");
+    RegistrySupplier<SoundEvent> HAMON_CRACKLES = register("hamoncrackles");
+
     //// OTHER
     RegistrySupplier<SoundEvent> BULLET_RICOCHET = register("bulletricochet");
     RegistrySupplier<SoundEvent> BULLET_PENETRATE = register("bulletpenetrate");
+    RegistrySupplier<SoundEvent> LOAD = register("reload");
 
     // ROAD ROLLER
     RegistrySupplier<SoundEvent> ROAD_ROLLER_HIT = register("rrhit");

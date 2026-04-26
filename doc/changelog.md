@@ -1,125 +1,81 @@
-# Changelog: The Cosplay Update
+# Changelog
 ## General
-* Road Roller now explodes into its ingredients when destroyed
-* overhauled the internal action and Stand Pose system, making development and datapacks easier
-* Stands, Specs and Moves now have their own registry, enabling the creation of Add-Ons
-* evolution items are now data driven as well
-* added a general item throwing mechanic
-  * experimental and not accessible yet
-* extended documentation with UML
-* added Stand/Spec obtainment trigger, enabling new advancements
-* Stand user mob follow range is now based on local difficulty
-* Stand user mobs no longer drop diamond or netherite armor
-* added (partial) translations for
-  * Chinese
-  * Dutch
-  * English
-  * German
-  * Norwegian
-  * Persian
-  * Polish
-  * Spanish
-  * Turkish
+* **Added Hamon**
+* **Cosplay has been moved to its own mod**
+* "Kill Vampirism" has been renamed to "Heal On Kill" to reduce the confusion
+* updated Azurelib version to latest
 ### Blocks & Items
-* added craftable, non-functional steel ball
-  * functionality will come with Spin in the future
-* added Compact Disc (burn a light blue glass pane)
-* added Spec Discs (Compact Disc + Experience Bottle)
-* made Stand Disc recipe much cheaper (Compact Disc + Stand Arrowhead + 7 polished meteorite blocks)
-* Discs as well as Cosplay now have their own tab in Creative Mode
-* updated model of DIO and Jotaro Cosplay
-* added Cosplay for
-  * Johnny Joestar
-  * Gyro Zeppeli
-  * Pucci
-  * Jotaro (from Part 4)
-  * Heaven Attained DIO
-  * Risotto
-  * Kakyoin
-  * Doppio
-  * Diavolo
-  * Giorno
-  * Straizo
-  * Funny Valentine
-  * Diego
-  * Ringo
-  * Dio (from Part 1)
-  * Kira (3 variants)
-* Cosplay is now fire-resistant if made from netherite
-* added animation for Stone Mask activation
+* removed JCraft items being added to vanilla creative tabs because that lead to a doubling in the search
+* removed items without any use from the creative tabs; they are still accessible via `/give`
+* removed Steel Ball recipe
+* added Rewind Mock Item
+  * once a Mandom Rewind is over, can be used to be resolved
+  * gets resolved to either air or its original form, depending if the block it spawned from was reset or not
+* get GO or DO particles depending if stand user players or stand user mobs are nearby
 ### NPCs & Stands
-* generalized bones of all stand models for future animation purposes
-* C-Moon
-  * Gravitational Hop move now configurable via datapacks
-* D4C
-  * updated model
-* Horus
-  * ice branches now turn much slower, but have consistent damage on hit
-* __Mandom added__ (thanks to Xirc)
-  * only has two moves: countdown and rewind
-  * player can use spec moves while Mandom is out
-  * countdown can last between 6 and 30 seconds
-  * rewind can only be activated when countdown has been active for at least 6 seconds
-  * countdown saves entities within a 64 block radius and rewind resets them to their state they had when countdown activated
-  * mobs who move 200 blocks away from their countdown position escape rewind
-* Metallica
-  * given a unique, much quieter stand summoning sound
-  * Invisibility move changed from crouch to aerial
-* Purple Haze + Distortion
-  * updated model
-* Shadow The World
-  * now has its own model
-* Star Platinum
-  * updated model
-* Star Platinum The World
-  * updated textures and animations
+* improved combat AI
+* Whitesnake
+  * Poison Spew cooldowns increased by 4s
+  * Poison Spew Projectile no longer interrupts moves
+  * can now steal stands for real
+* Mandom
+  * now also resets the air (bubbles) of entities
+  * now also rewinds blocks (no dupes totally sure yes yes)
+  * particle color changed according to skin and shader added
+* added Monks (`hamon_spec_user`) and Tonpetty (see Hamon section)
+* D4C clones don't drop XP anymore if summoned by players
+* entities resurrected by Vampirism don't drop XP or loot anymore
+* Metallica now has some sweet mosh particles
+* slight changes to Horus' hitbox
+* Brawler
+  * will fight Training Dummies on sight
+  * taking away his dummy will aggro him
+* Anubis Spec User now drops Anubis on death
+### Structures
+* added the monastery
+* added Anubis temple
+* added proper placement tags for all JCraft structures, i.e. you can now choose their biomes via datapacks
 ### Configs
-* added exclusive stands
-  * if `exclusiveStands` in the server config is set to `true`, no two players can have the same stand
-  * OFF by default
-* added stand user sight
-  * if `standUserSight` in the server config is set to `true`, only players with stands can see other stands
-  * OFF by default
-* added health to damage scaling
-  * if `healthToDamageScaling` in the server config to `true`, JCraft damage scale with the opponent's maximum health
-  * ON by default
-* added damage scaling factor against non stand users
-  * `vsStandlessDamageMultiplier` in the server config which multiplies JCraft damage against standless __non-player__ opponents
-  * 2x by default
-* added stand spawner option
-  * if `spawnerStands` in the server config is set to `true`, mobs spawned by spawners can have stands
-  * ON by default
+* added different ways how long the Move UI should be displayed, including Always and Never (default as it was, client side)
+* Mandom can affect blocks or not (default it does, server config)
+* Whitesnake can steal stands from players or not (default it doesn't, server config)
+### Compatibility
+* made the mod compatible with FTB Chunks
 ### Commands
-* selection of Stands/Specs now are not of the form `HORUS` anymore, but `horus` or `jcraft:horus`
-  * this is due to the use of the new registries
-* added `jpose` command (e.g. `jpose help`)
-* removed `jcraft:none` from `/spec set`, matching `/stand set`; use `/spec clear` instead
+* `/spec reset @s` resets your spec as if you just first obtained it
+* `/stand about` now isn't global anymore when you have no stand summoned
+* added a notification to actually use `/stand about` when first stand is summoned
+### Tags
+* new tag `jcraft:bloodless_entities` for entities that cannot be bloodsucked by Vampires
+* new tag `jcraft:ironless_entities` for entities that cannot be ironsucked by Metallica
 ### Bug Fixes
-* fixed being able to jump while stunned
-* fixed Metallica animations
-* fixed stands passively being immune to arrows
-* fixed Coffin being in the wrong Creative Tab
-* Cinderella's Kiss enchantment is now undiscoverable
-* rain now freezes in Timestop
-* fixed Stands hitting creative/spectator players
-* spectators can no longer have stands out
-* fixed D4C's Dimension Hop return in other dimensions teleporting you below bedrock
-* fixed use of Stand arrows on some entities, including remotely active stands and Sheer Heart Attack
-  * use tag `can_never_have_stand` to add living entities that shouldn't be able to have stands EVER
-* fixed problems with mods AdAstra and CarryOn via new `stands` tag
-### Known Bugs
-* if exclusive stands are active, you can't change your stand skin via command
-* Enemies can attack through dimensions (hit something -> D4C ult -> attacked by out-of-world ent)
-  this bug is EVIL and has an unclear source >:(
-  in the future, try looking at what sets the enemies target to null
-  its obfuscated because of how goals are wrapped, but it's probably possible to figure out
-  To add to this, the loading of chunks in D4Cs dimension should be done with tickets instead of a mass forceload
-* Mobs don't spawn with stands in the Nether or End anymore; this is a stopgap solution to a bigger bug freezing the server
-* using a SpecDisc on Vampire doesn't remove the blood bar
-* using a SpecDisc on Anubis doesn't remove the bloodlust bar
-## Forge
-### Bug Fixes
-* fixed commands not autocompleting correctly
+* Anvil cannot consume multiple Cinderella masks at once anymore
+* Cinderella Enchantments are no longer additive but behave like other enchantments now
+* fixed STW's desummon animation
+* fixed idle and blocking animations not playing sometimes
+* fixed Gold Experience's Snake not animating movement
+* Brawler spec user no longer attacks villagers
+* fixed Stone Mask not spawning in Vampire Lairs
+* Training Dummy can no longer be abused by Vampires and Metallica users
+* Leash of Training Dummy now drops if it is picked up
+* fixed rare crash with inhale attack
+* Road Roller can no longer get stands
+* added names to Brawler and Anubis Spec User
+* Horus Frostwalker now respects Stand Griefing rule
+* GE Berry Bush attack now respects Stand Griefing rule
+## Hamon
+* first spec to have progression (see Commands section to skip those)
+* [insert information about the moves]
+## Cosplay
+* everything except red hat has been moved to its own mod, JJBA Cosplay
+* your cosplay shouldn't get lost **IF** you install the other mod together with 0.18.0
+* IF the cosplay mod is installed, Stand user mobs will spawn with cosplay on
+* for more news on cosplay see changelog of JJBA Cosplay
+## Known Bugs
+* …
+
+
+
 
 ## TODO (SOME UPDATE) :D
 * Spin
@@ -127,5 +83,4 @@
 * MR barrage fire :)
 * Timestop should stop stand anims
 * CRAZY DIAMOND, Hermit Purple, Yellow Temperance
-* Stand NBT serialization
 * Actually use effect keyframes in animations

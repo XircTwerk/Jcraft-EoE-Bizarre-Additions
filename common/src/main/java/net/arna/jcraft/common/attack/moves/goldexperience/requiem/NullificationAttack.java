@@ -2,18 +2,15 @@ package net.arna.jcraft.common.attack.moves.goldexperience.requiem;
 
 import com.mojang.datafixers.kinds.App;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.netty.buffer.Unpooled;
 import lombok.NonNull;
 import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.attack.MoveType;
 import net.arna.jcraft.api.attack.moves.AbstractCounterAttack;
 import net.arna.jcraft.common.attack.moves.shared.CounterMissMove;
 import net.arna.jcraft.common.entity.stand.GEREntity;
-import net.arna.jcraft.common.network.s2c.ServerChannelFeedbackPacket;
 import net.arna.jcraft.common.util.JParticleType;
 import net.arna.jcraft.common.util.JUtils;
 import net.arna.jcraft.platform.JComponentPlatformUtils;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -48,11 +45,6 @@ public final class NullificationAttack extends AbstractCounterAttack<Nullificati
             return;
         }
 
-        final FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        buf.writeShort(14);
-        buf.writeInt(countered.getId());
-        buf.writeInt(COUNTER_STOP_TIME);
-        ServerChannelFeedbackPacket.send(JUtils.around((ServerLevel) attacker.level(), attacker.position(), 96), buf);
         JComponentPlatformUtils.getTimeStopData(countered).ifPresent(t -> t.setTicks(COUNTER_STOP_TIME));
 
         if (countered instanceof LivingEntity living) {

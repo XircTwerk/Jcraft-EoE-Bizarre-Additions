@@ -1,11 +1,9 @@
 package net.arna.jcraft.common.item;
 
-import net.arna.jcraft.common.entity.projectile.BulletProjectile;
-import net.arna.jcraft.common.tickable.RevolverFire;
-import net.arna.jcraft.common.util.DimensionData;
 import net.arna.jcraft.api.registry.JItemRegistry;
 import net.arna.jcraft.api.registry.JSoundRegistry;
 import net.arna.jcraft.api.registry.JStatusRegistry;
+import net.arna.jcraft.common.entity.projectile.BulletProjectile;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
@@ -43,7 +41,7 @@ public class FVRevolverItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
         ItemStack itemStack = user.getItemInHand(hand);
-        if (user.hasEffect(JStatusRegistry.DAZED.get())) {
+        if (user.hasEffect(JStatusRegistry.DAZED.get()) || user.isSpectator()) {
             return InteractionResultHolder.fail(itemStack);
         }
         CompoundTag data = itemStack.getOrCreateTag();
@@ -53,7 +51,8 @@ public class FVRevolverItem extends Item {
         }
         if (!world.isClientSide) {
             user.getCooldowns().addCooldown(JItemRegistry.FV_REVOLVER.get(), 4); // Unusable until fires
-            RevolverFire.enqueue(new DimensionData(user, world.dimension(), 3));
+            //RevolverFire.enqueue(new DimensionData(user, world.dimension(), 3));
+            fire(itemStack, world, user);
         }
         return InteractionResultHolder.success(itemStack);
     }

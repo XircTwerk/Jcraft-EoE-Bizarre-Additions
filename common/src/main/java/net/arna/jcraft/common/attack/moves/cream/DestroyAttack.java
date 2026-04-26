@@ -4,13 +4,13 @@ import com.mojang.datafixers.kinds.App;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
 import lombok.NonNull;
+import net.arna.jcraft.api.Attacks;
 import net.arna.jcraft.api.attack.MoveType;
 import net.arna.jcraft.api.attack.moves.AbstractSimpleAttack;
+import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.arna.jcraft.common.entity.damage.JDamageSources;
 import net.arna.jcraft.common.entity.stand.CreamEntity;
-import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.common.util.JParticleType;
-import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -34,7 +34,7 @@ public final class DestroyAttack extends AbstractSimpleAttack<DestroyAttack, Cre
     protected void processTarget(final CreamEntity attacker, final LivingEntity target, final Vec3 kbVec, final DamageSource damageSource) {
         super.processTarget(attacker, target, kbVec, damageSource);
 
-        StandEntity.trueDamage(8, JDamageSources.stand(attacker), target);
+        Attacks.trueDamage(8, JDamageSources.stand(attacker), target);
         target.addEffect(new MobEffectInstance(JStatusRegistry.KNOCKDOWN.get(), knockdownDuration, 0, true, false));
     }
 

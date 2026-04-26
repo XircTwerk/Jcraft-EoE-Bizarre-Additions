@@ -11,8 +11,13 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import lombok.Getter;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
+import mod.azure.azurelib.render.armor.AzArmorRendererRegistry;
 import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.pose.PoseModifiers;
+import net.arna.jcraft.api.registry.JItemRegistry;
+import net.arna.jcraft.client.renderer.armor.ArmorRenderer;
+import net.arna.jcraft.client.rendering.DamageIndicatorManager;
+import net.arna.jcraft.client.particle.DamageNumberParticle;
 import net.arna.jcraft.client.rendering.StandUserPoseLoader;
 import net.arna.jcraft.client.gravity.util.GravityChannelClient;
 import net.arna.jcraft.client.gui.hud.JCraftAbilityHud;
@@ -73,6 +78,7 @@ public class JCraftClient {
             .put(special3Key, MoveInputType.SPECIAL3)
             .put(ultKey, MoveInputType.ULTIMATE)
             .put(utility, MoveInputType.UTILITY)
+            .put(TrackedKeyBinding.wrap(Minecraft.getInstance().options.keyPickItem), MoveInputType.TOSS)
             .build();
     @Getter(lazy = true)
     private static final Map<TrackedKeyBinding, MovementInputType> movementBindings = createMovementBindingsMap();
@@ -101,20 +107,23 @@ public class JCraftClient {
         JCraftAbilityHud.init();
         PoseModifiers.register();
 
-        InversionShaderHandler.INSTANCE.init();
+        AzArmorRendererRegistry.register(ArmorRenderer.simple("stone_mask"), JItemRegistry.STONE_MASK.get());
+        AzArmorRendererRegistry.register(ArmorRenderer.simple("red_hat"), JItemRegistry.RED_HAT.get());
+
+        SpecialParticleShaderHandler.INSTANCE.init();
         ZaWarudoShaderHandler.INSTANCE.init();
         CrimsonShaderHandler.INSTANCE.init();
         EpitaphVignetteShaderHandler.INSTANCE.init();
+        MandomRewindShaderHandler.INSTANCE.init();
 
         // Renderer registration
-        // JArmorRendererRegistry.registerArmorRenderers();
 
         ClientPacketHandler.init();
 
         AttackHitboxEffectRenderer.init();
         TimeErasePredictionEffectRenderer.init();
     }
-
+    
     public static void registerKeyBindings(@Nullable Consumer<KeyMapping> register) {
         if (register == null) register = KeyMappingRegistry::register;
 
@@ -152,6 +161,13 @@ public class JCraftClient {
     public static float damageScaling = 1.00f;
     public static int framesSinceCounted = 0;
 
+    public static int IPSTriggerFramesLeft = 0;
+    public static final int IPS_TRIGGER_FRAMES = 120;
+
+    public static void markIPSTriggered() {
+        IPSTriggerFramesLeft = IPS_TRIGGER_FRAMES;
+    }
+
 
     public static void markComboStarted() {
         comboStarted = true;
@@ -168,6 +184,7 @@ public class JCraftClient {
                 .put(TrackedKeyBinding.wrap(options.keyJump), MovementInputType.JUMP)
                 .put(TrackedKeyBinding.wrap(options.keyShift), MovementInputType.CROUCH)
                 .put(dash, MovementInputType.DASH)
+                .put(TrackedKeyBinding.wrap(options.keyPickItem), MovementInputType.THROW)
                 .build();
     }
 
@@ -221,6 +238,9 @@ public class JCraftClient {
     }
 
     public static void registerParticleSpriteSets() {
+        // TODO: merge Forge version handling with this somehow. until then _KEEP THEM IN SYNC_
+        // See JCraftForgeClient#onParticleFactoryRegistration(RegisterParticleProvidersEvent)
+
         ParticleProviderRegistry.register(JParticleTypeRegistry.COMBO_BREAK, ComboBreakerParticle.Factory::new);
         ParticleProviderRegistry.register(JParticleTypeRegistry.COOLDOWN_CANCEL, CooldownCancelParticle.Factory::new);
         ParticleProviderRegistry.register(JParticleTypeRegistry.HITSPARK_1, provider -> new HitsparkParticle.Factory(provider, 0.4f, 5));
@@ -237,12 +257,23 @@ public class JCraftClient {
         ParticleProviderRegistry.register(JParticleTypeRegistry.PIXEL, PixelParticle.Factory::new);
         ParticleProviderRegistry.register(JParticleTypeRegistry.BLOCKSPARK, provider -> new BlocksparkParticle.Factory(provider, 0.15f));
         ParticleProviderRegistry.register(JParticleTypeRegistry.GO, GoParticle.Factory::new);
+        ParticleProviderRegistry.register(JParticleTypeRegistry.DO, GoParticle.Factory::new);
         ParticleProviderRegistry.register(JParticleTypeRegistry.AURA_ARC, AuraArcParticle.Factory::new);
         ParticleProviderRegistry.register(JParticleTypeRegistry.AURA_BLOB, AuraBlobParticle.Factory::new);
         ParticleProviderRegistry.register(JParticleTypeRegistry.INVERSION, InversionParticle.Factory::new);
+        ParticleProviderRegistry.register(JParticleTypeRegistry.OVERLAP, OverlappingParticle.Factory::new);
         ParticleProviderRegistry.register(JParticleTypeRegistry.SUN_LOCK_ON, BackstabParticle.Factory::new); // 9 frames, reusing
         ParticleProviderRegistry.register(JParticleTypeRegistry.PURPLE_HAZE_CLOUD, PurpleHazeCloudParticle.Factory::new);
         ParticleProviderRegistry.register(JParticleTypeRegistry.PURPLE_HAZE_PARTICLE, PurpleHazeErraticParticle.Factory::new);
+        ParticleProviderRegistry.register(JParticleTypeRegistry.DAMAGE_NUMBER, DamageNumberParticle.Factory::new);
+        DamageIndicatorManager.setDamageNumberParticle(JParticleTypeRegistry.DAMAGE_NUMBER.get());
+        ParticleProviderRegistry.register(JParticleTypeRegistry.HAMON_SPARK, provider -> new HitsparkParticle.Factory(provider, 0.2f, 6));
+        ParticleProviderRegistry.register(JParticleTypeRegistry.LEMON, LemonParticle.Factory::new);
+        ParticleProviderRegistry.register(JParticleTypeRegistry.METALLICA_MOSH_1, MoshParticle.Factory::new);
+        ParticleProviderRegistry.register(JParticleTypeRegistry.METALLICA_MOSH_2, MoshParticle.Factory::new);
+        ParticleProviderRegistry.register(JParticleTypeRegistry.METALLICA_MOSH_3, MoshParticle.Factory::new);
+        ParticleProviderRegistry.register(JParticleTypeRegistry.METALLICA_MOSH_4, MoshParticle.Factory::new);
+        ParticleProviderRegistry.register(JParticleTypeRegistry.METALLICA_MOSH_5, MoshParticle.Factory::new);
     }
 
     @Getter

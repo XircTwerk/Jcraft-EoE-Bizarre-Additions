@@ -9,13 +9,13 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 public class JForgeLootModifiers {
-    public static final DeferredRegister<Codec<? extends IGlobalLootModifier>> LOOD_MODIFIER_SERIALIZERS =
+    public static final DeferredRegister<Codec<? extends IGlobalLootModifier>> LOOT_MODIFIER_SERIALIZERS =
             DeferredRegister.create(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, JCraft.MOD_ID);
 
     public static final RegistryObject<Codec<? extends IGlobalLootModifier>> FORGE_LOOT_ADAPTER =
-            LOOD_MODIFIER_SERIALIZERS.register("loot_adapter", JForgeLootAdapter.CODEC);
+            LOOT_MODIFIER_SERIALIZERS.register("loot_adapter", JForgeLootAdapter.CODEC);
 
     public static void register(final IEventBus eventBus) {
-        LOOD_MODIFIER_SERIALIZERS.register(eventBus);
+        LOOT_MODIFIER_SERIALIZERS.register(eventBus);
     }
 }

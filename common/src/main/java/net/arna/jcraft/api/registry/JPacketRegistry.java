@@ -18,13 +18,15 @@ public interface JPacketRegistry {
     ResourceLocation S2C_J_EXPLOSION = JCraft.id("expl");
     ResourceLocation S2C_COMBO_COUNTER = JCraft.id("combo");
     ResourceLocation S2C_TIME_STOP = JCraft.id("ts");
-    ResourceLocation S2C_SPLATTER = JCraft.id("splat");
+    ResourceLocation S2C_SPLATTER = JCraft.id("splt");
     ResourceLocation S2C_STAND_HURT = JCraft.id("stnd_hurt");
     ResourceLocation S2C_PREDICTION_UPDATE = JCraft.id("prdct");
     ResourceLocation S2C_MAGNETIC_FIELD_PARTICLE = JCraft.id("mfp");
-    ResourceLocation S2C_ATTACKER_DATA = JCraft.id("attacker_data");
-    ResourceLocation S2C_MANDOM_DATA = JCraft.id("mandom_data");
-    ResourceLocation S2C_STONE_MASK_CLENCH = JCraft.id("stone_mask_clench");
+    ResourceLocation S2C_ATTACKER_DATA = JCraft.id("atk_data");
+    ResourceLocation S2C_MANDOM_DATA = JCraft.id("mndm_data");
+    ResourceLocation S2C_STONE_MASK_CLENCH = JCraft.id("msk_clch");
+    ResourceLocation S2C_IPS_TRIGGERED = JCraft.id("ips");
+    ResourceLocation S2C_DAMAGE_NUMBER = JCraft.id("dmg_no");
 
     ResourceLocation C2S_STAND_BLOCK = JCraft.id("stnd_blk");
     ResourceLocation C2S_COOLDOWN_CANCEL = JCraft.id("cdc");

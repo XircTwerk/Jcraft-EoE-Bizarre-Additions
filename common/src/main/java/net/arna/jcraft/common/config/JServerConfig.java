@@ -8,6 +8,7 @@ import com.mojang.serialization.DataResult;
 import lombok.SneakyThrows;
 import lombok.Synchronized;
 import net.arna.jcraft.JCraft;
+import net.arna.jcraft.common.ai.IJAttackerBrain;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
 import org.jetbrains.annotations.NotNull;
@@ -60,8 +61,10 @@ public class JServerConfig {
     public static final FloatOption SCALING_PENALTY_PER_HIT = new FloatOption("scalingPenaltyPerHit", BALANCE, 0.02f);
     public static final BooleanOption ENABLE_MOVE_COOLDOWNS = new BooleanOption("enableMoveCooldowns", BALANCE, true);
     public static final FloatOption COOLDOWN_MULTIPLIER = new FloatOption("cooldownMultiplier", BALANCE, 1.0f);
-    public static final BooleanOption ENABLE_IPS = new BooleanOption("enableIPS", BALANCE, false);
+    // public static final BooleanOption ENABLE_IPS = new BooleanOption("enableIPS", BALANCE, false);
+    public static final BooleanOption SURVIVAL_CDC = new BooleanOption("survivalCDC", BALANCE, false);
     public static final BooleanOption ENABLE_FRIENDLY_FIRE = new BooleanOption("enableFriendlyFire", BALANCE, true);
+    public static final IntOption BASE_AI_LEVEL = new IntOption("baseAILevel", BALANCE, IJAttackerBrain.COMPETITIVE_LEVEL, IJAttackerBrain.MIN_LEVEL, IJAttackerBrain.MAX_LEVEL);
 
     private static final String MINECRAFT_REBALANCE = "minecraft_rebalance";
     public static final BooleanOption REDUCE_DEADLY_EXPLOSIONS = new BooleanOption("reduceDeadlyExplosions", MINECRAFT_REBALANCE, true);
@@ -71,11 +74,20 @@ public class JServerConfig {
     private static final String INTERACTION = "interaction";
     public static final BooleanOption MINING_BARRAGE = new BooleanOption("miningBarrage", INTERACTION, true);
     public static final FloatOption METEOR_SPAWN_RATE = new FloatOption("meteorSpawnRate", INTERACTION, 0.02f, 0f, 1f);
+    public static final FloatOption STAND_ARROW_SPAWN_RATE = new FloatOption("standArrowSpawnRate", INTERACTION, 0.01f, 0f, 1f);
+    public static final IntOption DUMMY_DAMAGE_INDICATOR_RANGE = new IntOption("dummyDamageIndicatorRange", INTERACTION, 64, 0, 512);
+    public static final BooleanOption CREAM_ITEM_ERASE = new BooleanOption("creamItemErase", INTERACTION, true);
+    public static final BooleanOption ROLLER_FLATTENING = new BooleanOption("rollerFlattening", INTERACTION, true);
+    public static final BooleanOption ROLLER_DESTROYING = new BooleanOption("rollerDestroying", INTERACTION, true);
+    public static final BooleanOption PLAYER_VAMPS_DIE_TO_HAMON = new BooleanOption("playerVampsDieToHamon", INTERACTION, false);
+    public static final BooleanOption MANDOM_AFFECTS_BLOCKS = new BooleanOption("mandomAffectsBlocks", INTERACTION, true);
+    public static final BooleanOption WS_STEAL_STANDS_FROM_PLAYERS = new BooleanOption("wsStealStandsFromPlayers", INTERACTION, false);
+    public static final BooleanOption GRAVITY_ONLY_AFFECTS_PLAYERS = new BooleanOption("gravityOnlyAffectsPlayers", INTERACTION, false);
+    public static final BooleanOption SHOW_ALL_COSPLAY = new BooleanOption("showAllCosplay", INTERACTION, false);
     /*
     public static final BooleanOption UNIVERSAL_ABILITIES = new BooleanOption("universalAbilities", INTERACTION, true);
     public static final BooleanOption STAND_GRIEFING = new BooleanOption("standGriefing", INTERACTION, true);
     public static final BooleanOption SPTW_IGNITE_CAMPFIRES = new BooleanOption("sptwIgniteCampfires", INTERACTION, true);
-    public static final BooleanOption WS_STEAL_STANDS = new BooleanOption("wsStealStands", INTERACTION, false);
     public static final IntOption SHA_SEARCH_RADIUS = new IntOption("shaSearchRadius", INTERACTION, 10, 3, 32);
     public static final BooleanOption MIH_ACCELERATE_TICKS = new BooleanOption("mihAccelerateTicks", INTERACTION, true);
     public static final BooleanOption USE_FOOLISH_SAND = new BooleanOption("useFoolishSand", INTERACTION, true);
@@ -83,6 +95,7 @@ public class JServerConfig {
 
     // Misc options
     private static final String GAMEPLAY = "gameplay";
+    // public static final BooleanOption ENABLE_HITSTOP = new BooleanOption("enableHitstop", GAMEPLAY, false);
     public static final BooleanOption EXCLUSIVE_STANDS = new BooleanOption("exclusiveStands", GAMEPLAY, false);
     public static final BooleanOption STAND_USER_SIGHT = new BooleanOption("standUserSight", GAMEPLAY, false);
     public static final BooleanOption SPAWNER_STANDS = new BooleanOption("spawnerStands", GAMEPLAY, true);

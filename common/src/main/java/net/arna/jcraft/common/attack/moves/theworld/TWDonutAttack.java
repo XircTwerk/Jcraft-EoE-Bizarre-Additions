@@ -8,7 +8,10 @@ import net.arna.jcraft.api.attack.MoveType;
 import net.arna.jcraft.api.attack.moves.AbstractSimpleAttack;
 import net.arna.jcraft.common.entity.stand.TheWorldEntity;
 import net.arna.jcraft.common.util.JParticleType;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
+
 import java.util.Set;
 
 public final class TWDonutAttack extends AbstractSimpleAttack<TWDonutAttack, TheWorldEntity> {
@@ -38,6 +41,15 @@ public final class TWDonutAttack extends AbstractSimpleAttack<TWDonutAttack, The
         }*/
 
         return targets;
+    }
+
+    @Override
+    public void activeTick(TheWorldEntity attacker, int moveStun) {
+        super.activeTick(attacker, moveStun);
+
+        if (attacker.hasUser() && !attacker.isRemote()) {
+            attacker.getUserOrThrow().addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 10, 2, true, false));
+        }
     }
 
     @Override

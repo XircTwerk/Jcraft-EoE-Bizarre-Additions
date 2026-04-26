@@ -2,38 +2,39 @@ package net.arna.jcraft.common.entity.stand;
 
 import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.NonNull;
-import mod.azure.azurelib.core.animation.AnimationState;
-import mod.azure.azurelib.core.animation.RawAnimation;
+import mod.azure.azurelib.animation.dispatch.command.AzCommand;
+import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
 import net.arna.jcraft.JCraft;
+import net.arna.jcraft.api.Attacks;
+import net.arna.jcraft.api.attack.MoveMap;
+import net.arna.jcraft.api.attack.MoveSet;
+import net.arna.jcraft.api.attack.MoveSetManager;
+import net.arna.jcraft.api.attack.enums.MoveClass;
+import net.arna.jcraft.api.attack.enums.StunType;
+import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
+import net.arna.jcraft.api.registry.JItemRegistry;
+import net.arna.jcraft.api.registry.JSoundRegistry;
+import net.arna.jcraft.api.registry.JStandTypeRegistry;
 import net.arna.jcraft.api.stand.StandData;
 import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.api.stand.StandInfo;
 import net.arna.jcraft.api.stand.SummonData;
-import net.arna.jcraft.api.attack.MoveSet;
-import net.arna.jcraft.api.attack.MoveSetManager;
 import net.arna.jcraft.common.attack.actions.LungeAction;
 import net.arna.jcraft.common.attack.actions.PlaySoundAction;
-import net.arna.jcraft.api.attack.enums.MoveClass;
-import net.arna.jcraft.api.attack.MoveMap;
-import net.arna.jcraft.api.attack.enums.StunType;
 import net.arna.jcraft.common.attack.moves.dirtydeedsdonedirtcheap.*;
 import net.arna.jcraft.common.attack.moves.shared.MainBarrageAttack;
 import net.arna.jcraft.common.attack.moves.shared.SimpleAttack;
 import net.arna.jcraft.common.attack.moves.shared.SimpleMultiHitAttack;
-import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
+import net.arna.jcraft.common.attack.moves.shared.TossChargeMove;
+import net.arna.jcraft.common.attack.moves.shared.TossMove;
 import net.arna.jcraft.common.util.JParticleType;
 import net.arna.jcraft.common.util.StandAnimationState;
-import net.arna.jcraft.api.registry.JItemRegistry;
-import net.arna.jcraft.api.registry.JSoundRegistry;
-import net.arna.jcraft.api.registry.JStandTypeRegistry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import org.joml.Vector3f;
-
-import java.util.function.Consumer;
 
 /**
  * The {@link StandEntity} for <a href="https://jojowiki.com/Dirty_Deeds_Done_Dirt_Cheap">Dirty Deeds Done Dirt Cheap</a>.
@@ -56,7 +57,7 @@ public class D4CEntity extends StandEntity<D4CEntity, D4CEntity.State> {
                     .proCount(4)
                     .conCount(2)
                     .freeSpace(Component.literal("""
-                        BNBs:
+                        BNBs: (outdated)
                             -the lazy zoner
                             Light>Barrage>Light>Grab/Charge
                         
@@ -77,8 +78,8 @@ public class D4CEntity extends StandEntity<D4CEntity, D4CEntity.State> {
             .withInfo(
                     Component.literal("Item Place"),
                     Component.literal("places an item from an alternate universe on the ground, which attracts other such items"));
-    public static final SimpleAttack<D4CEntity> LIGHT_FOLLOWUP = new SimpleAttack<D4CEntity>(
-            0, 9, 14, 0.75f, 7f, 8, 1.75f, 1.25f, -0.1f)
+    public static final SimpleAttack<D4CEntity> LIGHT_FOLLOWUP = new SimpleAttack<D4CEntity>(0,
+            9, 14, 0.75f, 7f, 8, 1.75f, 1.25f, -0.1f)
             .withAnim(State.LIGHT_FOLLOWUP)
             .withSound(JSoundRegistry.D4C_LIGHT)
             .withImpactSound(JSoundRegistry.IMPACT_1)
@@ -91,6 +92,7 @@ public class D4CEntity extends StandEntity<D4CEntity, D4CEntity.State> {
                     Component.literal("combo finisher, more blockstun than other light followups"));
     public static final SimpleAttack<D4CEntity> CHOP = new SimpleAttack<D4CEntity>(JCraft.LIGHT_COOLDOWN,
             9, 15, 0.75f, 5f, 20, 1.5f, 0.25f, -0.1f)
+            .noLoopPrevention()
             .withFollowup(LIGHT_FOLLOWUP)
             .withCrouchingVariant(ITEM_PLACE)
             .withImpactSound(JSoundRegistry.IMPACT_2)
@@ -105,7 +107,7 @@ public class D4CEntity extends StandEntity<D4CEntity, D4CEntity.State> {
             .withInfo(
                     Component.literal("Barrage"),
                     Component.literal("fast reliable combo starter/extender, high stun"));
-    public static final SimpleAttack<D4CEntity> CHARGE = new SimpleAttack<D4CEntity>(200, 14, 25,
+    public static final SimpleAttack<D4CEntity> CHARGE = new SimpleAttack<D4CEntity>(100, 14, 25,
             1f, 8f, 12, 2f, 1.5f, -0.2f)
             .withInitAction(LungeAction.lunge(0.75f, 0.15f).onGround())
             .withSound(JSoundRegistry.D4C_HEAVY)
@@ -117,7 +119,7 @@ public class D4CEntity extends StandEntity<D4CEntity, D4CEntity.State> {
                     Component.literal("Charge"),
                     Component.literal("user & stand charge forward, uninterruptible launcher"));
     public static final DimensionalHopMove DIM_HOP = new DimensionalHopMove(1200, 40, 60,
-            1f, 0f, 0, 1.75f, 0f, 0f)
+            1f, 0f, 0, 1.75f, 0f, 0f, 300)
             .withSound(JSoundRegistry.D4C_DIMHOP)
             .withInfo(
                     Component.literal("Dimensional Hop"),
@@ -153,11 +155,11 @@ public class D4CEntity extends StandEntity<D4CEntity, D4CEntity.State> {
             .withInfo(
                     Component.literal("Grab"),
                     Component.literal("unblockable, combo finisher"));
-    public static final D4CCounterAttack COUNTER = new D4CCounterAttack(400, 5, 35, 0.75f)
+    public static final D4CCounterAttack COUNTER = new D4CCounterAttack(300, 5, 35, 0.75f)
             .withInfo(
                     Component.literal("Counter"),
                     Component.literal("0.25s startup, 1.5s duration, high damage, knocks back when hit"));
-    public static final CloneSpawnMove CLONE_SPAWN = new CloneSpawnMove(400, 40, 50, 1f)
+    public static final CloneSpawnMove CLONE_SPAWN = new CloneSpawnMove(300, 40, 50, 1f)
             .withSound(JSoundRegistry.D4C_DIMHOP)
             .withInfo(
                     Component.literal("Dimensional Clone"),
@@ -168,11 +170,17 @@ public class D4CEntity extends StandEntity<D4CEntity, D4CEntity.State> {
                             SPECIAL 1 - Wooden Axe
                             SPECIAL 2 - Bow
                             SPECIAL 3 - None"""));
-    public static final FlagMove FLAG = new FlagMove(280, 10, 60, 0f)
+    public static final FlagMove FLAG = new FlagMove(200, 10, 60, 0f)
             .withSound(JSoundRegistry.D4C_UTILITY)
             .withInfo(
                     Component.literal("Dimensional Phase"),
                     Component.literal("hides in a flag in an un-stunnable, floating state"));
+    // TODO add move info x2
+    // TODO balance x2
+    public static final TossMove<D4CEntity> TOSS = new TossMove<D4CEntity>(0, 1, 1, 0.75f)
+            .withAnim(D4CEntity.State.ITEM_TOSS);
+    public static final TossChargeMove<D4CEntity> TOSS_CHARGE = new TossChargeMove<D4CEntity>(70, 3 * 20 + 1, 3 * 20, 1.0f, 10)
+            .withFollowup(TOSS);
 
     public D4CEntity(Level worldIn) {
         super(JStandTypeRegistry.D4C.get(), worldIn);
@@ -197,6 +205,8 @@ public class D4CEntity extends StandEntity<D4CEntity, D4CEntity.State> {
         moves.register(MoveClass.ULTIMATE, DIM_HOP, State.DIM_HOP);
 
         moves.register(MoveClass.UTILITY, FLAG, State.FLAG);
+
+        moves.register(MoveClass.TOSS, TOSS_CHARGE, State.ITEM_TOSS_CHARGE).withFollowup(State.ITEM_TOSS);
     }
 
     public void equipRevolver() {
@@ -207,7 +217,6 @@ public class D4CEntity extends StandEntity<D4CEntity, D4CEntity.State> {
     public boolean initMove(MoveClass moveClass) {
         switch (moveClass) {
             case ULTIMATE -> {
-                // TODO is this necessary? Seems like it just restarts the dim hop move?
                 if (getCurrentMove() instanceof DimensionalHopMove) {
                     setMoveStun(0);
                     setCurrentMove(null);
@@ -258,41 +267,38 @@ public class D4CEntity extends StandEntity<D4CEntity, D4CEntity.State> {
 
     // Animation code
     public enum State implements StandAnimationState<D4CEntity> {
-        IDLE(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.d4c.idle"))),
-        LIGHT(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.d4c.light"))),
-        BLOCK(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.d4c.block"))),
-        HEAVY(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.d4c.heavy"))),
-        BARRAGE(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.d4c.barrage"))),
-        DIM_HOP(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.d4c.dimhop"))),
-        THROW(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.d4c.throw"))),
-        THROW_HIT(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.d4c.throwhit"))),
-        COUNTER(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.d4c.counter"))),
-        COUNTER_MISS(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.d4c.counter_miss"))),
-        GIVE_GUN(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.d4c.givegun"))),
-        FLAG(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.d4c.flag"))),
-        ITEM_PLACE(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.d4c.itemplace"))),
-        LIGHT_FOLLOWUP(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.d4c.light_followup")));
+        IDLE(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.d4c.idle", AzPlayBehaviors.LOOP)),
+        LIGHT(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.d4c.light", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        BLOCK(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.d4c.block", AzPlayBehaviors.LOOP)),
+        HEAVY(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.d4c.heavy", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        BARRAGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.d4c.barrage", AzPlayBehaviors.LOOP)),
+        DIM_HOP(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.d4c.dimhop", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        THROW(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.d4c.throw", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        THROW_HIT(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.d4c.throwhit", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        COUNTER(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.d4c.counter", AzPlayBehaviors.LOOP)),
+        COUNTER_MISS(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.d4c.counter_miss", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        GIVE_GUN(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.d4c.givegun", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        FLAG(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.d4c.flag", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        ITEM_PLACE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.d4c.itemplace", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        LIGHT_FOLLOWUP(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.d4c.light_followup", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        ITEM_TOSS_CHARGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "itemthrow_charge", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        ITEM_TOSS(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "itemthrow", AzPlayBehaviors.PLAY_ONCE));
 
-        private final Consumer<AnimationState<D4CEntity>> animator;
+        private final AzCommand animator;
 
-        State(Consumer<AnimationState<D4CEntity>> animator) {
+        State(AzCommand animator) {
             this.animator = animator;
         }
 
         @Override
-        public void playAnimation(D4CEntity attacker, AnimationState<D4CEntity> state) {
-            animator.accept(state);
+        public void playAnimation(D4CEntity attacker) {
+            animator.sendForEntity(attacker);
         }
     }
 
     @Override
     protected State[] getStateValues() {
         return State.values();
-    }
-
-    @Override
-    protected String getSummonAnimation() {
-        return "animation.d4c.summon";
     }
 
     @Override

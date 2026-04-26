@@ -2,9 +2,10 @@ package net.arna.jcraft.common.entity.stand;
 
 import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.NonNull;
-import mod.azure.azurelib.core.animation.AnimationState;
-import mod.azure.azurelib.core.animation.RawAnimation;
+import mod.azure.azurelib.animation.dispatch.command.AzCommand;
+import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
 import net.arna.jcraft.JCraft;
+import net.arna.jcraft.api.Attacks;
 import net.arna.jcraft.api.stand.StandData;
 import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.api.stand.StandInfo;
@@ -49,13 +50,9 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * The {@link StandEntity} for <a href="https://jojowiki.com/The_Fool">The Fool</a>.
- * @see net.arna.jcraft.client.model.entity.stand.TheFoolModel TheFoolModel
- * @see net.arna.jcraft.client.renderer.entity.stands.TheFoolRenderer TheFoolRenderer
  * @see AirBarrageAttack
  * @see GlideMove
  * @see PoundAttack
@@ -100,8 +97,8 @@ public class TheFoolEntity extends StandEntity<TheFoolEntity, TheFoolEntity.Stat
                     .build())
             .build();
 
-    public static final SimpleMultiHitAttack<TheFoolEntity> DRILL = new SimpleMultiHitAttack<TheFoolEntity>(
-            20, 14, 1.5f, 2.5f, 7, 1.5f, 0.2f, 0.25f, IntSet.of(5, 8, 11))
+    public static final SimpleMultiHitAttack<TheFoolEntity> DRILL = new SimpleMultiHitAttack<TheFoolEntity>(0,
+            14, 1.5f, 2.5f, 7, 1.5f, 0.2f, 0.25f, IntSet.of(5, 8, 11))
             .withAnim(State.DRILL)
             .withBlockStun(4)
             .withHitAnimation(CommonHitPropertyComponent.HitAnimation.LOW)
@@ -110,8 +107,8 @@ public class TheFoolEntity extends StandEntity<TheFoolEntity, TheFoolEntity.Stat
                     Component.literal("Drill"),
                     Component.literal("fast, multi-hitting combo starter, low stun and blockstun")
             );
-    public static final SimpleAttack<TheFoolEntity> LIGHT_FOLLOWUP = new SimpleAttack<TheFoolEntity>(
-            0, 9, 16, 1.5f, 6f, 9, 2f, 1.5f, 0)
+    public static final SimpleAttack<TheFoolEntity> LIGHT_FOLLOWUP = new SimpleAttack<TheFoolEntity>(0,
+            9, 16, 1.5f, 6f, 9, 2f, 1.5f, 0)
             .withAnim(State.LIGHT_FOLLOWUP)
             .withImpactSound(JSoundRegistry.IMPACT_2)
             .withLaunch()
@@ -124,6 +121,7 @@ public class TheFoolEntity extends StandEntity<TheFoolEntity, TheFoolEntity.Stat
             );
     public static final SimpleAttack<TheFoolEntity> LIGHT = new SimpleAttack<TheFoolEntity>(30, 7,
             14, 1.5f, 6, 15, 2, 0.5f, -0.1f)
+            .noLoopPrevention()
             .withImpactSound(JSoundRegistry.IMPACT_2)
             .withExtraHitBox(0, 0.25, 1)
             .withFollowup(LIGHT_FOLLOWUP)
@@ -132,23 +130,23 @@ public class TheFoolEntity extends StandEntity<TheFoolEntity, TheFoolEntity.Stat
                     Component.literal("Swipe"),
                     Component.literal("slow, long-reaching poke")
             );
-    public static final AirBarrageAttack AIR_BARRAGE = new AirBarrageAttack(240, 0, 30,
-            1f, 1f, 10, 2f, 0.1f, 0f, 3)
+    public static final AirBarrageAttack AIR_BARRAGE = new AirBarrageAttack(240,
+            0, 30,1f, 1f, 10, 2f, 0.1f, 0f, 3)
             .withHitAnimation(CommonHitPropertyComponent.HitAnimation.HIGH)
             .withInfo(
                     Component.literal("Burn Rubber"),
                     Component.literal("slows down all movement, combo starter/extender")
             );
-    public static final TFComboAttack COMBO = new TFComboAttack(200, 29, 1.5f, 4.5f,
-            20, 1.75f, 0.1f, -0.1f, IntSet.of(6, 14, 18, 19))
+    public static final TFComboAttack COMBO = new TFComboAttack(200,
+            29, 1.5f, 4.5f,20, 1.75f, 0.1f, -0.1f, IntSet.of(6, 14, 18, 19))
             .withAerialVariant(AIR_BARRAGE)
             .withImpactSound(JSoundRegistry.IMPACT_2)
             .withExtraHitBox(0.5, 0, 1.25)
             .withHitSpark(JParticleType.HIT_SPARK_2)
             .withInfo(
                     Component.literal("3-hit Combo"), Component.literal("fast knockdown provider"));
-    public static final TFLaunchAttack LAUNCH = new TFLaunchAttack(240, 16, 20,
-            1.25f, 8f, 25, 2f, 0.5f, -0.3f)
+    public static final TFLaunchAttack LAUNCH = new TFLaunchAttack(20,
+            16, 20,1.25f, 8f, 25, 2f, 0.5f, -0.3f)
             .withSound(JSoundRegistry.FOOL_LAUNCH)
             .withAction(EffectAction.inflict(MobEffects.LEVITATION, 5, 19, true, false))
             .withExtraHitBox(1.5)
@@ -159,8 +157,8 @@ public class TheFoolEntity extends StandEntity<TheFoolEntity, TheFoolEntity.Stat
                     Component.literal("Launch"),
                     Component.literal("uninterruptible, slow, vertically launching uppercut")
             );
-    public static final SlamAttack SLAM = new SlamAttack(0, 4, 10, 1.25f, 4f,
-            24, 2f, 0.2f, 0.1f)
+    public static final SlamAttack SLAM = new SlamAttack(10,
+            4, 10, 1.25f, 4f,24, 2f, 0.2f, 0.1f)
             .withBlockStun(5)
             .withSound(JSoundRegistry.FOOL_BARK1)
             .withImpactSound(JSoundRegistry.IMPACT_2)
@@ -170,8 +168,8 @@ public class TheFoolEntity extends StandEntity<TheFoolEntity, TheFoolEntity.Stat
                     Component.literal("Slam"),
                     Component.literal("")
             );
-    public static final PoundAttack POUND = new PoundAttack(220, 7, 22, 1.25f,
-            4f, 25, 1.5f, 0.1f, -0.1f)
+    public static final PoundAttack POUND = new PoundAttack(0,
+            7, 22, 1.25f,4f, 25, 1.5f, 0.1f, -0.1f)
             .withFollowup(SLAM)
             .withSound(JSoundRegistry.FOOL_BARK2)
             .withImpactSound(JSoundRegistry.IMPACT_2)
@@ -183,7 +181,7 @@ public class TheFoolEntity extends StandEntity<TheFoolEntity, TheFoolEntity.Stat
                     SPECIAL 1 - no sand
                     SPECIAL 2 - semicircle
                     SPECIAL 3 - diagonal pattern (influenced by where the user is looking)"""));
-    public static final SandCloneMove SAND_CLONE = new SandCloneMove(300, 7, 11, 1f)
+    public static final SandCloneMove SAND_CLONE = new SandCloneMove(200, 7, 11, 1f)
             .withSound(SoundEvents.SAND_PLACE)
             .withInfo(
                     Component.literal("Sand Manipulation"),
@@ -203,13 +201,13 @@ public class TheFoolEntity extends StandEntity<TheFoolEntity, TheFoolEntity.Stat
                     Component.literal("Sandwave"),
                     Component.literal("The Fool turns into a quick sandwave that knocks anything it touches down")
             );
-    public static final SandTornadoMove SAND_TORNADO = new SandTornadoMove(280, 12, 13, 1f)
+    public static final SandTornadoMove SAND_TORNADO = new SandTornadoMove(200, 12, 13, 1f)
             .withSound(JSoundRegistry.FOOL_LAUNCH)
             .withInfo(
                     Component.literal("Sand Tornado"),
                     Component.literal("summons a slow, stunning sand tornado")
             );
-    public static final TFChargeAttack CHARGE = new TFChargeAttack(220, 5, 20, 7f,
+    public static final TFChargeAttack CHARGE = new TFChargeAttack(200, 5, 20, 7f,
             6f, 10, 1.5f, 1.2f, 0f)
             .withSound(JSoundRegistry.FOOL_CHARGE)
             .withImpactSound(JSoundRegistry.IMPACT_2)
@@ -434,49 +432,40 @@ public class TheFoolEntity extends StandEntity<TheFoolEntity, TheFoolEntity.Stat
 
     // Animation code
     public enum State implements StandAnimationState<TheFoolEntity> {
-        IDLE(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.thefool.idle"))),
-        SWIPE(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.thefool.light"))),
-        BLOCK((theFool, builder) -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.thefool." +
-                (theFool.isSand() ? "crouchblock" : "block")))),
-        COMBO(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.thefool.combo"))),
-        AIR_BARRAGE(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.thefool.airbarrage"))),
-        LAUNCH(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.thefool.launch"))),
-        POUND_UP(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.thefool.poundup"))),
-        POUND_DOWN(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.thefool.pounddown"))),
-        CHARGE(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.thefool.charge"))),
-        CHARGE_HIT(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.thefool.charge_hit"))),
-        CREATE(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.thefool.create"))),
-        SAND_WAVE(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.thefool.sandwave"))),
-        SANDSTORM(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.thefool.sandstorm"))),
-        GLIDE(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.thefool.glide"))),
-        TORNADO(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.thefool.tornado"))),
-        DRILL(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.thefool.drill"))),
-        LIGHT_FOLLOWUP(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.thefool.light_followup")));
+        // TODO reenable crouchblock
+        IDLE(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.thefool.idle", AzPlayBehaviors.LOOP)),
+        SWIPE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.thefool.light", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        BLOCK(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.thefool.block", AzPlayBehaviors.LOOP)),
+        COMBO(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.thefool.combo", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        AIR_BARRAGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.thefool.airbarrage", AzPlayBehaviors.LOOP)),
+        LAUNCH(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.thefool.launch", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        POUND_UP(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.thefool.poundup", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        POUND_DOWN(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.thefool.pounddown", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        CHARGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.thefool.charge", AzPlayBehaviors.LOOP)),
+        CHARGE_HIT(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.thefool.charge_hit", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        CREATE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.thefool.create", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        SAND_WAVE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.thefool.sandwave", AzPlayBehaviors.LOOP)),
+        SANDSTORM(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.thefool.sandstorm", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        GLIDE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.thefool.glide", AzPlayBehaviors.LOOP)),
+        TORNADO(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.thefool.tornado", AzPlayBehaviors.LOOP)),
+        DRILL(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.thefool.drill", AzPlayBehaviors.LOOP)),
+        LIGHT_FOLLOWUP(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.thefool.light_followup", AzPlayBehaviors.HOLD_ON_LAST_FRAME));
 
-        private final BiConsumer<TheFoolEntity, AnimationState<TheFoolEntity>> animator;
+        private final AzCommand animator;
 
-        State(Consumer<AnimationState<TheFoolEntity>> animator) {
-            this((fool, builder) -> animator.accept(builder));
-        }
-
-        State(BiConsumer<TheFoolEntity, AnimationState<TheFoolEntity>> animator) {
+        State(AzCommand animator) {
             this.animator = animator;
         }
 
         @Override
-        public void playAnimation(TheFoolEntity attacker, AnimationState<TheFoolEntity> builder) {
-            animator.accept(attacker, builder);
+        public void playAnimation(TheFoolEntity attacker) {
+            animator.sendForEntity(attacker);
         }
     }
 
     @Override
     protected State[] getStateValues() {
         return State.values();
-    }
-
-    @Override
-    protected @Nullable String getSummonAnimation() {
-        return "animation.thefool.summon";
     }
 
     @Override

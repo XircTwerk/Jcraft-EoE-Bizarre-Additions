@@ -17,7 +17,8 @@ public class JClientConfig implements ConfigData {
     private static JClientConfig instance;
 
     private UIPos uiPosition = UIPos.RIGHT;
-    private boolean clientsidePrediction = false;
+    private UIDuration uiDuration = UIDuration.COOLDOWN;
+    // private boolean clientsidePrediction = false;
     private int horizontalHudOffset = 0;
     private int verticalHudOffset = 0;
     private boolean iconHudPeekAllMoves = true;
@@ -26,6 +27,13 @@ public class JClientConfig implements ConfigData {
     private boolean disableNarrator = true;
     private boolean timeEraseShader = true;
     private boolean epitaphOverlay = true;
+    private int dummyDamageIndicatorColor = 0xffff4444; // bright red
+    private int dummyDamageIndicatorColorShadow = 0xff401010; // dark red shadow
+    private boolean comboCounter = true;
+    private boolean dynamicFirstPersonStandOpacity = true;
+    private float firstPersonStandOpacityMult = 1.0f;
+    private boolean showStandUserWarningPlayer = true;
+    private boolean showStandUserWarningMob = true;
 
     public static void load() {
         instance = AutoConfig.getConfigHolder(JClientConfig.class).getConfig();
@@ -42,5 +50,11 @@ public class JClientConfig implements ConfigData {
         LEFT,
         RIGHT,
         MIDDLE
+    }
+
+    public enum UIDuration {
+        ALWAYS,
+        COOLDOWN,
+        NEVER
     }
 }

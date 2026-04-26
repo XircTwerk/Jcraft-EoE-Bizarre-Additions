@@ -1,5 +1,6 @@
 package net.arna.jcraft.common.entity.stand;
 
+import net.arna.jcraft.api.MoveSelectionResult;
 import net.arna.jcraft.api.attack.enums.BlockableType;
 import net.arna.jcraft.api.attack.enums.MoveClass;
 import net.arna.jcraft.api.attack.moves.AbstractMove;
@@ -75,7 +76,8 @@ public abstract sealed class AbstractKillerQueenEntity<E extends AbstractKillerQ
                     Component.literal("tiny windup, move queueing is disabled while Detonate is active")
             );
     public static final SimpleAttack<AbstractKillerQueenEntity<?, ?>> LIGHT = new SimpleAttack<AbstractKillerQueenEntity<?, ?>>(
-            30, 6, 10, 0.75f, 3f, 10, 1.5f, 0.25f, 0.1f)
+            25, 6, 10, 0.75f, 3f, 10, 1.5f, 0.25f, 0.1f)
+            .noLoopPrevention()
             .withImpactSound(JSoundRegistry.IMPACT_6)
             .withCrouchingVariant(DETONATE)
             // implemented in class: .withFollowup(LIGHT_FOLLOWUP)
@@ -91,7 +93,7 @@ public abstract sealed class AbstractKillerQueenEntity<E extends AbstractKillerQ
                     Component.literal("Barrage"),
                     Component.literal("fast reliable combo starter/extender, medium stun")
             );
-    public static final BombPlantAttack BOMB_PLANT = new BombPlantAttack(280, 12, 20, 1f, 9, 1.5f, 0f)
+    public static final BombPlantAttack BOMB_PLANT = new BombPlantAttack(140, 12, 20, 1f, 9, 1.5f, 0f)
             .withBlockableType(BlockableType.NON_BLOCKABLE_EFFECTS_ONLY)
             .withBlockStun(8)
             .withInfo(
@@ -176,7 +178,7 @@ public abstract sealed class AbstractKillerQueenEntity<E extends AbstractKillerQ
 
     @Override
     public MoveSelectionResult specificMoveSelectionCriterion(AbstractMove<?, ? super E> attack, LivingEntity mob, LivingEntity target, int stunTicks,
-                                                              int enemyMoveStun, double distance, StandEntity<?, ?> enemyStand, AbstractMove<?, ?> enemyAttack) {
+                                                                                  int enemyMoveStun, double distance, StandEntity<?, ?> enemyStand, AbstractMove<?, ?> enemyAttack) {
         if (enemyStand != null && enemyStand.blocking) {
             return MoveSelectionResult.STOP;
         }

@@ -10,12 +10,16 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 
-public class StandMeteorModel extends HierarchicalModel<StandMeteorEntity> {
+/**
+ * The {@link HierarchicalModel} for {@link StandMeteorEntity}.
+ * @see net.arna.jcraft.client.renderer.entity.StandMeteorRenderer StandMeteorRenderer
+ */
+public final class StandMeteorModel extends HierarchicalModel<StandMeteorEntity> {
+    private final ModelPart root;
+
     public StandMeteorModel(final ModelPart root) {
         this.root = root;
     }
-
-    private final ModelPart root;
 
     @Override
     public @NonNull ModelPart root() {
@@ -36,6 +40,6 @@ public class StandMeteorModel extends HierarchicalModel<StandMeteorEntity> {
 
     @Override
     public void setupAnim(@NonNull final StandMeteorEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-
+        // intentionally empty
     }
 }

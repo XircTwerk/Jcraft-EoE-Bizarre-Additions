@@ -70,8 +70,10 @@ public class CommonTimeStopComponentImpl implements CommonTimeStopComponent {
     }
 
     public void readFromNbt(final @NonNull CompoundTag tag) {
+        ticks = tag.getInt("Ticks");
     }
 
     public void writeToNbt(final @NonNull CompoundTag tag) {
+        tag.putInt("Ticks", ticks);
     }
 }

@@ -1,9 +1,10 @@
 package net.arna.jcraft.common.entity.stand;
 
 import lombok.NonNull;
-import mod.azure.azurelib.core.animation.AnimationState;
-import mod.azure.azurelib.core.animation.RawAnimation;
+import mod.azure.azurelib.animation.dispatch.command.AzCommand;
+import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
 import net.arna.jcraft.JCraft;
+import net.arna.jcraft.api.Attacks;
 import net.arna.jcraft.api.attack.MoveMap;
 import net.arna.jcraft.api.attack.MoveSet;
 import net.arna.jcraft.api.attack.MoveSetManager;
@@ -33,14 +34,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import org.joml.Vector3f;
 
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
  * The {@link StandEntity} for <a href="https://jojowiki.com/Star_Platinum">Star Platinum</a>.
  * @see JStandTypeRegistry#STAR_PLATINUM
- * @see net.arna.jcraft.client.model.entity.stand.StarPlatinumModel StarPlatinumModel
  * @see net.arna.jcraft.client.renderer.entity.stands.StarPlatinumRenderer StarPlatinumRenderer
  * @see net.arna.jcraft.common.attack.moves.starplatinum.BlockBreakingAttack BlockBreakingAttack
  * @see InhaleAttack
@@ -87,7 +85,7 @@ public final class StarPlatinumEntity extends AbstractStarPlatinumEntity<StarPla
                     """, ModifierCondition.RIGHT_ARM_EMPTY))
             .build();
 
-    public static final SimpleUppercutAttack<StarPlatinumEntity> UPPERCUT = new SimpleUppercutAttack<StarPlatinumEntity>((int) (JCraft.LIGHT_COOLDOWN * 1.5),
+    public static final SimpleUppercutAttack<StarPlatinumEntity> UPPERCUT = new SimpleUppercutAttack<StarPlatinumEntity>(JCraft.LIGHT_COOLDOWN,
             8, 14, 0.75f, 6f, 20, 1.5f, 0.25f, -0.6f, 0.75f)
             .withAnim(State.UPPERCUT)
             .withImpactSound(JSoundRegistry.IMPACT_1)
@@ -97,8 +95,8 @@ public final class StarPlatinumEntity extends AbstractStarPlatinumEntity<StarPla
                     Component.translatable("jcraft.starplatinum.crm1"),
                     Component.literal("Slower combo starter, launches vertically, good anti-air.")
             );
-    public static final SimpleAttack<StarPlatinumEntity> LIGHT_FOLLOWUP = new SimpleAttack<StarPlatinumEntity>(
-            0, 6, 10, 0.75f, 6f, 8, 1.5f, 1f, -0.25f)
+    public static final SimpleAttack<StarPlatinumEntity> LIGHT_FOLLOWUP = new SimpleAttack<StarPlatinumEntity>(0,
+            6, 10, 0.75f, 6f, 8, 1.5f, 1f, -0.25f)
             .withAnim(State.LIGHT_FOLLOWUP)
             .withImpactSound(JSoundRegistry.IMPACT_1)
             .withLaunch()
@@ -135,8 +133,8 @@ public final class StarPlatinumEntity extends AbstractStarPlatinumEntity<StarPla
                     Component.translatable("jcraft.starplatinum.crsp1hit"),
                     Component.empty()
             );
-    public static final GrabAttack<StarPlatinumEntity, State> GRAB = new GrabAttack<>(280, 8, 20,
-            1f, 2f, 20, 1.5f, 0.1f, 0f, GRAB_HIT,
+    public static final GrabAttack<StarPlatinumEntity, State> GRAB = new GrabAttack<>(0,
+            8, 20,1f, 2f, 20, 1.5f, 0.1f, 0f, GRAB_HIT,
             StateContainer.of(State.GRAB_HIT), 11, 0.8)
             .withSound(JSoundRegistry.SPTW_GRAB)
             .withImpactSound(JSoundRegistry.SPTW_GRABHIT)
@@ -146,7 +144,7 @@ public final class StarPlatinumEntity extends AbstractStarPlatinumEntity<StarPla
                     Component.translatable("jcraft.starplatinum.crsp1"),
                     Component.literal("Blockable grab, knocks down.")
             );
-    public static final SimpleAttack<StarPlatinumEntity> STAR_FINGER = new SimpleAttack<StarPlatinumEntity>(200,
+    public static final SimpleAttack<StarPlatinumEntity> STAR_FINGER = new SimpleAttack<StarPlatinumEntity>(0,
             12, 20, 0.75f, 5f, 30, 1.75f, -0.4f, -0.25f)
             .withCrouchingVariant(GRAB)
             .withSound(JSoundRegistry.STAR_FINGER)
@@ -156,7 +154,7 @@ public final class StarPlatinumEntity extends AbstractStarPlatinumEntity<StarPla
                     Component.translatable("jcraft.starplatinum.sp1"),
                     Component.literal("Medium windup combo starter/extender, vacuums on hit, unsafe on block.")
             );
-    public static final SimpleUppercutAttack<StarPlatinumEntity> KNEE_UP = new SimpleUppercutAttack<StarPlatinumEntity>(30,
+    public static final SimpleUppercutAttack<StarPlatinumEntity> KNEE_UP = new SimpleUppercutAttack<StarPlatinumEntity>(0,
             8, 14, 0.75f, 4f, 13, 1.6f, 0.2f, -0.4f, 0.5f)
             .withSound(JSoundRegistry.STAR_PLATINUM_KNEE)
             .withImpactSound(JSoundRegistry.IMPACT_6)
@@ -165,7 +163,7 @@ public final class StarPlatinumEntity extends AbstractStarPlatinumEntity<StarPla
                     Component.translatable("jcraft.starplatinum.airsp2"),
                     Component.literal("Launches upward, larger and higher hitbox, higher stun, less damage.")
             );
-    public static final SimpleAttack<StarPlatinumEntity> KNEE = new SimpleAttack<StarPlatinumEntity>(20,
+    public static final SimpleAttack<StarPlatinumEntity> KNEE = new SimpleAttack<StarPlatinumEntity>(0,
             7, 12, 0.9f, 6f, 9, 1.5f, 0.3f, 0f)
             .withAerialVariant(KNEE_UP)
             .withSound(JSoundRegistry.STAR_PLATINUM_KNEE)
@@ -175,7 +173,7 @@ public final class StarPlatinumEntity extends AbstractStarPlatinumEntity<StarPla
                     Component.translatable("jcraft.starplatinum.sp2"),
                     Component.literal("Fast poke, low stun.")
             );
-    public static final ChargeBarrageAttack<StarPlatinumEntity> SHORT_CHARGE_BARRAGE = new ChargeBarrageAttack<StarPlatinumEntity>(280, 5, 25,
+    public static final ChargeBarrageAttack<StarPlatinumEntity> SHORT_CHARGE_BARRAGE = new ChargeBarrageAttack<StarPlatinumEntity>(140, 5, 25,
             6f, 0.6f, 15, 1.5f, 0.1f, 0f, 3, true)
             .withSound(JSoundRegistry.STAR_PLATINUM_LUNGING_BARRAGE)
             .withShockwaves()
@@ -184,7 +182,7 @@ public final class StarPlatinumEntity extends AbstractStarPlatinumEntity<StarPla
                     Component.translatable("jcraft.starplatinum.crsp3"),
                     Component.literal("Lasts shorter. Less punishable on whiff.")
             );
-    public static final ChargeBarrageAttack<StarPlatinumEntity> CHARGE_BARRAGE = new ChargeBarrageAttack<StarPlatinumEntity>(280, 5, 55,
+    public static final ChargeBarrageAttack<StarPlatinumEntity> CHARGE_BARRAGE = new ChargeBarrageAttack<StarPlatinumEntity>(140, 5, 55,
             7f, 0.6f, 15, 1.5f, 0.1f, 0f, 3, false)
             .withSound(JSoundRegistry.STAR_PLATINUM_ADVANCING_BARRAGE)
             .withShockwaves()
@@ -194,15 +192,8 @@ public final class StarPlatinumEntity extends AbstractStarPlatinumEntity<StarPla
                     Component.translatable("jcraft.starplatinum.sp3"),
                     Component.literal("Fast combo starter/extender, medium stun, extremely punishable on whiff.")
             );
-    // TODO add move info x2
-    // TODO balance x2
-    public static final StandbyActivationMove<StarPlatinumEntity> STANDBY_ON = new StandbyActivationMove<>(0, 1, 1, 0.75f)
-            ;
-    public static final StandbyDeactivationMove<StarPlatinumEntity> STANDBY_OFF = new StandbyDeactivationMove<>(0, 1, 1, -0.75f)
-            ;
     public static final JumpMove<StarPlatinumEntity> JUMP = new JumpMove<StarPlatinumEntity>(300, 5,
             14, 1f, 1.5f)
-            //.withCrouchingVariant(STANDBY_ON)
             .withInfo(
                     Component.translatable("jcraft.starplatinum.util"),
                     Component.literal("Jumps in looked direction with slight upward bias, you must stay on the ground until Star Platinum jumps.")
@@ -241,9 +232,8 @@ public final class StarPlatinumEntity extends AbstractStarPlatinumEntity<StarPla
         moves.register(MoveClass.SPECIAL3, CHARGE_BARRAGE, State.BARRAGE).withCrouchingVariant(State.BARRAGE);
         moves.register(MoveClass.ULTIMATE, INHALE, State.INHALE);
 
-        moves.register(MoveClass.UTILITY, JUMP, State.JUMP);//.withCrouchingVariant(State.IDLE);
+        moves.register(MoveClass.UTILITY, JUMP, State.JUMP);
 
-        moves.register(MoveClass.STANDBY_OFF, STANDBY_OFF, State.IDLE);
         moves.register(MoveClass.TOSS, TOSS_CHARGE, State.ITEM_TOSS_CHARGE).withFollowup(State.ITEM_TOSS);
     }
 
@@ -262,6 +252,15 @@ public final class StarPlatinumEntity extends AbstractStarPlatinumEntity<StarPla
     }
 
     @Override
+    public void tick() {
+        super.tick();
+
+        if (level().isClientSide) {
+            INHALE.tick(this);
+        }
+    }
+
+    @Override
     public boolean initMove(MoveClass moveClass) {
         if (tryFollowUp(moveClass, MoveClass.LIGHT)) return true;
         return super.initMove(moveClass);
@@ -275,49 +274,45 @@ public final class StarPlatinumEntity extends AbstractStarPlatinumEntity<StarPla
 
     // Animation code
     public enum State implements StandAnimationState<StarPlatinumEntity> {
-        IDLE((starPlatinum, builder) -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.starplatinum." +
-                (starPlatinum.getInhaleTime() > 0 ? "inhaleidle" : "idle")))),
-        PUNCH(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.starplatinum.light"))),
-        BLOCK(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.starplatinum.block"))),
-        HEAVY(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.starplatinum.heavy"))),
-        GROUND_BREAKER(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.starplatinum.ground_slam"))),
-        BARRAGE(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.starplatinum.barrage"))),
-        STAR_FINGER(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.starplatinum.star_finger"))),
-        INHALE(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.starplatinum.inhale"))),
-        KNEE(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.starplatinum.knee"))),
-        KNEE_UP(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.starplatinum.knee_up"))),
-        JUMP(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.starplatinum.jump"))),
-        GRAB(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.starplatinum.grab"))),
-        GRAB_HIT(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.starplatinum.grabhit"))),
-        UPPERCUT(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.starplatinum.uppercut"))),
-        LIGHT_FOLLOWUP(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.starplatinum.light_followup"))),
-        ITEM_TOSS_CHARGE(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.starplatinum.itemthrow_charge"))),
-        ITEM_TOSS(builder -> builder.setAnimation(RawAnimation.begin().thenPlay("animation.starplatinum.itemthrow")));
+        IDLE(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.star_platinum.idle", AzPlayBehaviors.LOOP)),
+        INHALE_IDLE(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.star_platinum.inhaleidle", AzPlayBehaviors.LOOP)),
+        PUNCH(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.star_platinum.light", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        BLOCK(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.star_platinum.block", AzPlayBehaviors.LOOP)),
+        HEAVY(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.star_platinum.heavy", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        GROUND_BREAKER(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.star_platinum.ground_slam", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        BARRAGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.star_platinum.barrage", AzPlayBehaviors.LOOP)),
+        STAR_FINGER(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.star_platinum.star_finger", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        INHALE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.star_platinum.inhale", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        KNEE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.star_platinum.knee", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        KNEE_UP(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.star_platinum.knee_up", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        JUMP(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.star_platinum.jump", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        GRAB(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.star_platinum.grab", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        GRAB_HIT(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.star_platinum.grabhit", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        UPPERCUT(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.star_platinum.uppercut", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        LIGHT_FOLLOWUP(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.star_platinum.light_followup", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        ITEM_TOSS_CHARGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "itemthrow_charge", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        ITEM_TOSS(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "itemthrow", AzPlayBehaviors.PLAY_ONCE));
 
-        private final BiConsumer<StarPlatinumEntity, AnimationState<StarPlatinumEntity>> animator;
+        private final AzCommand animator;
 
-        State(Consumer<AnimationState<StarPlatinumEntity>> animator) {
-            this((stand, builder) -> animator.accept(builder));
-        }
-
-        State(BiConsumer<StarPlatinumEntity, AnimationState<StarPlatinumEntity>> animator) {
+        State(AzCommand animator) {
             this.animator = animator;
         }
 
         @Override
-        public void playAnimation(StarPlatinumEntity attacker, AnimationState<StarPlatinumEntity> builder) {
-            animator.accept(attacker, builder);
+        public void playAnimation(StarPlatinumEntity attacker) {
+            if (this == IDLE && attacker.getInhaleTime() > 0) {
+                INHALE_IDLE.animator.sendForEntity(attacker);
+                return;
+            }
+
+            animator.sendForEntity(attacker);
         }
     }
 
     @Override
     protected State[] getStateValues() {
         return State.values();
-    }
-
-    @Override
-    protected @NonNull String getSummonAnimation() {
-        return "animation.starplatinum.summon";
     }
 
     @Override

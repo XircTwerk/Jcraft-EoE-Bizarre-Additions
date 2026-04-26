@@ -2,34 +2,37 @@ package net.arna.jcraft.common.entity.stand;
 
 import com.mojang.datafixers.util.Either;
 import lombok.NonNull;
-import mod.azure.azurelib.core.animation.AnimationState;
-import mod.azure.azurelib.core.animation.RawAnimation;
+import mod.azure.azurelib.animation.dispatch.command.AzCommand;
+import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
 import net.arna.jcraft.JCraft;
+import net.arna.jcraft.api.Attacks;
+import net.arna.jcraft.api.attack.MoveMap;
+import net.arna.jcraft.api.attack.MoveSet;
+import net.arna.jcraft.api.attack.MoveSetManager;
+import net.arna.jcraft.api.attack.enums.MoveClass;
+import net.arna.jcraft.api.attack.moves.AbstractMove;
+import net.arna.jcraft.api.component.living.CommonCooldownsComponent;
+import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
+import net.arna.jcraft.api.registry.JSoundRegistry;
+import net.arna.jcraft.api.registry.JStandTypeRegistry;
+import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.arna.jcraft.api.stand.StandData;
 import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.api.stand.StandInfo;
 import net.arna.jcraft.api.stand.SummonData;
-import net.arna.jcraft.api.attack.MoveSetManager;
 import net.arna.jcraft.common.attack.actions.EffectAction;
-import net.arna.jcraft.api.attack.enums.MoveClass;
-import net.arna.jcraft.api.attack.MoveMap;
-import net.arna.jcraft.api.attack.MoveSet;
-import net.arna.jcraft.api.attack.moves.AbstractMove;
 import net.arna.jcraft.common.attack.moves.madeinheaven.*;
 import net.arna.jcraft.common.attack.moves.shared.KnockdownAttack;
 import net.arna.jcraft.common.attack.moves.shared.MainBarrageAttack;
 import net.arna.jcraft.common.attack.moves.shared.SimpleAttack;
-import net.arna.jcraft.api.component.living.CommonCooldownsComponent;
-import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
+import net.arna.jcraft.common.attack.moves.shared.TossChargeMove;
+import net.arna.jcraft.common.attack.moves.shared.TossMove;
 import net.arna.jcraft.common.config.JServerConfig;
 import net.arna.jcraft.common.network.s2c.TimeAccelStatePacket;
 import net.arna.jcraft.common.util.CooldownType;
 import net.arna.jcraft.common.util.JParticleType;
 import net.arna.jcraft.common.util.StandAnimationState;
 import net.arna.jcraft.platform.JComponentPlatformUtils;
-import net.arna.jcraft.api.registry.JSoundRegistry;
-import net.arna.jcraft.api.registry.JStandTypeRegistry;
-import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -45,17 +48,14 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * The {@link StandEntity} for <a href="https://jojowiki.com/Made_in_Heaven">Made In Heaven</a>.
  * @see JStandTypeRegistry#MADE_IN_HEAVEN
- * @see net.arna.jcraft.client.model.entity.stand.MadeInHeavenModel MadeInHeavenModel
  * @see net.arna.jcraft.client.renderer.entity.stands.MadeInHeavenRenderer MadeInHeavenRenderer
  * @see CircleAttack
  * @see FuryChopAttack
@@ -87,8 +87,8 @@ public class MadeInHeavenEntity extends StandEntity<MadeInHeavenEntity, MadeInHe
             .summonData(SummonData.of(JSoundRegistry.MIH_SUMMON))
             .build();
 
-    public static final SimpleAttack<MadeInHeavenEntity> SPEED_CHOP = new SimpleAttack<MadeInHeavenEntity>(
-            JCraft.LIGHT_COOLDOWN, 6, 11, 0.75f, 3f, 8, 1.5f, 0.5f, -0.1f)
+    public static final SimpleAttack<MadeInHeavenEntity> SPEED_CHOP = new SimpleAttack<MadeInHeavenEntity>(0,
+            6, 11, 0.75f, 3f, 8, 1.5f, 0.5f, -0.1f)
             .withAnim(State.SPEED_CHOP)
             .withAction(EffectAction.inflict(JStatusRegistry.BLEEDING, 80, 1, true, false, true))
             .withImpactSound(SoundEvents.TRIDENT_HIT)
@@ -108,8 +108,9 @@ public class MadeInHeavenEntity extends StandEntity<MadeInHeavenEntity, MadeInHe
                     Component.literal("Kick"),
                     Component.literal("quick combo finisher")
             );
-    public static final SimpleAttack<MadeInHeavenEntity> SLICE = new SimpleAttack<MadeInHeavenEntity>(JCraft.LIGHT_COOLDOWN,
+    public static final SimpleAttack<MadeInHeavenEntity> SLICE = new SimpleAttack<MadeInHeavenEntity>(11,
             5, 8, 0.75f, 4f, 10, 1.5f, 0.15f, -0.1f)
+            .noLoopPrevention()
             .withFollowup(LIGHT_FOLLOWUP)
             .withCrouchingVariant(SPEED_CHOP)
             .withImpactSound(SoundEvents.TRIDENT_HIT)
@@ -141,8 +142,8 @@ public class MadeInHeavenEntity extends StandEntity<MadeInHeavenEntity, MadeInHe
                     Component.literal("Speed Slice"),
                     Component.literal("short windup, harming teleport with hitstun and light knockback")
             );
-    public static final KnockdownAttack<MadeInHeavenEntity> LEG_CRUSHER = new KnockdownAttack<MadeInHeavenEntity>(
-            80, 9, 19, 0.85f, 7f, 22, 1.5f, 0.35f, 0.2f, 45)
+    public static final KnockdownAttack<MadeInHeavenEntity> LEG_CRUSHER = new KnockdownAttack<MadeInHeavenEntity>(19,
+            9, 19, 0.85f, 7f, 22, 1.5f, 0.35f, 0.2f, 45)
             .withSound(JSoundRegistry.MIH_LEGCRUSHER)
             .withImpactSound(JSoundRegistry.TW_KICK_HIT)
             .withExtraHitBox(0, -0.5, 1)
@@ -152,7 +153,7 @@ public class MadeInHeavenEntity extends StandEntity<MadeInHeavenEntity, MadeInHe
                     Component.literal("Leg Crusher"),
                     Component.literal("knocks down (2s)")
             );
-    public static final SimpleAttack<MadeInHeavenEntity> LOW_KICK = new SimpleAttack<MadeInHeavenEntity>(80,
+    public static final SimpleAttack<MadeInHeavenEntity> LOW_KICK = new SimpleAttack<MadeInHeavenEntity>(17,
             8, 17, 0.85f, 6f, 26, 1.5f, 0.25f, 0.2f)
             .withCrouchingVariant(LEG_CRUSHER)
             .withSound(JSoundRegistry.MIH_LEGCRUSHER)
@@ -164,8 +165,8 @@ public class MadeInHeavenEntity extends StandEntity<MadeInHeavenEntity, MadeInHe
                     Component.literal("Low Kick"),
                     Component.literal("combo starter/extender, mih hoofs the enemies legs in a quick, stunning attack")
             );
-    public static final FuryChopAttack FURY_CHOP = new FuryChopAttack(200, 15, 24, 0.85f,
-            7f, 20, 1.6f, 0.25f, 0.2f)
+    public static final FuryChopAttack FURY_CHOP = new FuryChopAttack(24,
+            15, 24, 0.85f,7f, 20, 1.6f, 0.25f, 0.2f)
             .withSound(JSoundRegistry.MIH_FURYCHOP)
             .withImpactSound(JSoundRegistry.IMPACT_2)
             .withHitAnimation(CommonHitPropertyComponent.HitAnimation.HIGH)
@@ -196,7 +197,7 @@ public class MadeInHeavenEntity extends StandEntity<MadeInHeavenEntity, MadeInHe
                             it is charged by landing hits
                             the speedometer impacts the level of speed and haste granted by Time Acceleration
                             if the speedometer is full and the charging period finishes, enemies become standless for 15s"""));
-    public static final CircleAttack CIRCLE = new CircleAttack(400, 13, 14, 1.25f)
+    public static final CircleAttack CIRCLE = new CircleAttack(300, 13, 14, 1.25f)
             .withSound(JSoundRegistry.MIH_CIRCLE)
             .withInfo(
                     Component.literal("Heaven's Judgement"),
@@ -210,6 +211,13 @@ public class MadeInHeavenEntity extends StandEntity<MadeInHeavenEntity, MadeInHe
                     Component.literal("Divine Severance"),
                     Component.literal("Made in Heaven rapidly speed slices an area, then finishes with a large, launching slice")
             );
+    // TODO add move info x2
+    // TODO balance x2
+    public static final TossMove<MadeInHeavenEntity> TOSS = new TossMove<MadeInHeavenEntity>(0, 1, 1, 0.75f)
+            .withAnim(MadeInHeavenEntity.State.ITEM_TOSS);
+    public static final TossChargeMove<MadeInHeavenEntity> TOSS_CHARGE = new TossChargeMove<MadeInHeavenEntity>(70, 3 * 20 + 1, 3 * 20, 1.0f, 10)
+            .withFollowup(TOSS);
+
     private static final EntityDataAccessor<Integer> ACCEL_TIME = SynchedEntityData.defineId(MadeInHeavenEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> SPEEDOMETER = SynchedEntityData.defineId(MadeInHeavenEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> AFTER_IMAGE = SynchedEntityData.defineId(MadeInHeavenEntity.class, EntityDataSerializers.BOOLEAN);
@@ -242,6 +250,8 @@ public class MadeInHeavenEntity extends StandEntity<MadeInHeavenEntity, MadeInHe
         moves.register(MoveClass.ULTIMATE, TIME_ACCELERATION, State.TIME_ACCELERATION);
 
         moves.register(MoveClass.UTILITY, SPEED_SLICE, State.SPEED_SLICE);
+
+        moves.register(MoveClass.TOSS, TOSS_CHARGE, State.ITEM_TOSS_CHARGE).withFollowup(State.ITEM_TOSS);
     }
 
     @Override
@@ -423,41 +433,38 @@ public class MadeInHeavenEntity extends StandEntity<MadeInHeavenEntity, MadeInHe
 
     // Animation code
     public enum State implements StandAnimationState<MadeInHeavenEntity> {
-        IDLE(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.mih.idle"))),
-        SLICE(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.mih.slice"))),
-        BLOCK(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.mih.block"))),
-        DONUT(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.mih.donut"))),
-        BARRAGE(builder -> builder.setAnimation(RawAnimation.begin().thenLoop("animation.mih.barrage"))),
-        SPEED_SLICE(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.mih.speedslice"))),
-        JUDGEMENT(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.mih.judgement"))),
-        LEG_CRUSHER(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.mih.legcrusher"))),
-        FURY_CHOP(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.mih.furychop"))),
-        TIME_ACCELERATION(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.mih.taccel"))),
-        CIRCLE_STARTUP(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.mih.circlestartup"))),
-        SPEED_CHOP(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.mih.speedchop"))),
-        LIGHT_FOLLOWUP(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.mih.light_followup"))),
-        LOW_KICK(builder -> builder.setAnimation(RawAnimation.begin().thenPlayAndHold("animation.mih.lowkick")));
+        IDLE(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.mih.idle", AzPlayBehaviors.LOOP)),
+        SLICE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.mih.slice", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        BLOCK(AzCommand.create(JCraft.BASE_CONTROLLER, "animation.mih.block", AzPlayBehaviors.LOOP)),
+        DONUT(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.mih.donut", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        BARRAGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.mih.barrage", AzPlayBehaviors.LOOP)),
+        SPEED_SLICE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.mih.speedslice", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        JUDGEMENT(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.mih.judgement", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        LEG_CRUSHER(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.mih.legcrusher", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        FURY_CHOP(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.mih.furychop", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        TIME_ACCELERATION(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.mih.taccel", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        CIRCLE_STARTUP(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.mih.circlestartup", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        SPEED_CHOP(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.mih.speedchop", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        LIGHT_FOLLOWUP(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.mih.light_followup", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        LOW_KICK(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "animation.mih.lowkick", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        ITEM_TOSS_CHARGE(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "itemthrow_charge", AzPlayBehaviors.HOLD_ON_LAST_FRAME)),
+        ITEM_TOSS(Attacks.createAnimationCommand(JCraft.BASE_CONTROLLER, "itemthrow", AzPlayBehaviors.PLAY_ONCE));
 
-        private final Consumer<AnimationState<MadeInHeavenEntity>> animator;
+        private final AzCommand animator;
 
-        State(Consumer<AnimationState<MadeInHeavenEntity>> animator) {
+        State(AzCommand animator) {
             this.animator = animator;
         }
 
         @Override
-        public void playAnimation(MadeInHeavenEntity attacker, AnimationState<MadeInHeavenEntity> builder) {
-            animator.accept(builder);
+        public void playAnimation(MadeInHeavenEntity attacker) {
+            animator.sendForEntity(attacker);
         }
     }
 
     @Override
     protected State[] getStateValues() {
         return State.values();
-    }
-
-    @Override
-    protected @Nullable String getSummonAnimation() {
-        return "animation.mih.summon";
     }
 
     @Override

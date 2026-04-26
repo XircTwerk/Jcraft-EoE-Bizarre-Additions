@@ -29,12 +29,12 @@ public class BrawlerSpec extends JSpec<BrawlerSpec, BrawlerSpec.State> {
                     Important hitconfirm: (any stand move)~stand.OFF>Combo>stand.ON+(any stand move)"""))
             .build();
 
-    public static final SimpleUppercutAttack<BrawlerSpec> HEAVY = new SimpleUppercutAttack<BrawlerSpec>(30, 10,
+    public static final SimpleUppercutAttack<BrawlerSpec> HEAVY = new SimpleUppercutAttack<BrawlerSpec>(0, 10,
             21, 1f, 6f, 15, 1.5f, 0.3f, 0f, 0.3f)
             .withImpactSound(JSoundRegistry.IMPACT_3)
             .withHitSpark(JParticleType.HIT_SPARK_2)
             .withInfo(Component.literal("Uppercut"), Component.literal("medium speed"));
-    public static final SimpleAttack<BrawlerSpec> TORNADO = new SimpleAttack<BrawlerSpec>(280, 12,
+    public static final SimpleAttack<BrawlerSpec> TORNADO = new SimpleAttack<BrawlerSpec>(200, 12,
             20, 1f, 7f, 20, 1.6f, 0.4f, -0.1f)
             .withCrouchingVariant(HEAVY)
             .withImpactSound(JSoundRegistry.IMPACT_3)
@@ -47,18 +47,18 @@ public class BrawlerSpec extends JSpec<BrawlerSpec, BrawlerSpec.State> {
             .withImpactSound(JSoundRegistry.IMPACT_2)
             .withBlockStun(5)
             .withInfo(Component.literal("Combo"), Component.literal("hits 3 times, combo starter/extender"));
-    public static final SimpleAttack<BrawlerSpec> GUT = new SimpleAttack<BrawlerSpec>(120, 11, 18,
+    public static final SimpleAttack<BrawlerSpec> GUT = new SimpleAttack<BrawlerSpec>(0, 11, 18,
             1f, 6f, 16, 1.5f, 0.4f, 0f)
             .withImpactSound(JSoundRegistry.IMPACT_3)
             .withHitSpark(JParticleType.HIT_SPARK_2)
             .withHitAnimation(CommonHitPropertyComponent.HitAnimation.CRUSH)
             .withInfo(Component.literal("Gut Punch"), Component.literal("good stun"));
-    public static final KnockdownAttack<BrawlerSpec> SWEEP = new KnockdownAttack<BrawlerSpec>(30, 11, 18,
+    public static final KnockdownAttack<BrawlerSpec> SWEEP = new KnockdownAttack<BrawlerSpec>(0, 11, 18,
             1f, 5f, 16, 1.5f, 0.6f, 0.85f, 25)
             .withImpactSound(JSoundRegistry.IMPACT_2)
             .withStaticY()
             .withInfo(Component.literal("SWEEP"), Component.literal("knocks down"));
-    public static final SimpleAttack<BrawlerSpec> LOW_KICK = new SimpleAttack<BrawlerSpec>(30, 6, 11,
+    public static final SimpleAttack<BrawlerSpec> LOW_KICK = new SimpleAttack<BrawlerSpec>(0, 6, 11,
             1f, 4f, 10, 1.25f, 0.15f, 0.35f)
             .withCrouchingVariant(SWEEP)
             .withImpactSound(JSoundRegistry.IMPACT_6)

@@ -32,7 +32,15 @@ public class AttackHitboxEffectRenderer {
     }
 
     public static void addHitboxes(final Iterable<AABB> boxes) {
-        boxes.forEach(AttackHitboxEffectRenderer::addHitbox);
+        for (AABB box : boxes) {
+            addHitbox(box);
+        }
+    }
+
+    public static void addHitboxes(final AABB[] boxes) {
+        for (AABB box : boxes) {
+            addHitbox(box);
+        }
     }
 
     public static void addHitbox(final AABB box) {

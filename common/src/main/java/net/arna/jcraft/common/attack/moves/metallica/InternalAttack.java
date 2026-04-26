@@ -4,16 +4,16 @@ import com.mojang.datafixers.kinds.App;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.NonNull;
 import net.arna.jcraft.JCraft;
+import net.arna.jcraft.api.Attacks;
 import net.arna.jcraft.api.attack.MoveType;
 import net.arna.jcraft.api.attack.moves.AbstractMove;
+import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.arna.jcraft.common.entity.projectile.RazorProjectile;
 import net.arna.jcraft.common.entity.stand.MetallicaEntity;
-import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
 import net.arna.jcraft.common.util.JParticleType;
 import net.arna.jcraft.common.util.JUtils;
 import net.arna.jcraft.platform.JComponentPlatformUtils;
-import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -84,7 +84,7 @@ public class InternalAttack extends AbstractMove<InternalAttack, MetallicaEntity
                     );
                 }
 
-                StandEntity.damage(attacker, 3.5f, serverWorld.damageSources().sting(user), target);
+                Attacks.damage(attacker, 3.5f, serverWorld.damageSources().sting(user), target);
                 target.addEffect(new MobEffectInstance(JStatusRegistry.HYPOXIA.get(), 60, 0, false, true));
                 JComponentPlatformUtils.getCooldowns(user).setCooldown(getMoveClass().getDefaultCooldownType(), getCooldown());
 

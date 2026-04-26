@@ -9,14 +9,13 @@ import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.attack.MoveType;
 import net.arna.jcraft.api.attack.moves.AbstractMove;
 import net.arna.jcraft.api.component.living.CommonBombTrackerComponent;
+import net.arna.jcraft.api.registry.JSoundRegistry;
+import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.arna.jcraft.common.entity.damage.JDamageSources;
 import net.arna.jcraft.common.entity.stand.KillerQueenEntity;
-import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.common.util.JParticleType;
 import net.arna.jcraft.common.util.JUtils;
 import net.arna.jcraft.platform.JComponentPlatformUtils;
-import net.arna.jcraft.api.registry.JSoundRegistry;
-import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -25,6 +24,8 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
+
+import static net.arna.jcraft.api.Attacks.damageLogic;
 
 @Getter
 public final class KQGrabHitAttack extends AbstractMove<KQGrabHitAttack, KillerQueenEntity> {
@@ -55,7 +56,7 @@ public final class KQGrabHitAttack extends AbstractMove<KQGrabHitAttack, KillerQ
 
             final DamageSource damageSource = JDamageSources.stand(attacker);
 
-            StandEntity.damageLogic(world, livingEntity, new Vec3(0, 1, 0), stun, 3, true,
+            damageLogic(world, livingEntity, new Vec3(0, 1, 0), stun, 3, true,
                     11f, false, 4, damageSource, user, null);
             livingEntity.addEffect(new MobEffectInstance(JStatusRegistry.KNOCKDOWN.get(), 35, 0, true, false));
         }

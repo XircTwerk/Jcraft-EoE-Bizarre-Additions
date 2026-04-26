@@ -1,11 +1,13 @@
 package net.arna.jcraft.client.util;
 
-import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
-import mod.azure.azurelib.core.animation.AnimationProcessor;
-import net.arna.jcraft.api.stand.StandEntity;
-import net.arna.jcraft.client.model.entity.stand.StandEntityModel;
+import lombok.NonNull;
+import mod.azure.azurelib.animation.AzAnimationContext;
 import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
-import net.arna.jcraft.common.entity.stand.*;
+import net.arna.jcraft.api.stand.StandEntity;
+import net.arna.jcraft.common.entity.stand.CreamEntity;
+import net.arna.jcraft.common.entity.stand.D4CEntity;
+import net.arna.jcraft.common.entity.stand.KingCrimsonEntity;
+import net.arna.jcraft.common.entity.stand.MetallicaEntity;
 import net.arna.jcraft.common.util.DimensionData;
 import net.arna.jcraft.common.util.JUtils;
 import net.minecraft.client.Minecraft;
@@ -18,8 +20,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static net.arna.jcraft.common.util.JUtils.DEG_TO_RAD;
 import static net.arna.jcraft.common.util.JUtils.deltaPos;
@@ -27,17 +28,18 @@ import static net.arna.jcraft.common.util.JUtils.deltaPos;
 public class JClientUtils {
 
     // Timestop tracking
-    public static List<DimensionData> activeTimestops = new ArrayList<>();
+    public static final List<DimensionData> activeTimestops = new ArrayList<>();
+    public static final Map<Entity, Double> timestopTimestamps = new WeakHashMap<>();
 
     // Mustn't directly remove the DimensionData due to the possibility of a ConcurrentModificationException
     // Setting the timer to 0 will make the next tick remove it
     public static void removeTimestop(final int timestopperId) {
         for (DimensionData timestop : activeTimestops) {
-            final Entity timestopper = timestop.user;
+            final Entity timestopper = timestop.getUser();
             if (timestopper.getId() != timestopperId) {
                 continue;
             }
-            timestop.timer = 0;
+            timestop.setTimer(0);
             return;
         }
     }
@@ -52,7 +54,7 @@ public class JClientUtils {
 
     public static boolean isInTSRange(final Vec3 pos) {
         for (final DimensionData timeStop : activeTimestops) {
-            if (timeStop != null && timeStop.pos.distanceToSqr(pos.x(), pos.y(), pos.z()) <= 65536) {
+            if (timeStop != null && timeStop.getPos().distanceToSqr(pos.x(), pos.y(), pos.z()) <= 65536) {
                 return true;
             }
         }
@@ -61,7 +63,7 @@ public class JClientUtils {
 
     public static boolean isInTSRange(final BlockPos pos) {
         for (final DimensionData timeStop : activeTimestops) {
-            if (timeStop != null && timeStop.pos.distanceToSqr(pos.getX(), pos.getY(), pos.getZ()) <= 65536) {
+            if (timeStop != null && timeStop.getPos().distanceToSqr(pos.getX(), pos.getY(), pos.getZ()) <= 65536) {
                 return true;
             }
         }
@@ -70,34 +72,25 @@ public class JClientUtils {
 
     public static int getTicksIfInTSRange(final BlockPos pos) {
         for (final DimensionData timeStop : activeTimestops) {
-            if (timeStop != null && timeStop.pos.distanceToSqr(pos.getX(), pos.getY(), pos.getZ()) <= 65536) {
-                return timeStop.timer;
+            if (timeStop != null && timeStop.getPos().distanceToSqr(pos.getX(), pos.getY(), pos.getZ()) <= 65536) {
+                return timeStop.getTimer();
             }
         }
         return 0;
     }
 
     // Torso/Head rotation for stands
-    public static void animateGenericHumanoid(final StandEntityModel<?> model, final StandEntity<?, ?> entity, final LivingEntity player, final float partialTick) {
-        animateGenericHumanoid(model, entity, player, partialTick, false, false);
-    }
-
-    public static void animateGenericHumanoid(final StandEntityModel<?> model, final StandEntity<?, ?> entity, final LivingEntity player, final float partialTick, final boolean flipBody, final boolean flipHead) {
-        animateGenericHumanoid(model, entity, player, partialTick, flipBody, flipHead, 0, 0, 90f);
-    }
-
-    public static void animateGenericHumanoid(final StandEntityModel<?> model, final StandEntity<?, ?> entity, final LivingEntity player, final float partialTick, final boolean flipBody, final boolean flipHead, final float tPO, final float hPO) {
-        animateGenericHumanoid(model, entity, player, partialTick, flipBody, flipHead, tPO, hPO, 90f);
-    }
-
     // basically, unless the animation specifies every rotation, said rotations will persist through each model.
-    public static void animateGenericHumanoid(final StandEntityModel<?> model, final StandEntity<?, ?> entity, final LivingEntity player, final float partialTick, final boolean flipBody, final boolean flipHead, final float tPO, final float hPO, float velInfluence) {
+    public static <T extends StandEntity<?,?>> void animateGenericHumanoid(final @NonNull AzAnimationContext<T> context, T entity, final boolean flipBody, final boolean flipHead, final float tPO, final float hPO, float velInfluence) {
         float overVel = 0;
+        final var model = context.boneCache().getBakedModel();
+        final LivingEntity user = entity.getUser();
 
-        final AnimationProcessor<?> animationProcessor = model.getAnimationProcessor();
-
+        if (user == null) {
+            return;
+        }
         if (entity.getMoveStun() < 1) {
-            Vec3 playerVel = (entity.isRemote() && !entity.remoteControllable()) ? entity.getDeltaMovement() : deltaPos(player);
+            Vec3 playerVel = (entity.isRemote() && !entity.remoteControllable()) ? entity.getDeltaMovement() : deltaPos(user);
             overVel = Mth.clamp((float) playerVel.horizontalDistance() - 0.05f, -1f, 1f);
 
             // If going backwards
@@ -105,11 +98,11 @@ public class JClientUtils {
                 velInfluence *= -1;
 
             // Tilt torso relative to speed
-            CoreGeoBone torso = animationProcessor.getBone("torso");
+            final var torso = model.getBoneOrNull("torso");
             if (torso != null) {
                 //model.prevTorsoPitch = torso.getRotX();
-                float pitch = (180f + overVel * velInfluence) * 3.1415f / 180f;
-                if (flipBody) {
+                float pitch = (180f + overVel * velInfluence) * Mth.DEG_TO_RAD;
+                if (!flipBody) {
                     pitch += 3.1415f;
                     pitch = -pitch;
                 }
@@ -119,20 +112,22 @@ public class JClientUtils {
 
         if (entity.isBlocking() || entity.isIdle()) {
             // Look up/down, same as the stand user
-            final CoreGeoBone head = animationProcessor.getBone("head");
+            final var head = model.getBoneOrNull("head");
             if (head != null) {
                 //model.prevHeadPitch = head.getRotX();
-                float headPitch = (player.getXRot() - overVel * velInfluence) * 3.1415f / 180f;
-                if (flipHead) headPitch = -headPitch;
+                float headPitch = (user.getXRot() - overVel * velInfluence) * Mth.DEG_TO_RAD;
+                if (!flipHead) {
+                    headPitch = -headPitch;
+                }
                 head.setRotX(headPitch + hPO);
             }
         } else if (entity.getMoveStun() > 0) { // if doing something
             if (entity.shouldOffsetHeight()) {
                 // Turn entire stand up/down
-                final CoreGeoBone base = animationProcessor.getBone("base");
+                final var base = model.getBoneOrNull("base");
                 if (base != null) {
                     //model.prevBasePitch = base.getRotX();
-                    float torsoPitch = (player.getXRot() * 0.9f) * 3.1415f / 180f;
+                    float torsoPitch = (user.getXRot() * 0.9f) * Mth.DEG_TO_RAD;
                     base.setRotX(base.getRotX() - torsoPitch);
                 }
             }

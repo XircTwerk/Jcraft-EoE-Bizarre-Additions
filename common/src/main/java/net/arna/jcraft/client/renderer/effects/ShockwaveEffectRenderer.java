@@ -1,11 +1,7 @@
 package net.arna.jcraft.client.renderer.effects;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.component.world.CommonShockwaveHandlerComponent;
@@ -20,15 +16,29 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
-import java.util.stream.IntStream;
+import java.util.Map;
+
+import static net.arna.jcraft.api.component.world.CommonShockwaveHandlerComponent.Shockwave;
 
 public class ShockwaveEffectRenderer {
-    private static final List<ResourceLocation> TEXTURES = IntStream.range(0, CommonShockwaveHandlerComponent.Shockwave.MAX_AGE)
-            .mapToObj(i -> JCraft.id("textures/effect/shockwave/shockwave_" + i + ".png"))
-            .toList();
+    private static final Map<Shockwave.Type, List<ResourceLocation>> TEXTURES = new EnumMap<>(Shockwave.Type.class);
 
-    private static final List<CommonShockwaveHandlerComponent.Shockwave> toRender = new ArrayList<>();
+    static {
+        for (Shockwave.Type type : Shockwave.Type.values()) {
+            List<ResourceLocation> list = new ArrayList<>();
+
+            // Generate ResourceLocation for each index, prefixed with type.name
+            for (int i = 0; i < Shockwave.MAX_AGE; i++) {
+                ResourceLocation id = JCraft.id("textures/effect/shockwave/" + type.getName() + "_" + i + ".png");
+                list.add(id);
+            }
+
+            TEXTURES.put(type, list);
+        }
+    }
+    private static final List<Shockwave> toRender = new ArrayList<>();
 
     public static void render(final PoseStack stack, final Vec3 camPos, final ClientLevel world, final MultiBufferSource consumerProvider) {
 
@@ -42,7 +52,7 @@ public class ShockwaveEffectRenderer {
         // java.util.ConcurrentModificationException prevention
         toRender.clear();
         toRender.addAll(shockwaveHandler.getShockwaves());
-        for (final CommonShockwaveHandlerComponent.Shockwave shockwave : toRender) {
+        for (final Shockwave shockwave : toRender) {
             stack.pushPose();
 
             // Calculate matrix
@@ -57,7 +67,10 @@ public class ShockwaveEffectRenderer {
             final int light = LightTexture.pack(blockLight, skyLight);
 
             // Set texture
-            RenderSystem.setShaderTexture(0, TEXTURES.get(shockwave.getFrame()));
+            RenderSystem.setShaderTexture(0,
+                    TEXTURES.get(shockwave.getType())
+                            .get(shockwave.getFrame())
+            );
 
             // Setup buffer
             final Tesselator tess = Tesselator.getInstance();

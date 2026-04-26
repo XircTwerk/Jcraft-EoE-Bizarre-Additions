@@ -41,7 +41,7 @@ public abstract sealed class AbstractPurpleHazeEntity<E extends AbstractPurpleHa
                     Component.literal("Hammerfist"),
                     Component.literal("1s knockdown")
             );
-    public static final BackhandAttack BACKHAND = new BackhandAttack(20, 6, 14, 0.75f,
+    public static final BackhandAttack BACKHAND = new BackhandAttack(14, 6, 14, 0.75f,
             6f, 20, 1.5f, 0.25f, -0.6f, 0.5f)
             .withFollowup(BACKHAND_FOLLOWUP)
             .withImpactSound(JSoundRegistry.IMPACT_4)
@@ -64,17 +64,18 @@ public abstract sealed class AbstractPurpleHazeEntity<E extends AbstractPurpleHa
             );
 
     public static final SimpleAttack<AbstractPurpleHazeEntity<?, ?>> LIGHT = new SimpleAttack<AbstractPurpleHazeEntity<?, ?>>(
-            30, 6, 9, 0.75f, 5f, 11, 1.5f, 0.25f, 0.1f)
+            15, 6, 9, 0.75f, 5f, 11, 1.5f, 0.25f, 0.1f)
             .withImpactSound(JSoundRegistry.IMPACT_1)
             .withFollowup(LIGHT_FOLLOWUP)
             .withCrouchingVariant(BACKHAND)
+            .noLoopPrevention()
             .withInfo(
                     Component.literal("Punch"),
                     Component.literal("fast combo starter")
             );
 
     public static final SimpleAttack<AbstractPurpleHazeEntity<?, ?>> HEAVY = new SimpleAttack<AbstractPurpleHazeEntity<?, ?>>(
-            20 * 5, 10, 20, 0.75f, 7f, 14, 2.0f, 1.25f, -0.1f)
+            20, 10, 20, 0.75f, 7f, 14, 2.0f, 1.25f, -0.1f)
             .withImpactSound(JSoundRegistry.IMPACT_1)
             .withLaunch()
             .withInfo(
@@ -90,14 +91,14 @@ public abstract sealed class AbstractPurpleHazeEntity<E extends AbstractPurpleHa
                     Component.literal("fast reliable combo starter/extender, high stun")
             );
 
-    public static final LaunchCapsulesAttack LAUNCH_CAPSULES = new LaunchCapsulesAttack(8 * 20, 9, 18, 0.75f)
+    public static final LaunchCapsulesAttack LAUNCH_CAPSULES = new LaunchCapsulesAttack(6 * 20, 9, 18, 0.75f)
             .withSound(JSoundRegistry.PH_CAPSULE2)
             .withInfo(
                     Component.literal("Triple Capsule Launch"),
                     Component.literal("launches 3 capsules close by")
             );
 
-    public static final LaunchCapsuleAttack LAUNCH_CAPSULE = new LaunchCapsuleAttack(8 * 20, 7, 14, 0.75f)
+    public static final LaunchCapsuleAttack LAUNCH_CAPSULE = new LaunchCapsuleAttack(6 * 20, 7, 14, 0.75f)
             .withSound(JSoundRegistry.PH_CAPSULE1)
             .withCrouchingVariant(LAUNCH_CAPSULES)
             .withInfo(
@@ -138,7 +139,7 @@ public abstract sealed class AbstractPurpleHazeEntity<E extends AbstractPurpleHa
                     Component.literal("Rekka (2nd Hit)"),
                     Component.literal("links into Light")
             );
-    public static final PHRekkaAttack REKKA1 = new PHRekkaAttack(160, 7, 14, 1f,
+    public static final PHRekkaAttack REKKA1 = new PHRekkaAttack(100, 7, 14, 1f,
             4f, 15, 1.5f, 0.5f, 0f)
             .withSound(JSoundRegistry.PH_REKKA1)
             .withImpactSound(JSoundRegistry.IMPACT_1)
@@ -152,7 +153,7 @@ public abstract sealed class AbstractPurpleHazeEntity<E extends AbstractPurpleHa
                             A set of three attacks, which cancel into each other during recovery.
                             Last hit knocks down for 2.5s""")
             );
-    public static final PHGroundSlamAttack GROUND_SLAM = new PHGroundSlamAttack(7 * 20, 10, 18, 0.75f,
+    public static final PHGroundSlamAttack GROUND_SLAM = new PHGroundSlamAttack(6 * 20, 10, 18, 0.75f,
             6f, 10, 1.75f, 0.3f, 0.3f)
             .withSound(JSoundRegistry.PH_GROUNDSLAM)
             .withImpactSound(JSoundRegistry.IMPACT_1)
@@ -195,6 +196,7 @@ public abstract sealed class AbstractPurpleHazeEntity<E extends AbstractPurpleHa
     @Override
     public void tick() {
         super.tick();
+        idleOverride = isRemote();
 
         if (!isRemoteAndControllable()) {
             return;
@@ -269,8 +271,11 @@ public abstract sealed class AbstractPurpleHazeEntity<E extends AbstractPurpleHa
             remoteSpeed = userPos.subtract(pos).scale(0.05); // 1/20th so it scales with distance
         }
 
+        if (f == 0 && s == 0 && !jump) {
+            push(-getDeltaMovement().x * 0.4, -getDeltaMovement().y * 0.4, -getDeltaMovement().z * 0.4);
+        }
+
         push(remoteSpeed.x, remoteSpeed.y, remoteSpeed.z);
-        hasImpulse = true;
         hurtMarked = true;
     }
 

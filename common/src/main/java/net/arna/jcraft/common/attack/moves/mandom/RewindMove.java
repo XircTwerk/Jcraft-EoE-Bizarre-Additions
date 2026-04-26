@@ -7,34 +7,28 @@ import lombok.NonNull;
 import net.arna.jcraft.api.attack.MoveType;
 import net.arna.jcraft.api.attack.moves.AbstractMove;
 import net.arna.jcraft.common.entity.stand.MandomEntity;
-import net.arna.jcraft.platform.JComponentPlatformUtils;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
-import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
-import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
+import net.arna.jcraft.common.marker.BlockMarker;
+import net.arna.jcraft.common.marker.EntityMarker;
+import net.arna.jcraft.common.network.s2c.ShaderActivationPacket;
+import net.arna.jcraft.common.util.JUtils;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ExtraCodecs;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.RelativeMovement;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.EnumSet;
-import java.util.Map;
-import java.util.Objects;
+import java.util.List;
 import java.util.Set;
 
 public final class RewindMove extends AbstractMove<RewindMove, MandomEntity> {
 
     @Getter
-    private final int reach; // in Euclidian distance in meters
+    private final int reach; // in Euclidean distance in meters
 
     public RewindMove(final int cooldown, final int windup, final int duration, final float moveDistance, final int reach) {
         super(cooldown, windup, duration, moveDistance);
         if (reach < 0) {
-            throw new IllegalArgumentException("Teleport reach cannot be negative!");
+            throw new IllegalArgumentException("Rewind teleport reach cannot be negative!");
         }
         this.reach = reach;
     }
@@ -46,157 +40,41 @@ public final class RewindMove extends AbstractMove<RewindMove, MandomEntity> {
 
     @Override
     public @NonNull Set<LivingEntity> perform(final MandomEntity attacker, final LivingEntity user) {
-        CountdownMove countdownMove = findCountdownMove(attacker);
+        CountdownMove countdownMove = attacker.getMove(CountdownMove.class);
         if (countdownMove == null || !countdownMove.isCountdownActive()) {
             return Set.of();
         }
 
-        final Map<Entity, CompoundTag> savedData = countdownMove.getTimeMarkerData();
-        final Map<LivingEntity, Float> savedUserYaw = countdownMove.getUserHeadYawData();
-        final Map<LivingEntity, Float> savedUserPitch = countdownMove.getUserHeadPitchData();
+        final ServerLevel level = (ServerLevel) attacker.level();
 
-        if (savedData.isEmpty()) {
-            return Set.of();
+        if (user instanceof ServerPlayer serverPlayer) {
+            ShaderActivationPacket.sendMandomRewind(serverPlayer, 23, attacker.getAuraColor());
         }
 
-        for (Map.Entry<Entity, CompoundTag> data : savedData.entrySet()) {
-            final Entity ent = data.getKey();
-            if (!ent.isAlive()) {
-                continue;
+        final List<BlockMarker> blockMarkers = countdownMove.getTimeBlockMarkers();
+        countdownMove.setResolving(true);
+        for (final BlockMarker marker : blockMarkers) {
+            if (CountdownMove.BLOCK_MARKER_TYPE.shouldLoad(marker, level)) {
+                CountdownMove.BLOCK_MARKER_TYPE.load(marker, level);
             }
-            final CompoundTag nbt = data.getValue();
+        }
 
-            if (ent instanceof final ServerPlayer serverPlayer) {
-                if (serverPlayer.isCreative() || serverPlayer.isSpectator()) {
-                    continue;
-                }
-                performOnServerPlayer(serverPlayer, nbt, savedUserYaw, savedUserPitch);
-            } else if (ent instanceof LivingEntity livingEntity) {
-                performOnLivingEntity(livingEntity, nbt, savedUserYaw, savedUserPitch);
-            } else {
-                // For non-living entities, just load the NBT
-                final CompoundTag modernNbt = new CompoundTag();
-                ent.saveWithoutId(modernNbt);
-                applyModernNBT(nbt, modernNbt, Set.of("Items", "Inventory", "HandItems", "ArmorItems"));
-                ent.load(nbt);
+        final List<EntityMarker> entityMarkers = countdownMove.getTimeEntityMarkers();
+
+        for (final EntityMarker marker : entityMarkers) {
+            if (countdownMove.getEntityMarkerType().shouldLoad(marker, level) && JUtils.nullSafeDistanceSqr(level.getEntity(marker.id()), attacker.getUser()) <= reach * reach) {
+                countdownMove.getEntityMarkerType().load(marker, level);
             }
         }
 
         // Clean up
-        savedData.clear();
-        savedUserYaw.clear();
-        savedUserPitch.clear();
+        countdownMove.getIteration().add(true);
+        entityMarkers.clear();
+        blockMarkers.clear();
         countdownMove.getRewindInfo().clear();
         countdownMove.setCountdownActive(false);
 
         return Set.of();
-    }
-
-    private void performOnServerPlayer(final ServerPlayer serverPlayer, final CompoundTag nbt, final Map<LivingEntity, Float> savedUserYaw, final Map<LivingEntity, Float> savedUserPitch) {
-        // Get saved position from NBT
-        ListTag posList = nbt.getList("Pos", 6);
-        double x = posList.getDouble(0);
-        double y = posList.getDouble(1);
-        double z = posList.getDouble(2);
-        if (serverPlayer.position().distanceTo(new Vec3(x, y, z)) > getReach()) {
-            return;
-        }
-
-        // Get saved rotations
-        Float savedYaw = savedUserYaw.get(serverPlayer);
-        Float savedPitch = savedUserPitch.get(serverPlayer);
-
-        if (savedYaw != null && savedPitch != null) {
-            // make sure inventory doesn't get changed
-            nbt.put("Inventory", serverPlayer.getInventory().save(new ListTag()));
-            nbt.putInt("SelectedItemSlot", serverPlayer.getInventory().selected);
-            // make sure ender chest and score stays the same
-            nbt.remove("EnderItems");
-            nbt.putInt("Score", serverPlayer.getScore());
-            // don't allow stand rewinding, cooldown resets or bloodlust changes
-            final CompoundTag standNbt = new CompoundTag();
-            JComponentPlatformUtils.getStandComponent(serverPlayer).writeToNbt(standNbt);
-            final CompoundTag cooldownNbt = new CompoundTag();
-            JComponentPlatformUtils.getCooldowns(serverPlayer).writeToNbt(cooldownNbt);
-            CompoundTag ccNbt = nbt.getCompound("cardinal_components");
-            if (ccNbt == null) {
-                ccNbt = new CompoundTag();
-            }
-            ccNbt.put("jcraft:stand", standNbt);
-            ccNbt.put("jcraft:cooldowns", cooldownNbt);
-            nbt.put("cardinal_components", standNbt);
-            float attackSpeedMult = JComponentPlatformUtils.getMiscData(serverPlayer).getAttackSpeedMult();
-            // disable shoulder entity dupe
-            nbt.remove("ShoulderEntityLeft");
-            nbt.remove("ShoulderEntityRight");
-
-            // Load the NBT data first (for inventory, etc.)
-            serverPlayer.load(nbt);
-            // restore bloodlust
-            JComponentPlatformUtils.getMiscData(serverPlayer).setAttackSpeedMult(attackSpeedMult);
-
-            // Use teleportTo with proper rotation handling
-            serverPlayer.teleportTo(serverPlayer.serverLevel(), x, y, z,
-                    EnumSet.noneOf(RelativeMovement.class), savedYaw, savedPitch);
-
-            // Force update head rotation for other players
-            serverPlayer.setYHeadRot(savedYaw);
-            serverPlayer.connection.send(new ClientboundRotateHeadPacket(serverPlayer, (byte)((int)(savedYaw * 256.0F / 360.0F))));
-            serverPlayer.connection.send(new ClientboundTeleportEntityPacket(serverPlayer));
-
-            // Update motion
-            serverPlayer.connection.send(new ClientboundSetEntityMotionPacket(serverPlayer));
-        }
-    }
-
-    private void performOnLivingEntity(final LivingEntity livingEntity, final CompoundTag nbt, final Map<LivingEntity, Float> savedUserYaw, Map<LivingEntity, Float> savedUserPitch) {
-        // Get saved position from NBT
-        ListTag posList = nbt.getList("Pos", 6);
-        double x = posList.getDouble(0);
-        double y = posList.getDouble(1);
-        double z = posList.getDouble(2);
-        if (livingEntity.position().distanceTo(new Vec3(x, y, z)) > getReach()) {
-            return;
-        }
-
-        Float savedYaw = savedUserYaw.get(livingEntity);
-        Float savedPitch = savedUserPitch.get(livingEntity);
-
-        if (savedYaw != null && savedPitch != null) {
-            // Load the NBT data first
-            livingEntity.load(nbt);
-
-            // Teleport with proper rotation
-            livingEntity.teleportTo(x, y, z);
-
-            // Set all rotation values
-            livingEntity.setYRot(savedYaw);
-            livingEntity.setXRot(savedPitch);
-            livingEntity.setYHeadRot(savedYaw);
-            livingEntity.setYBodyRot(savedYaw);
-
-            // Set previous rotation values for smooth interpolation
-            livingEntity.yRotO = savedYaw;
-            livingEntity.xRotO = savedPitch;
-            livingEntity.yHeadRotO = savedYaw;
-            livingEntity.yBodyRotO = savedYaw;
-        }
-    }
-
-    private CountdownMove findCountdownMove(MandomEntity attacker) {
-        return attacker.getMoveMap().asMovesList().stream()
-                .filter(move -> move instanceof CountdownMove)
-                .map(CountdownMove.class::cast)
-                .findFirst()
-                .orElse(null);
-    }
-
-    private void applyModernNBT(final CompoundTag receiver, final CompoundTag sender, final Set<String> identifiers) {
-        for (String identifier : identifiers) {
-            if (sender.contains(identifier)) {
-                receiver.put(identifier, Objects.requireNonNull(sender.get(identifier)));
-            }
-        }
     }
 
     @Override

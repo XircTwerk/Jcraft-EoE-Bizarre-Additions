@@ -9,9 +9,6 @@ public interface IComboCounter {
 
     int jcraft$getComboCount();
 
-    /**
-     * @return whether the victim was stunned at the start of the tick.
-     */
     //boolean jcraft$wasStunned();
 
     void jcraft$setComboCount(int i);

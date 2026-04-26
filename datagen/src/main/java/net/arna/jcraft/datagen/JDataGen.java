@@ -1,35 +1,26 @@
 package net.arna.jcraft.datagen;
 
 import net.arna.jcraft.api.JRegistries;
-import net.arna.jcraft.api.spec.SpecType;
-import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.datagen.providers.data.*;
-import net.arna.jcraft.datagen.providers.resources.JLangProvider;
-import net.arna.jcraft.datagen.providers.resources.JModelProvider;
-import net.arna.jcraft.datagen.providers.resources.JPoseProvider;
-import net.arna.jcraft.mixin.EntityTypeAccessor;
+import net.arna.jcraft.datagen.providers.assets.JLangProvider;
+import net.arna.jcraft.datagen.providers.assets.JModelProvider;
+import net.arna.jcraft.datagen.providers.assets.JPoseProvider;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.*;
-import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Modifier;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 public final class JDataGen implements DataGeneratorEntrypoint {
-    // Cache for entity classes to avoid repeated stack trace parsing
-    private static final ConcurrentHashMap<EntityType<?>, Class<? extends Entity>> ENTITY_CLASS_CACHE = new ConcurrentHashMap<>();
-    
+
     @Override
     public void onInitializeDataGenerator(FabricDataGenerator generator) {
+        Util.init();
+
         final FabricDataGenerator.Pack pack = generator.createPack();
         pack.addProvider(JModelProvider::new);
         //pack.addProvider(JLanguageProvider::new);
@@ -38,6 +29,7 @@ public final class JDataGen implements DataGeneratorEntrypoint {
         pack.addProvider(JTagProviders.JBlockTags::new);
         pack.addProvider(JTagProviders.JItemTags::new);
         pack.addProvider(JTagProviders.JEntityTypeTags::new);
+        pack.addProvider(JTagProviders.JTemplatePoolTags::new);
         pack.addProvider(JAdvancementProvider::new);
         pack.addProvider(JRecipeProvider::new);
         pack.addProvider(JWorldProvider::new);
@@ -62,90 +54,5 @@ public final class JDataGen implements DataGeneratorEntrypoint {
         registryBuilder.add(Registries.CONFIGURED_FEATURE, JConfiguredFeatureProvider::bootstrap);
         registryBuilder.add(Registries.PLACED_FEATURE, JPlacedFeatureProvider::bootstrap);
         registryBuilder.add(Registries.BIOME, JBiomeProvider::bootstrap);
-    }
-
-    @SuppressWarnings("DataFlowIssue")
-    public static Class<?> getSpecClass(SpecType type) {
-        // Create fake LivingEntity to get a fake spec instance.
-        return type.createSpec(new LivingEntity(EntityType.PIG, null) {
-            @Override
-            public @NotNull Iterable<ItemStack> getArmorSlots() {
-                return List.of();
-            }
-
-            @Override
-            public @NotNull ItemStack getItemBySlot(@NotNull EquipmentSlot slot) {
-                return ItemStack.EMPTY;
-            }
-
-            @Override
-            public void setItemSlot(@NotNull EquipmentSlot slot, @NotNull ItemStack stack) {
-
-            }
-
-            @Override
-            public @NotNull HumanoidArm getMainArm() {
-                return HumanoidArm.RIGHT;
-            }
-        }).getClass();
-    }
-
-    @SuppressWarnings({"DataFlowIssue", "unchecked"})
-    public static <E extends Entity> Class<? extends Entity> getEntityClass(EntityType<E> type) {
-        // Check cache first
-        Class<? extends Entity> cachedClass = ENTITY_CLASS_CACHE.get(type);
-        if (cachedClass != null) {
-            return cachedClass;
-        }
-        
-        try {
-            Class<? extends Entity> entityClass = ((EntityTypeAccessor<E>) type).getFactory().create(type, null).getClass();
-            ENTITY_CLASS_CACHE.put(type, entityClass);
-            return entityClass;
-        } catch (Exception e) {
-            // Entity type did not like the level being null, so we're going to do a disgusting hack
-            // to figure out the type from the error's stack trace.
-
-            // The general idea is that the first class in the stack trace after the StandType.<init> method
-            // that is not abstract, must be the stand entity class.
-            StackTraceElement[] stackTrace = e.getStackTrace();
-            
-            // Check if stack trace is empty (due to JVM optimization)
-            if (stackTrace.length == 0) {
-                // Force a new exception to get a fresh stack trace
-                try {
-                    throw new RuntimeException("Forced exception to get stack trace for " + type);
-                } catch (RuntimeException freshException) {
-                    stackTrace = freshException.getStackTrace();
-                }
-            }
-            
-            boolean foundStandEntityClass = false;
-            for (StackTraceElement element : stackTrace) {
-                if (StandEntity.class.getName().equals(element.getClassName())) {
-                    foundStandEntityClass = true;
-                    continue; // Skip the StandEntity class itself
-                }
-
-                if (!foundStandEntityClass) {
-                    continue; // Skip until we find the StandEntity class
-                }
-
-                // Return first non-abstract class found
-                try {
-                    Class<?> clazz = Class.forName(element.getClassName());
-                    if (!Modifier.isAbstract(clazz.getModifiers()) && Entity.class.isAssignableFrom(clazz)) {
-                        Class<? extends Entity> entityClass = (Class<? extends Entity>) clazz;
-                        ENTITY_CLASS_CACHE.put(type, entityClass);
-                        return entityClass;
-                    }
-                } catch (ClassNotFoundException ignored) {
-                    // Ignore, continue searching
-                }
-            }
-
-            throw new IllegalStateException("Could not determine entity class for " + type + ". Stack trace was " + 
-                (stackTrace.length == 0 ? "empty" : "present but didn't contain expected classes"));
-        }
     }
 }

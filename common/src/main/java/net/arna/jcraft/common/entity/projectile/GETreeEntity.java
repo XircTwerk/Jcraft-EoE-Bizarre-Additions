@@ -1,19 +1,12 @@
 package net.arna.jcraft.common.entity.projectile;
 
 import lombok.NonNull;
-import mod.azure.azurelib.animatable.GeoEntity;
-import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
-import mod.azure.azurelib.core.animation.AnimatableManager;
-import mod.azure.azurelib.core.animation.AnimationController;
-import mod.azure.azurelib.core.animation.AnimationState;
-import mod.azure.azurelib.core.animation.RawAnimation;
-import mod.azure.azurelib.core.object.PlayState;
-import mod.azure.azurelib.util.AzureLibUtil;
+import mod.azure.azurelib.animation.dispatch.command.AzCommand;
+import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
+import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
-import net.arna.jcraft.api.stand.StandEntity;
-import net.arna.jcraft.common.util.JUtils;
 import net.arna.jcraft.api.registry.JEntityTypeRegistry;
+import net.arna.jcraft.common.util.JUtils;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -24,7 +17,9 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.Set;
 
-public class GETreeEntity extends AbstractArrow implements GeoEntity {
+import static net.arna.jcraft.api.Attacks.damageLogic;
+
+public class GETreeEntity extends AbstractArrow {
     private final Vec3 launchVec;
     private final LivingEntity livingOwner;
 
@@ -78,7 +73,7 @@ public class GETreeEntity extends AbstractArrow implements GeoEntity {
 
                 final LivingEntity target = JUtils.getUserIfStand(living);
                 if (livingOwner != target) {
-                    StandEntity.damageLogic(level(), target, Vec3.ZERO, 25, 3,
+                    damageLogic(level(), target, Vec3.ZERO, 25, 3,
                             false, 7f, false, 11, ds, livingOwner, CommonHitPropertyComponent.HitAnimation.MID, false);
                 }
                 JUtils.addVelocity(target, launchVec.x, launchVec.y, launchVec.z);
@@ -96,24 +91,24 @@ public class GETreeEntity extends AbstractArrow implements GeoEntity {
         return false;
     }
 
-    // Animations
-    private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
-
-    @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "controller", 0, this::predicate));
-    }
-
-    private static final RawAnimation ANIMATION = RawAnimation.begin()
-            .thenPlay("animation.getree.spawn")
-            .thenPlay("animation.getree.idle")
-            .thenPlay("animation.getree.return");
-    private PlayState predicate(AnimationState<GeoAnimatable> state) {
-        return state.setAndContinue(ANIMATION);
-    }
-
-    @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return cache;
-    }
+    public static final AzCommand ANIMATION = AzCommand.controllerBuilder().
+            playSequence(
+                JCraft.BASE_CONTROLLER,
+                sequenceBuilder -> sequenceBuilder.queue(
+                        "animation.getree.spawn",
+                    props -> props.withPlayBehavior(AzPlayBehaviors.PLAY_ONCE)
+                ).queue(
+                        "animation.getree.idle",
+                        props -> props.withPlayBehavior(AzPlayBehaviors.PLAY_ONCE)
+                ).queue(
+                        "animation.getree.return",
+                        props -> props.withPlayBehavior(AzPlayBehaviors.PLAY_ONCE)
+                )
+            )
+            .setFreezeTickOffset(JCraft.BASE_CONTROLLER, 0)
+            .setStartTickOffset(JCraft.BASE_CONTROLLER, 0)
+            .setSpeed(JCraft.BASE_CONTROLLER, 1)
+            .setRepeatAmount(JCraft.BASE_CONTROLLER, 0)
+            .setReverseAnimation(JCraft.BASE_CONTROLLER, false)
+            .build();
 }

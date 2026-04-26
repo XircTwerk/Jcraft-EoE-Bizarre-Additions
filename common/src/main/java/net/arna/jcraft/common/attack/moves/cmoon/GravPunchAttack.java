@@ -44,11 +44,15 @@ public final class GravPunchAttack extends AbstractSimpleAttack<GravPunchAttack,
     }
 
     @Override
-    public void performHook(final CMoonEntity attacker, final Set<LivingEntity> targets, final Set<AABB> boxes, final DamageSource damageSource, final Vec3 forwardPos, final Vec3 rotationVector) {
+    public void performHook(final CMoonEntity attacker, final Set<LivingEntity> targets, final Set<AABB> boxes,
+                            final DamageSource damageSource, final Vec3 forwardPos, final Vec3 rotationVector) {
         if (targets.isEmpty()) {
+            JCraft.stun(attacker.getUserOrThrow(), 15, 0);
             return;
         }
-        JComponentPlatformUtils.getShockwaveHandler(attacker.level()).addShockwave(forwardPos, new Vec3(GravityChangerAPI.getGravityDirection(attacker).step()), 3.0f);
+        JComponentPlatformUtils
+                .getShockwaveHandler(attacker.level())
+                .addShockwave(forwardPos, new Vec3(GravityChangerAPI.getGravityDirection(attacker).step()), 3.0f);
     }
 
     @Override

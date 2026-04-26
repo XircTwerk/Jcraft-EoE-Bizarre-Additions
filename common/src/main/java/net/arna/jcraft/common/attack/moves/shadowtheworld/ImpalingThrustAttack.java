@@ -8,13 +8,12 @@ import net.arna.jcraft.api.attack.MoveType;
 import net.arna.jcraft.api.attack.moves.AbstractMove;
 import net.arna.jcraft.api.component.living.CommonHitPropertyComponent;
 import net.arna.jcraft.api.component.world.CommonShockwaveHandlerComponent;
+import net.arna.jcraft.api.registry.JSoundRegistry;
+import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.arna.jcraft.common.entity.stand.ShadowTheWorldEntity;
-import net.arna.jcraft.api.stand.StandEntity;
 import net.arna.jcraft.common.util.JParticleType;
 import net.arna.jcraft.common.util.JUtils;
 import net.arna.jcraft.platform.JComponentPlatformUtils;
-import net.arna.jcraft.api.registry.JSoundRegistry;
-import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -28,6 +27,8 @@ import net.minecraft.world.phys.Vec3;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static net.arna.jcraft.api.Attacks.damageLogic;
 
 public class ImpalingThrustAttack extends AbstractMove<ImpalingThrustAttack, ShadowTheWorldEntity> {
     public ImpalingThrustAttack(int cooldown, int windup, int duration, float moveDistance) {
@@ -81,7 +82,7 @@ public class ImpalingThrustAttack extends AbstractMove<ImpalingThrustAttack, Sha
                     final LivingEntity target = JUtils.getUserIfStand(ent);
                     // +6 on hit/-4 on block launcher
                     // +0 if you count STW desummon not letting you block
-                    StandEntity.damageLogic(world, target,
+                    damageLogic(world, target,
                             target.position().subtract(curPos).normalize(), 10 + attacker.getDesummonTime(), 3, false,
                             8.0f, true, 12, playerSource, user, CommonHitPropertyComponent.HitAnimation.LAUNCH);
                     target.addEffect(new MobEffectInstance(JStatusRegistry.KNOCKDOWN.get(), 35, 0, true, false));

@@ -6,18 +6,22 @@ import dev.architectury.registry.registries.RegistrySupplier;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import net.arna.jcraft.JCraft;
+import net.arna.jcraft.api.spec.SpecUserMob;
 import net.arna.jcraft.common.entity.*;
 import net.arna.jcraft.common.entity.npc.AyaTsujiEntity;
 import net.arna.jcraft.common.entity.npc.DarbyOlderEntity;
 import net.arna.jcraft.common.entity.npc.DarbyYoungerEntity;
 import net.arna.jcraft.common.entity.npc.PetshopEntity;
+import net.arna.jcraft.common.entity.npc.TonpettyEntity;
 import net.arna.jcraft.common.entity.projectile.*;
+import net.arna.jcraft.common.entity.spec.AnubisSpecUser;
+import net.arna.jcraft.common.entity.spec.BrawlerSpecUser;
+import net.arna.jcraft.common.entity.spec.HamonSpecUser;
+import net.arna.jcraft.common.entity.spec.VampireSpecUser;
 import net.arna.jcraft.common.entity.stand.*;
 import net.arna.jcraft.common.entity.vehicle.RoadRollerEntity;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
@@ -258,8 +262,26 @@ public interface JEntityTypeRegistry {
             () -> EntityType.Builder.of(
                     WorldOnlyEntityFactory.from(HorusEntity::new),
                     MobCategory.CREATURE
-            ).sized(0.6f, 1.8f).build("horus")
+            ).sized(0.8f, 2.2f).build("horus")
     );
+
+    RegistrySupplier<EntityType<CrazyDiamondEntity>> CRAZY_DIAMOND = ENTITY_TYPE_REGISTRY.register(JCraft.id("crazy_diamond"),
+            () -> EntityType.Builder.of(
+                    WorldOnlyEntityFactory.from(CrazyDiamondEntity::new),
+                    MobCategory.CREATURE
+            ).sized(
+                    0.6f,
+                    1.8f
+            ).build("crazy_diamond"));
+
+    RegistrySupplier<EntityType<AerosmithEntity>> AEROSMITH = ENTITY_TYPE_REGISTRY.register(JCraft.id("aerosmith"),
+            () -> EntityType.Builder.of(
+                    WorldOnlyEntityFactory.from(AerosmithEntity::new),
+                    MobCategory.CREATURE
+            ).sized(
+                    1.2f,
+                    0.9f
+            ).build("aerosmith"));
 
     RegistrySupplier<EntityType<GEREntity>> GER = ENTITY_TYPE_REGISTRY.register(JCraft.id("ger"),
             () -> EntityType.Builder.of(
@@ -535,6 +557,23 @@ public interface JEntityTypeRegistry {
                     .build("purple_haze_cloud")
     );
 
+    RegistrySupplier<EntityType<AerobombProjectile>> AEROBOMB = ENTITY_TYPE_REGISTRY.register(JCraft.id("aerobomb"),
+            () -> EntityType.Builder.of(
+                            WorldOnlyEntityFactory.from(AerobombProjectile::new),
+                            MobCategory.MISC
+                    ).sized(4f/16, 2f/16)
+                    .build("aerobomb")
+    );
+
+    RegistrySupplier<EntityType<HamonWaveEntity>> HAMON_WAVE = ENTITY_TYPE_REGISTRY.register(JCraft.id("hamon_wave"),
+            () -> EntityType.Builder.of(
+                    WorldOnlyEntityFactory.from(HamonWaveEntity::new),
+                    MobCategory.MISC
+                    ).sized(2.0f, 0.2f)
+                    .fireImmune()
+                    .build("hamon_wave")
+    );
+
     RegistrySupplier<EntityType<PetshopEntity>> PETSHOP = ENTITY_TYPE_REGISTRY.register(JCraft.id("petshop"),
             () -> EntityType.Builder.of(
                             (EntityType<PetshopEntity> entityType, Level world) -> new PetshopEntity(world),
@@ -586,6 +625,14 @@ public interface JEntityTypeRegistry {
                     WorldOnlyEntityFactory.from(AtumEntity::new),
                     MobCategory.CREATURE
             ).sized(0.6f, 1.8f).build("atum")
+    );
+
+    RegistrySupplier<EntityType<TonpettyEntity>> TONPETTY = ENTITY_TYPE_REGISTRY.register(JCraft.id("tonpetty"),
+            () -> EntityType.Builder.of(
+                            (EntityType<TonpettyEntity> entityType, Level world) -> new TonpettyEntity(world),
+                            MobCategory.CREATURE
+                    ).sized(0.6f, 2f)
+                    .build("tonpetty")
     );
 
     RegistrySupplier<EntityType<ChariotRequiemEntity>> CHARIOT_REQUIEM = ENTITY_TYPE_REGISTRY.register(JCraft.id("chariot_requiem"),
@@ -650,8 +697,55 @@ public interface JEntityTypeRegistry {
                     WorldOnlyEntityFactory.from(TCBEntity::new),
                     MobCategory.CREATURE
             ).sized(0.3f, 0.9f).build("tcb")
+    RegistrySupplier<EntityType<TrainingDummyEntity>> TRAINING_DUMMY = ENTITY_TYPE_REGISTRY.register(JCraft.id("training_dummy"),
+            () -> EntityType.Builder.of(
+                    (EntityType<TrainingDummyEntity> entityType, Level world) -> new TrainingDummyEntity(entityType, world),
+                    MobCategory.CREATURE
+            ).sized(0.6f, 1.8f).build("training_dummy")
     );
 
+
+    @NotNull
+    private static <T extends SpecUserMob> EntityType<T> createSpecUser(Function<Level, T> ctor, String id) {
+        // this can be generalized for a lot of these registrations.
+        return EntityType.Builder.of(
+                WorldOnlyEntityFactory.from(ctor),
+                MobCategory.CREATURE
+        ).sized(0.6f, 1.8f).build(id);
+    }
+
+    RegistrySupplier<EntityType<BrawlerSpecUser>> BRAWLER_SPEC_USER = ENTITY_TYPE_REGISTRY.register(
+            JCraft.id("brawler_spec_user"),
+            () -> createSpecUser(BrawlerSpecUser::new, "brawler_spec_user")
+    );
+
+    RegistrySupplier<EntityType<HamonSpecUser>> HAMON_SPEC_USER = ENTITY_TYPE_REGISTRY.register(
+            JCraft.id("hamon_spec_user"),
+            () -> createSpecUser(HamonSpecUser::new, "hamon_spec_user")
+    );
+
+    RegistrySupplier<EntityType<VampireSpecUser>> VAMPIRE_SPEC_USER = ENTITY_TYPE_REGISTRY.register(
+            JCraft.id("vampire_spec_user"),
+            () -> createSpecUser(VampireSpecUser::new, "vampire_spec_user")
+    );
+
+    RegistrySupplier<EntityType<AnubisSpecUser>> ANUBIS_SPEC_USER = ENTITY_TYPE_REGISTRY.register(
+            JCraft.id("anubis_spec_user"),
+            () -> createSpecUser(AnubisSpecUser::new, "anubis_spec_user")
+    );
+
+    RegistrySupplier<EntityType<LivingEntity>> RANDOM_SPEC_USER = ENTITY_TYPE_REGISTRY.register(
+            JCraft.id("random_spec_user"),
+            () -> EntityType.Builder.<LivingEntity>of(
+                    (type, world) -> switch (world.getRandom().nextInt(2)) {
+                        case (0) -> new BrawlerSpecUser(world);
+                        case (1) -> new VampireSpecUser(world);
+                        case (2) -> new AnubisSpecUser(world);
+                        default -> throw new IllegalStateException("Unexpected value");
+                    },
+                    MobCategory.CREATURE
+            ).sized(0.6f, 1.8f).build("random_spec_user")
+    );
 
     static void registerAttributes() {
         EntityAttributeRegistry.register(STAR_PLATINUM, StarPlatinumEntity::createMobAttributes);
@@ -680,6 +774,8 @@ public interface JEntityTypeRegistry {
         EntityAttributeRegistry.register(HIEROPHANT_GREEN, HGEntity::createMobAttributes);
         EntityAttributeRegistry.register(THE_SUN, TheSunEntity::createMobAttributes);
         EntityAttributeRegistry.register(HORUS, HorusEntity::createMobAttributes);
+        EntityAttributeRegistry.register(CRAZY_DIAMOND, CrazyDiamondEntity::createMobAttributes);
+        EntityAttributeRegistry.register(AEROSMITH, AerosmithEntity::createMobAttributes);
         EntityAttributeRegistry.register(CINDERELLA, CinderellaEntity::createMobAttributes);
         EntityAttributeRegistry.register(OSIRIS, OsirisEntity::createMobAttributes);
         EntityAttributeRegistry.register(ATUM, AtumEntity::createMobAttributes);
@@ -704,6 +800,7 @@ public interface JEntityTypeRegistry {
                 .add(Attributes.ATTACK_DAMAGE, 4)
                 .add(Attributes.ATTACK_KNOCKBACK, 0));
 
+        EntityAttributeRegistry.register(TRAINING_DUMMY, TrainingDummyEntity::createLivingAttributes);
         EntityAttributeRegistry.register(GER_SCORPION, () -> GERScorpionEntity.createMobAttributes()
                 .add(Attributes.MOVEMENT_SPEED, 0.3)
                 .add(Attributes.MAX_HEALTH, 10)
@@ -716,11 +813,13 @@ public interface JEntityTypeRegistry {
         EntityAttributeRegistry.register(RED_BIND, RedBindEntity::createLivingAttributes);
         EntityAttributeRegistry.register(BLOCK_PROJECTILE, BlockProjectile::createBlockAttributes);
         EntityAttributeRegistry.register(SAND_TORNADO, SandTornadoEntity::createTornadoAttributes);
+        EntityAttributeRegistry.register(HAMON_WAVE, HamonWaveEntity::createLivingAttributes);
 
         EntityAttributeRegistry.register(PETSHOP, PetshopEntity::createPetshopAttributes);
         EntityAttributeRegistry.register(AYA_TSUJI, AyaTsujiEntity::createAyaTsujiAttributes);
         EntityAttributeRegistry.register(DARBY_OLDER, DarbyOlderEntity::createDarbyOlderAttributes);
         EntityAttributeRegistry.register(DARBY_YOUNGER, DarbyYoungerEntity::createDarbyYoungerAttributes);
+        EntityAttributeRegistry.register(TONPETTY, TonpettyEntity::createTonpettiAttributes);
 
         EntityAttributeRegistry.register(METALLICA, MetallicaEntity::createMobAttributes);
         EntityAttributeRegistry.register(THE_HAND, TheHandEntity::createMobAttributes);
@@ -732,6 +831,12 @@ public interface JEntityTypeRegistry {
                 .add(Attributes.ARMOR, 2)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.9)
         );
+
+        EntityAttributeRegistry.register(BRAWLER_SPEC_USER, BrawlerSpecUser::createUserAttributes);
+        EntityAttributeRegistry.register(HAMON_SPEC_USER, HamonSpecUser::createUserAttributes);
+        EntityAttributeRegistry.register(VAMPIRE_SPEC_USER, VampireSpecUser::createUserAttributes);
+        EntityAttributeRegistry.register(ANUBIS_SPEC_USER, AnubisSpecUser::createUserAttributes);
+        EntityAttributeRegistry.register(RANDOM_SPEC_USER, Mob::createMobAttributes);
     }
 
     static void init() {

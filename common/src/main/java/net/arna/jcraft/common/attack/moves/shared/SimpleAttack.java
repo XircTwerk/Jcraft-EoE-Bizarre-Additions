@@ -3,7 +3,6 @@ package net.arna.jcraft.common.attack.moves.shared;
 import com.mojang.datafixers.kinds.App;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.NonNull;
-import net.arna.jcraft.JCraft;
 import net.arna.jcraft.api.attack.IAttacker;
 import net.arna.jcraft.api.attack.MoveType;
 import net.arna.jcraft.api.attack.moves.AbstractSimpleAttack;
@@ -39,7 +38,7 @@ public final class SimpleAttack<A extends IAttacker<? extends A, ?>> extends Abs
     public static <A extends IAttacker<? extends A, ?>> SimpleAttack<A> lightAttack(final int windup, final int duration,
                                                                                     final float moveDistance, final float damage, final int stun,
                                                                                     final float knockback, final float offset) {
-        return new SimpleAttack<>(JCraft.LIGHT_COOLDOWN, windup, duration, moveDistance, damage, stun, 1.5f, knockback, offset);
+        return new SimpleAttack<A>(duration + stun, windup, duration, moveDistance, damage, stun, 1.5f, knockback, offset).noLoopPrevention();
     }
 
     @Override

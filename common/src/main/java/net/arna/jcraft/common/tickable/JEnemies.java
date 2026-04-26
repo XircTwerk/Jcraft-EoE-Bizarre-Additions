@@ -1,99 +1,72 @@
 package net.arna.jcraft.common.tickable;
 
-import net.arna.jcraft.JCraft;
-import net.arna.jcraft.api.component.living.CommonStandComponent;
-import net.arna.jcraft.api.stand.StandEntity;
+import net.arna.jcraft.api.registry.JTagRegistry;
+import net.arna.jcraft.api.spec.SpecTypeUtil;
+import net.arna.jcraft.api.stand.StandTypeUtil;
+import net.arna.jcraft.common.ai.AttackerBrainInfo;
+import net.arna.jcraft.common.ai.brain.SpecAttackerBrain;
+import net.arna.jcraft.common.ai.brain.StandAttackerBrain;
+import net.arna.jcraft.common.ai.brain.StandSpecAttackerBrain;
+import net.arna.jcraft.common.config.JServerConfig;
 import net.arna.jcraft.platform.JComponentPlatformUtils;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.damagesource.CombatEntry;
-import net.minecraft.world.entity.*;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.entity.Mob;
 
-import java.util.*;
-
-import static net.arna.jcraft.api.stand.StandEntity.standUserCombatAI;
+import java.util.Map;
 
 /**
  * Stores and updates all MobEntities that use Stands.
  */
 public class JEnemies {
-    private static final TickableHashMap<Mob, ResourceKey<Level>> enemies = new TickableHashMap<>();
+    /**
+     * A Map of Stand and Spec types to their relevant IJAttackerBrain
+     * Each IJAttackerBrain instance is a static processor which must be fed instance data
+     */
+    private static final TickableHashMap<Mob, AttackerBrainInfo> enemies = new TickableHashMap<>();
 
     public static void add(Mob entity) {
         if (entity.level().isClientSide()) {
             throw new UnsupportedOperationException("Attempted to add an enemy to JEnemies from the clientside!");
         }
+        if (entity.getType().is(JTagRegistry.NO_STAND_USER_AI)) {
+            return;
+        }
         if (enemies.containsKey(entity)) {
             return;
         }
 
-        add(entity, entity.level().dimension());
+        add(entity, new AttackerBrainInfo(JServerConfig.BASE_AI_LEVEL.getValue()));
     }
 
-    public static void add(Mob entity, ResourceKey<Level> registryKey) {
-        enemies.add(entity, registryKey);
+    public static void add(Mob entity, AttackerBrainInfo info) {
+        enemies.add(entity, info);
     }
 
-    public static void tick(MinecraftServer server) {
+    public static void tick() {
         enemies.tick(iter -> {
-            final Map.Entry<Mob, ResourceKey<Level>> enemyData = iter.next();
-            final Mob enemy = enemyData.getKey();
+            final Map.Entry<Mob, AttackerBrainInfo> enemyData = iter.next();
+            final Mob mob = enemyData.getKey();
 
-            if (enemy.isAlive()) {
-                if (!enemy.isNoAi()) {
-                    final ServerLevel world = server.getLevel(enemyData.getValue());
-                    final CommonStandComponent standComponent = JComponentPlatformUtils.getStandComponent(enemy);
-                    if (standComponent.getType() != null) {
-                        final StandEntity<?, ?> stand = standComponent.getStand();
-                        if (stand == null) {
-                            JCraft.summon(world, enemy);
-                        } else {
-                            final LivingEntity target = enemy.getTarget();
+            if (mob.isAlive()) {
+                if (mob.isNoAi()) return;
 
-                            // Combat AI
-                            if (target != null && target.isAlive()) {
-                                standUserCombatAI(enemy, target, stand);
-                            } else {
-                                // Targeting priority: top to bottom
-                                final LinkedList<LivingEntity> targets = new LinkedList<>();
-                                targets.add(enemy.getKillCredit());
-                                final CombatEntry damageRec = enemy.getCombatTracker().getMostSignificantFall();
-                                if (damageRec != null) {
-                                    final Entity targetEntity = damageRec.source().getEntity();
-                                    if (targetEntity instanceof LivingEntity living) {
-                                        targets.add(living);
-                                    }
-                                }
+                final var standType = JComponentPlatformUtils.getStandComponent(mob).getType();
+                final var specType = JComponentPlatformUtils.getSpecData(mob).getType();
+                final var info = enemyData.getValue();
 
-                                targets.add(enemy.getLastHurtByMob());
-                                // Shouldn't use canTarget because that applies a PlayerEntity only filter.
-                                targets.stream()
-                                        .filter(potentialTarget -> potentialTarget != null &&
-                                                potentialTarget.isAlive() &&
-                                                // enemy.hasLineOfSight(potentialTarget) &&
-                                                potentialTarget.canBeSeenAsEnemy())
-                                        .findFirst()
-                                        .ifPresentOrElse(
-                                                selectedTarget -> {
-                                                    if (enemy instanceof OwnableEntity ownable && ownable.getOwner() == selectedTarget) return;
-                                                    enemy.setTarget(selectedTarget);
-                                                    standUserCombatAI(enemy, selectedTarget, stand);
-                                                },
-                                                () -> {
-                                                    if (stand.hasUser()) {
-                                                        stand.standUserPassiveAI();
-                                                    }
-                                                }
-                                        );
-                            }
-                        }
-                    }
-                }
+                final boolean hasSpec = !SpecTypeUtil.isNone(specType);
+                final boolean hasStand = !StandTypeUtil.isNone(standType);
+
+                if (hasStand && hasSpec) StandSpecAttackerBrain.tick(mob, info);
+                else if (hasStand) StandAttackerBrain.tick(mob, info);
+                else if (hasSpec) SpecAttackerBrain.tick(mob, info);
+                else iter.remove();
             } else {
                 iter.remove();
             }
         });
+    }
+
+    public static boolean contains(Mob mob) {
+        return enemies.containsKey(mob);
     }
 }

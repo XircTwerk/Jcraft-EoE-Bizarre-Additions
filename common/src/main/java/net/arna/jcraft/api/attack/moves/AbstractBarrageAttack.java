@@ -7,20 +7,21 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
 import lombok.NonNull;
-import net.arna.jcraft.common.attack.core.data.AttackMoveExtras;
-import net.arna.jcraft.common.attack.core.data.BaseMoveExtras;
 import net.arna.jcraft.api.attack.IAttacker;
 import net.arna.jcraft.api.attack.enums.StunType;
+import net.arna.jcraft.api.registry.JSoundRegistry;
+import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.arna.jcraft.api.stand.StandEntity;
+import net.arna.jcraft.common.attack.core.data.AttackMoveExtras;
+import net.arna.jcraft.common.attack.core.data.BaseMoveExtras;
 import net.arna.jcraft.common.gravity.api.GravityChangerAPI;
 import net.arna.jcraft.common.gravity.util.RotationUtil;
 import net.arna.jcraft.common.util.JUtils;
 import net.arna.jcraft.platform.JComponentPlatformUtils;
-import net.arna.jcraft.api.registry.JSoundRegistry;
-import net.arna.jcraft.api.registry.JStatusRegistry;
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -40,6 +41,10 @@ public abstract class AbstractBarrageAttack<T extends AbstractBarrageAttack<T, A
     private final int interval;
     protected boolean inflictsSlowness = true;
 
+    @Getter
+    private boolean stunWindsUp = true;
+    private final int originalStun;
+
     protected AbstractBarrageAttack(final int cooldown, final int windup, final int duration, final float moveDistance,
                                     final float damage, final int stun, final float hitboxSize, final float knockback,
                                     final float offset, final int interval) {
@@ -49,6 +54,8 @@ public abstract class AbstractBarrageAttack<T extends AbstractBarrageAttack<T, A
         withBlockStun(3);
         withStunType(StunType.WINDED);
         withHitSpark(null);
+
+        originalStun = stun;
     }
 
     public @NonNull T withoutSlowness() {
@@ -74,9 +81,25 @@ public abstract class AbstractBarrageAttack<T extends AbstractBarrageAttack<T, A
         return attacker.hasUser() && hasWindupPassed(attacker, moveStun) && (getDuration() - getWindup() - moveStun) % interval == 0;
     }
 
+    public T withNoStunWindup() {
+        stunWindsUp = false;
+        return getThis();
+    }
+
     @Override
     public void activeTick(final A attacker, final int moveStun) {
         super.activeTick(attacker, moveStun);
+
+        if (stunWindsUp) {
+            final float twoThirdsDuration = 0.75f * getDuration();
+
+            if (moveStun > twoThirdsDuration) {
+                int newStun = (int) Mth.sqrt(originalStun / (moveStun - twoThirdsDuration)) + originalStun / interval;
+                withStun(newStun);
+            } else {
+                withStun(originalStun);
+            }
+        }
 
         // Consider replacing the isRemote() with isFree()?
         if (attacker.hasUser() && inflictsSlowness && !attacker.isRemote()) {
